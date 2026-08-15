@@ -981,3 +981,22 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - 원격 migration/RLS push는 Supabase PAT 입력 후 실행한다.
 - Google callback은 Firebase 무료 Device Streaming 소진으로 실기기에서 확인한다.
+
+### PROG-20260816-039 — Google OAuth 테스트 사용자 등록
+
+**Status:** DONE
+**Goal:** Google 로그인 테스트 계정이 OAuth 테스트 상태에서 인증할 수 있도록 등록한다.
+
+**Changed**
+- Google Cloud OAuth 대상 설정에서 `everydayatm2@naver.com`을 테스트 사용자로 등록했다.
+
+**Validation**
+- 게시 상태: 테스트 중
+- 테스트 사용자: 1명
+- 등록된 테스트 사용자: `everydayatm2@naver.com`
+- Supabase Google Provider: enabled
+- Supabase redirect URL: `com.example.daegil_app://login-callback/`
+
+**Manual Actions**
+- 실제 Android 실행 환경에서 Google 로그인 callback을 1회 확인해야 한다.
+- 원격 Supabase migration/RLS push에는 PAT 입력이 필요하다. 토큰은 채팅으로 보내지 않는다.
