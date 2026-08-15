@@ -225,6 +225,36 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-014 — Phase 12 / analytics and crash opt-in
+
+**Status:** PARTIAL
+**Goal:** Native analytics/crash collection OFF default, explicit opt-in, normalized events, and safe crash reporting을 구현한다.
+
+**Changed**
+- Analytics/Crash service abstraction과 Fake provider를 추가했다.
+- collection default OFF와 명시적 동시 opt-in controller를 추가했다.
+- app/auth/fortune/result/notification/consent normalized event enum을 추가했다.
+- PII, birth, fortune, prompt, token, user_id 파라미터를 거부한다.
+- Crash는 message/payload 대신 bounded error code와 fatal 여부만 기록한다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 25 tests
+```
+
+**Security / Privacy Check**
+- opt-in 이전에는 analytics/crash event가 저장되지 않는다.
+- fortune output/prompt와 사용자 식별자를 telemetry parameter로 허용하지 않는다.
+- 실제 provider SDK/자동 collection 설정은 연결하지 않았다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Firebase/analytics/crash production project configuration, native automatic collection OFF verification, and privacy policy finalization.
+
+**Follow-up**
+- Phase 13에서 RLS/concurrency/security hardening과 secret scan을 수행한다.
+
 ### PROG-20260815-013 — Phase 11 / settings, privacy, and account
 
 **Status:** PARTIAL

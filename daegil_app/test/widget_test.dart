@@ -17,6 +17,7 @@ import 'package:daegil_app/features/passes/domain/fortune_pass_ledger.dart';
 import 'package:daegil_app/features/notifications/domain/local_notification_service.dart';
 import 'package:daegil_app/features/settings/data/account_service.dart';
 import 'package:daegil_app/features/settings/presentation/settings_screens.dart';
+import 'package:daegil_app/features/telemetry/domain/telemetry_service.dart';
 
 void main() {
   testWidgets('auth route renders the legal gate', (tester) async {
@@ -468,5 +469,42 @@ void main() {
     );
     expect(find.text('개인정보 및 동의'), findsOneWidget);
     expect(find.text('계정'), findsOneWidget);
+  });
+
+  test('telemetry is opt-in and stores only normalized safe events', () async {
+    final analytics = FakeAnalyticsService();
+    const event = NormalizedAnalyticsEvent(
+      name: NormalizedEventName.resultViewed,
+      parameters: {'surface': 'fortune_result'},
+    );
+
+    await analytics.log(event);
+    expect(analytics.events, isEmpty);
+    await analytics.setCollectionEnabled(true);
+    await analytics.log(event);
+    expect(analytics.events.single.name, NormalizedEventName.resultViewed);
+
+    await expectLater(
+      analytics.log(
+        const NormalizedAnalyticsEvent(
+          name: NormalizedEventName.resultViewed,
+          parameters: {'fortune_payload': 'blocked'},
+        ),
+      ),
+      throwsStateError,
+    );
+  });
+
+  test('crash reporter records only safe codes after opt-in', () async {
+    final crash = FakeCrashReporter();
+    await crash.record(errorCode: 'AUTH_TIMEOUT', fatal: false);
+    expect(crash.recordedCodes, isEmpty);
+    await crash.setCollectionEnabled(true);
+    await crash.record(errorCode: 'AUTH_TIMEOUT', fatal: false);
+    expect(crash.recordedCodes, ['nonfatal:AUTH_TIMEOUT']);
+    await expectLater(
+      crash.record(errorCode: '', fatal: false),
+      throwsStateError,
+    );
   });
 }

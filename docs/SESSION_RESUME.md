@@ -28,7 +28,8 @@ Phase 8 pass ledger rules are present with active cap, reserve/redeem, restore, 
 Phase 9 typed Fortune Result model and result screen are present with AI disclosure and rewarded completion routing; backend result binding remains.
 Phase 10 local notification permission/schedule, safe tap route, and logout cancellation contracts are present; native SDK integration remains.
 Phase 11 settings/privacy/account routes and consent withdrawal contracts are present; Supabase deletion and OAuth revocation remain production gates.
-Continue with Phase 12 — analytics/crash opt-in and normalized events.
+Phase 12 analytics/crash opt-in and normalized safe event contracts are present; native provider configuration remains a production gate.
+Continue with Phase 13 — RLS/concurrency/security hardening and secret scan.
 ```
 
 Phase 0 changed:
