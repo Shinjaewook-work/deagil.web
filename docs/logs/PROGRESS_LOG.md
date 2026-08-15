@@ -883,3 +883,23 @@ Google development OAuth → CONNECTED / user-confirmed
 
 **Manual Actions**
 - NONE
+
+### PROG-20260815-034 — 원격 Android 기기 설치 검증
+
+**Status:** DONE
+**Goal:** Firebase Android Device Streaming 원격 기기에서 Google 인증 활성화 빌드를 설치하고 실행한다.
+
+**Changed**
+- Flutter JDK 경로를 사용자 로컬 Temurin 21.0.12로 고정했다.
+- `ENABLE_SUPABASE_AUTH=true`와 Supabase 설정을 포함한 debug APK 빌드 성공을 확인했다.
+- `localhost:63249` 원격 Android 기기에 APK 설치 성공을 확인했다.
+- `com.example.daegil_app/.MainActivity`가 포그라운드로 실행 중임을 확인했다.
+
+**Validation**
+- Gradle 8.14 / JVM 21.0.12
+- `flutter build apk --debug`: PASS
+- `adb install -r`: PASS
+- 원격 기기 Activity 확인: PASS
+
+**Manual Actions**
+- Google 로그인 버튼을 누르고 Google 테스트 계정으로 로그인하여 callback 완료를 확인해야 한다.
