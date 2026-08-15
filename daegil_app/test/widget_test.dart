@@ -547,7 +547,7 @@ void main() {
   test('development config enables staging Supabase only by explicit flag', () {
     const config = AppConfig(
       environment: AppEnvironment.dev,
-      supabaseUrl: 'https://nbdgwssdikmzitebqwdkq.supabase.co',
+      supabaseUrl: 'https://nbdgwssdikmzitebqwkq.supabase.co',
       supabasePublishableKey: 'sb_publishable_test',
       admobRewardedUnitId: '',
       enableSupabaseAuth: true,

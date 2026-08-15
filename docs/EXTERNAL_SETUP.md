@@ -208,7 +208,7 @@ Supabase Auth Google Provider 상태:
 ```text
 Enabled: yes (user-confirmed)
 Client ID/Secret: entered in Supabase Dashboard (user-confirmed)
-Callback URL: https://nbdgwssdikmzitebqwdkq.supabase.co/auth/v1/callback
+Callback URL: https://nbdgwssdikmzitebqwkq.supabase.co/auth/v1/callback
 Mobile redirect URL: com.example.daegil_app://login-callback/
 Development real Auth flag: `ENABLE_SUPABASE_AUTH=true` (only with explicit dart-define)
 Apple: not configured

@@ -960,3 +960,24 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - 부가 Supabase 컨테이너의 ARM health-check 문제는 현재 DB/RLS 검증 범위 밖이므로 제외했다.
 - Dev project 원격 link/push에는 Supabase personal access token이 필요하다. 토큰은 채팅으로 보내지 않는다.
+
+### PROG-20260816-038 — Supabase 원격 project ref 교정
+
+**Status:** DONE
+**Goal:** 인증된 Supabase Dashboard와 앱 staging 실행값의 project ref 불일치를 교정한다.
+
+**Changed**
+- Dashboard에서 확인한 실제 project ref로 config 테스트 fixture를 교정했다.
+- 현재 외부 설정 문서의 Supabase callback URL을 교정했다.
+- historical progress entry는 감사 이력으로 보존했다.
+
+**Validation**
+- 올바른 URL + publishable key Auth settings probe: HTTP 200
+- 잘못된 URL probe: connection failure
+- `flutter analyze`: PASS
+- `flutter test`: 28 tests PASS
+- corrected Supabase URL debug APK: PASS
+
+**Manual Actions**
+- 원격 migration/RLS push는 Supabase PAT 입력 후 실행한다.
+- Google callback은 Firebase 무료 Device Streaming 소진으로 실기기에서 확인한다.

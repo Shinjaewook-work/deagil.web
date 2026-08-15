@@ -312,3 +312,48 @@ Before running Supabase local commands, verify `docker version` succeeds and
 both Docker WSL distributions are Running. If `docker-desktop-data` points to
 a missing VHDX, do not delete arbitrary Docker files; inspect the registered
 path and confirm the target is absent before unregistering that broken distro.
+
+### ERR-20260816-002 — Supabase remote project ref typo
+
+**Status:** RESOLVED
+**Task/Phase:** Phase 3 / Google OAuth staging connection
+**Area:** Supabase remote configuration
+
+#### Fingerprint
+
+```text
+ERROR_CODE: SUPABASE_PROJECT_REF_MISMATCH
+EXCEPTION_TYPE: Remote connection failure
+CORE_MESSAGE: app URL ref differed from the authenticated Dashboard project ref by one character
+COMPONENT: daegil_app test/config verification and OAuth staging command
+ENVIRONMENT/VERSION: Supabase Dashboard current project / publishable API key
+```
+
+#### Root Cause
+
+The app execution value and documentation used `nbdgwssdikmzitebqwdkq`, while
+the authenticated Supabase Dashboard project and the supplied publishable key
+responded at `nbdgwssdikmzitebqwkq`. The former URL did not respond to the
+read-only Auth settings probe, so OAuth configuration appeared to fail.
+
+#### Permanent Fix
+
+Updated the config test fixture and current external setup callback URL to the
+Dashboard-verified project ref. Historical progress entries remain unchanged
+as audit history.
+
+#### Verification
+
+```text
+correct URL + publishable key: HTTP 200
+wrong URL + publishable key: connection failure
+flutter analyze: PASS
+flutter test: 28 tests PASS
+debug APK with corrected URL: PASS
+```
+
+#### Regression Guard
+
+Before staging or production OAuth QA, compare the Dashboard project URL and
+the API key's project endpoint with a read-only request; never infer the ref
+from a copied command or historical log entry.
