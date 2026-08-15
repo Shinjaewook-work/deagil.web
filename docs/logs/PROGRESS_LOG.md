@@ -1056,7 +1056,7 @@ Google development OAuth → CONNECTED / user-confirmed
 
 ### PROG-20260816-042 — OpenRouter Nemotron Dev provider adapter
 
-**Status:** CODE_READY / MANUAL_ACTION_REQUIRED
+**Status:** CODE_READY / SECRET_CONFIGURED
 **Goal:** OpenRouter의 NVIDIA Nemotron 3 Ultra free 모델을 Master의 backend-only ProviderAdapter 경계에 연결한다.
 
 **Changed**
@@ -1070,8 +1070,11 @@ Google development OAuth → CONNECTED / user-confirmed
 - OpenRouter 공식 API/model/structured-output 문서 확인
 - repository secret scan: supplied OpenRouter key not present
 - Flutter/client tree에는 OpenRouter URL·API key·provider credential을 추가하지 않음
+- `npx supabase secrets list`: `OPENROUTER_API_KEY` 및 `OPENROUTER_MODEL` 등록 확인(값은 출력/기록하지 않음)
 
 **Manual Actions**
-- 채팅에 노출된 기존 OpenRouter key를 OpenRouter Dashboard에서 즉시 revoke하고 새 key를 발급한다.
-- 새 key는 채팅으로 보내지 말고 로컬 PowerShell에서 `npx supabase secrets set OPENROUTER_API_KEY=<rotated-key>`로 직접 입력한다.
+- 기존 노출 key 폐기와 새 key 발급/secret 입력은 완료된 것으로 확인했다.
 - Dev provider registry/실제 generation worker 활성화 전 OpenRouter 무료 endpoint의 보안·개인정보·약관 검토가 필요하다.
+
+**Next**
+- 내부 generation worker에서 frozen birth snapshot을 OpenRouter adapter로 전달하고, schema/content 검증 후 canonical payload를 기록한다.
