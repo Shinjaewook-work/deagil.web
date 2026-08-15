@@ -225,6 +225,37 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-010 — Phase 8 / pass ledger rules
+
+**Status:** PARTIAL
+**Goal:** Pass reserve/redeem/restore/expiry/goodwill compensation 규칙을 구현한다.
+
+**Changed**
+- `available`, `reserved`, `redeemed`, `expired` 상태와 active cap 3을 추가했다.
+- 기존 available pass의 reserve는 active 수를 늘리지 않고, goodwill 발급만 cap을 증가시키도록 했다.
+- reserved pass는 provider recovery 중 유지되고 missed Fortune Day settlement에서 available로 복구된다.
+- 복구 시 `expires_after_fortune_date`를 1 Fortune Day 연장한다.
+- active pass가 3이면 goodwill 네 번째 pass를 발급하지 않는다.
+- 만료된 available pass는 reserve할 수 없게 했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 17 tests
+```
+
+**Security / Privacy Check**
+- client가 임의 pass 상태나 만료일을 직접 DB에 쓰는 API를 만들지 않았다.
+- active cap은 ledger 경계에서 검증한다.
+- Reward entitlement와 goodwill pass를 동일한 상태로 재사용하지 않는다.
+
+**Manual Actions**
+- NONE for mock/domain rules.
+
+**Follow-up**
+- Supabase reserve/redeem/restore transaction과 실제 UI/pass badge 연결은 DB integration 단계에서 이어간다.
+
 ### PROG-20260815-009 — Phase 7 / SSV webhook contract
 
 **Status:** PARTIAL

@@ -184,6 +184,42 @@ flutter test → PASS: 13 tests
 
 The test now explicitly proves a verified late callback returns `lateCompensationOnly` and does not resurrect expired Fortune content.
 
+### ERR-20260815-004 — Pass reserve incorrectly blocked at active cap
+
+**Status:** RESOLVED
+**Task/Phase:** Phase 8 / pass ledger
+**Area:** AdMob
+
+#### Fingerprint
+
+```text
+ERROR_CODE: PASS_RESERVE_CAP_CONFUSION
+EXCEPTION_TYPE: Assertion failure
+CORE_MESSAGE: existing available pass could not be reserved at active cap
+COMPONENT: daegil_app/lib/features/passes/domain/fortune_pass_ledger.dart
+ENVIRONMENT/VERSION: Flutter 3.41.9 / Dart 3.11.5
+```
+
+#### Root Cause
+
+The first implementation rejected every reserve when `available + reserved == 3`, even though reserve changes state without increasing the active count.
+
+#### Permanent Fix
+
+The ledger now validates the cap when passes are added and lets existing available passes transition to reserved. Goodwill issuance remains capped at three active passes.
+
+#### Verification
+
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 17 tests
+```
+
+#### Regression Guard
+
+The pass test reserves all three existing passes, rejects a fourth, and separately rejects a fourth goodwill pass.
+
 ## Known Historical Prevention Rules
 
 1. Active spec에 오래된 규칙을 남기고 override만 얹지 않는다.

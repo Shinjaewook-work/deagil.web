@@ -24,7 +24,8 @@ Phase 4 Cat Home and birth profile foundation is present; the owner-provided cat
 Phase 5 Rewarded Ad service interface and fake flow is present; real AdMob SDK/console integration remains a production gate.
 Phase 6 MockFortuneProvider/provider architecture is complete with strict validation, generation fencing, and budget boundaries.
 Phase 7 SSV webhook contract is present with injected signature verification, replay protection, token matching, and late-callback handling; production server crypto/deployment remains a gate.
-Continue with Phase 8 — pass reserve/redeem/restore/expiry/goodwill compensation.
+Phase 8 pass ledger rules are present with active cap, reserve/redeem, restore, expiry, and goodwill boundaries; Supabase transaction/UI binding remains.
+Continue with Phase 9 — typed Fortune Result model and result screen.
 ```
 
 Phase 0 changed:

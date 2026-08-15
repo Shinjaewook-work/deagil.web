@@ -12,6 +12,7 @@ import 'package:daegil_app/features/ads/domain/ssv_verification.dart';
 import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
 import 'package:daegil_app/features/fortune/domain/fortune_generation.dart';
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
+import 'package:daegil_app/features/passes/domain/fortune_pass_ledger.dart';
 
 void main() {
   testWidgets('auth route renders the legal gate', (tester) async {
@@ -277,5 +278,99 @@ void main() {
       ),
       SsvDisposition.rejected,
     );
+  });
+
+  test('pass reserve is capped at three active passes', () {
+    final day = DateTime(2026, 8, 15);
+    final ledger = FortunePassLedger(
+      initialPasses: List.generate(
+        3,
+        (index) => FortunePass(
+          id: 'pass-$index',
+          status: FortunePassStatus.available,
+          validFromFortuneDate: day,
+          expiresAfterFortuneDate: day.add(const Duration(days: 30)),
+        ),
+      ),
+    );
+
+    expect(ledger.reserve(fortuneDate: day), isNotNull);
+    expect(ledger.reserve(fortuneDate: day), isNotNull);
+    expect(ledger.reserve(fortuneDate: day), isNotNull);
+    expect(ledger.reserve(fortuneDate: day), isNull);
+    expect(ledger.activeCount, 3);
+  });
+
+  test('reserved pass stays reserved until missed-day settlement', () {
+    final day = DateTime(2026, 8, 15);
+    final ledger = FortunePassLedger(
+      initialPasses: [
+        FortunePass(
+          id: 'pass-1',
+          status: FortunePassStatus.available,
+          validFromFortuneDate: day,
+          expiresAfterFortuneDate: day.add(const Duration(days: 30)),
+        ),
+      ],
+    );
+    final pass = ledger.reserve(fortuneDate: day)!;
+
+    expect(ledger.passes.single.status, FortunePassStatus.reserved);
+    expect(ledger.redeem(pass.id), isTrue);
+    expect(ledger.passes.single.status, FortunePassStatus.redeemed);
+
+    final recoveryLedger = FortunePassLedger(
+      initialPasses: [
+        FortunePass(
+          id: 'pass-2',
+          status: FortunePassStatus.reserved,
+          validFromFortuneDate: day,
+          expiresAfterFortuneDate: day.add(const Duration(days: 30)),
+        ),
+      ],
+    );
+    expect(recoveryLedger.restoreReservedAfterMissedFortuneDay(), 1);
+    expect(recoveryLedger.passes.single.status, FortunePassStatus.available);
+    expect(
+      recoveryLedger.passes.single.expiresAfterFortuneDate,
+      day.add(const Duration(days: 31)),
+    );
+  });
+
+  test('goodwill pass never creates a fourth active pass', () {
+    final day = DateTime(2026, 8, 15);
+    final ledger = FortunePassLedger(
+      initialPasses: List.generate(
+        2,
+        (index) => FortunePass(
+          id: 'pass-$index',
+          status: FortunePassStatus.available,
+          validFromFortuneDate: day,
+          expiresAfterFortuneDate: day.add(const Duration(days: 30)),
+        ),
+      ),
+    );
+
+    expect(ledger.issueGoodwillPass(fortuneDate: day), isTrue);
+    expect(ledger.issueGoodwillPass(fortuneDate: day), isFalse);
+    expect(ledger.activeCount, 3);
+  });
+
+  test('expired available passes are not reservable', () {
+    final day = DateTime(2026, 8, 15);
+    final ledger = FortunePassLedger(
+      initialPasses: [
+        FortunePass(
+          id: 'old',
+          status: FortunePassStatus.available,
+          validFromFortuneDate: day.subtract(const Duration(days: 31)),
+          expiresAfterFortuneDate: day.subtract(const Duration(days: 1)),
+        ),
+      ],
+    );
+
+    expect(ledger.expireBefore(day), 1);
+    expect(ledger.reserve(fortuneDate: day), isNull);
+    expect(ledger.passes.single.status, FortunePassStatus.expired);
   });
 }
