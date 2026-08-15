@@ -31,6 +31,38 @@ flutter test → BLOCKED: flutter command not found
 **Follow-up**
 - Chocolatey로 Flutter 3.41.9를 설치했고, `C:\tools\flutter`를 검증 셸 PATH에 반영했다.
 - const lint 1건을 수정한 뒤 native 검증을 모두 통과했다.
+
+### PROG-20260815-002 — Phase 1 / App foundation and design
+
+**Status:** DONE
+**Goal:** Riverpod/go_router 기반 앱 foundation, Master 디자인 token, AppFailure, 공용 UI 컴포넌트를 구현한다.
+
+**Changed**
+- `flutter_riverpod`와 `go_router`를 추가했다.
+- `/auth`, `/today`, `/profile/setup` 라우팅 skeleton을 추가했다.
+- 동양풍 색상·간격·반경·타이포그래피 token과 Material 3 theme을 추가했다.
+- `AppFailure`, `LunaCard`, `LunaPrimaryButton` 공용 기반을 추가했다.
+- bootstrap에서 ProviderScope와 router를 연결했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 3 tests
+python scripts/harness_lint.py → PASS
+python scripts/master_contract_audit.py → PASS
+python scripts/repo_guard.py → PASS
+```
+
+**Security / Privacy Check**
+- 화면은 직접 Supabase/AdMob/AI provider를 호출하지 않는다.
+- 외부 credential, provider URL, PII는 추가하지 않았다.
+
+**Manual Actions**
+- NONE
+
+**Follow-up**
+- Phase 2에서 authoritative DB schema, Fortune Day functions, RLS, validated RPC 계약을 구현한다.
 - Chocolatey 자동 설치는 비관리자 셸 확인 프롬프트에서 중단되었고 미완료 산출물은 남기지 않았다.
 
 ## Entry Template

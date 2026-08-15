@@ -17,7 +17,8 @@ Current status:
 ```text
 Phase 0 scaffold and native verification are complete.
 Flutter 3.41.9 / Dart 3.11.5 are installed at C:\tools\flutter; this shell prepends that path for commands.
-Continue with Phase 1 — app foundation/design.
+Phase 1 app foundation/design is complete.
+Continue with Phase 2 — Supabase DB contract and server-side validation skeleton.
 ```
 
 Phase 0 changed:
