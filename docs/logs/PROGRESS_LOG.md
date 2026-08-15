@@ -29,7 +29,8 @@ flutter test → BLOCKED: flutter command not found
 - NONE for code implementation. Flutter SDK 설치/PATH 등록은 로컬 환경 준비 작업이다.
 
 **Follow-up**
-- Flutter toolchain 확보 후 Phase 0 native verification을 재실행하고 Phase 1로 진행한다.
+- 관리자 권한 셸에서 Flutter SDK를 준비한 뒤 Phase 0 native verification을 재실행하고 Phase 1로 진행한다.
+- Chocolatey 자동 설치는 비관리자 셸 확인 프롬프트에서 중단되었고 미완료 산출물은 남기지 않았다.
 
 ## Entry Template
 

@@ -42,7 +42,7 @@ Flutter SDK is not installed or is not exposed through the current PATH.
 
 #### Permanent Fix
 
-Install/configure the Flutter SDK in the development environment, then rerun the Phase 0 verification commands.
+Install/configure the Flutter SDK in the development environment, then rerun the Phase 0 verification commands. Chocolatey installation also requires an elevated shell in this environment.
 
 #### Verification
 
