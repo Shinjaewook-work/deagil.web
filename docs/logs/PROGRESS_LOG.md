@@ -132,6 +132,37 @@ python scripts/repo_guard.py → PASS
 
 ## Entry Template
 
+### PROG-20260815-005 — Phase 4 / Cat Home and birth profile
+
+**Status:** PARTIAL
+**Goal:** Cat Home CTA, pass badge, missing-video fallback, and validated birth profile entry를 구현한다.
+
+**Changed**
+- Cat Home에 광고 패스권 0/3 badge, CTA, 설정 진입점, static cat fallback을 추가했다.
+- `assets/videos/fortune_cat.mp4`가 없어도 의미가 유지되는 fallback UI를 추가했다.
+- birth date/calendar/time precision/city 입력 화면과 fake server-RPC boundary를 추가했다.
+- unknown birth time은 null 의미를 유지하고 city URL/control-character validation을 추가했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 5 tests
+python scripts/harness_lint.py → PASS
+python scripts/master_contract_audit.py → PASS
+python scripts/repo_guard.py → PASS
+```
+
+**Security / Privacy Check**
+- birth profile은 client direct table write가 아니라 controller의 RPC boundary를 통과하도록 구성했다.
+- 실제 birth data/fortune payload를 persistent local storage에 저장하지 않는다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: owner-provided/licensed `assets/videos/fortune_cat.mp4` before release.
+
+**Follow-up**
+- Phase 5에서 RewardedAdService interface/fake, test ad configuration, prepare/impression/reward/dismiss flow를 구현한다.
+
 ### PROG-YYYYMMDD-NNN — <Phase/Task>
 
 **Status:** DONE | PARTIAL | BLOCKED  

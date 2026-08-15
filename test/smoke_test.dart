@@ -7,6 +7,7 @@ import 'package:fortune_cat_app/app/router.dart';
 import 'package:fortune_cat_app/core/config/app_config.dart';
 import 'package:fortune_cat_app/core/errors/app_failure.dart';
 import 'package:fortune_cat_app/features/auth/presentation/auth_screen.dart';
+import 'package:fortune_cat_app/features/profile/models/birth_profile.dart';
 
 void main() {
   testWidgets('development bootstrap renders the Luna placeholder', (
@@ -73,5 +74,26 @@ void main() {
     await tester.pump();
 
     expect(tester.widget<ElevatedButton>(kakaoButton).onPressed, isNotNull);
+  });
+
+  test('birth validation keeps unknown time null and rejects URL-like cities',
+      () {
+    const valid = BirthProfileDraft(
+      birthDate: '2000-01-01',
+      calendarType: CalendarType.solar,
+      birthTimePrecision: BirthTimePrecision.unknown,
+      birthCountryCode: 'KR',
+      birthCity: '서울',
+    );
+    expect(validateBirthProfile(valid), isNull);
+
+    const invalid = BirthProfileDraft(
+      birthDate: '2000-01-01',
+      calendarType: CalendarType.solar,
+      birthTimePrecision: BirthTimePrecision.unknown,
+      birthCountryCode: 'KR',
+      birthCity: 'https://example.com',
+    );
+    expect(validateBirthProfile(invalid), isNotNull);
   });
 }

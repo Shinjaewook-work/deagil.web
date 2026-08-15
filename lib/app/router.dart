@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'app.dart';
 import '../core/config/app_config.dart';
 import '../features/auth/presentation/auth_screen.dart';
+import '../features/profile/presentation/birth_profile_screen.dart';
+import '../features/today/presentation/cat_home_screen.dart';
 
 GoRouter buildLunaRouter(AppConfig config) {
   return GoRouter(
@@ -15,15 +17,11 @@ GoRouter buildLunaRouter(AppConfig config) {
       ),
       GoRoute(
         path: '/today',
-        builder: (context, state) => const PlaceholderScreen(
-          title: '오늘의 운세를 준비하고 있다냥!',
-        ),
+        builder: (context, state) => const CatHomeScreen(),
       ),
       GoRoute(
         path: '/profile/setup',
-        builder: (context, state) => const PlaceholderScreen(
-          title: '출생정보를 알려달라냥!',
-        ),
+        builder: (context, state) => const BirthProfileScreen(),
       ),
     ],
     errorBuilder: (context, state) => PlaceholderScreen(
