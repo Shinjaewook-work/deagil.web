@@ -9,6 +9,7 @@ import 'package:daegil_app/core/errors/app_failure.dart';
 import 'package:daegil_app/features/ads/domain/rewarded_ad_service.dart';
 import 'package:daegil_app/features/ads/presentation/rewarded_ad_controller.dart';
 import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
+import 'package:daegil_app/features/fortune/domain/fortune_generation.dart';
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
 
 void main() {
@@ -119,4 +120,50 @@ void main() {
       expect(fake.events.where((event) => event.startsWith('claim:')), isEmpty);
     },
   );
+
+  test('mock provider is deterministic and passes the strict schema', () async {
+    const provider = MockFortuneProvider();
+    const request = FortuneGenerationRequest(
+      fortuneDate: '2026-08-15',
+      birthProfileHash: 'test-hash',
+    );
+
+    final first = await provider.generate(request);
+    final second = await provider.generate(request);
+    expect(first, second);
+    final payload = FortunePayload.fromJsonString(first);
+    expect(payload.headline, contains('순서를'));
+  });
+
+  test('stale generation worker cannot commit after a newer claim', () {
+    final fence = GenerationFence();
+    fence.claim('worker-a');
+    final second = fence.claim('worker-b');
+
+    expect(fence.canCommit(epoch: 1, workerId: 'worker-a'), isFalse);
+    expect(fence.canCommit(epoch: 2, workerId: 'worker-b'), isTrue);
+    expect(second, '2:worker-b');
+  });
+
+  test('provider budget refuses requests after the configured cap', () {
+    final budget = ProviderBudget(maxRequests: 2);
+    expect(budget.reserve(), isTrue);
+    expect(budget.reserve(), isTrue);
+    expect(budget.reserve(), isFalse);
+    expect(budget.usedRequests, 2);
+  });
+
+  test('fortune validator rejects executable markup and malformed JSON', () {
+    expect(
+      () => FortunePayload.fromJsonString(
+        '{"headline":"<script>alert(1)</script>","overall":"ok",'
+        '"lucky_color":"옥빛","lucky_number":3}',
+      ),
+      throwsA(isA<FortuneValidationException>()),
+    );
+    expect(
+      () => FortunePayload.fromJsonString('{"headline":"missing"}'),
+      throwsA(isA<FortuneValidationException>()),
+    );
+  });
 }

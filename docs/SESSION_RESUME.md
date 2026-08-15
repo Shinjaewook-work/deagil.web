@@ -22,7 +22,8 @@ Phase 2 migration/RPC/RLS skeleton is present; live Supabase reset verification 
 Phase 3 mock-first auth/legal foundation is present; production OAuth console setup remains manual.
 Phase 4 Cat Home and birth profile foundation is present; the owner-provided cat MP4 is connected for development and native build verification.
 Phase 5 Rewarded Ad service interface and fake flow is present; real AdMob SDK/console integration remains a production gate.
-Continue with Phase 6 — MockFortuneProvider and provider architecture.
+Phase 6 MockFortuneProvider/provider architecture is complete with strict validation, generation fencing, and budget boundaries.
+Continue with Phase 7 — SSV webhook contract and replay-safe verification.
 ```
 
 Phase 0 changed:

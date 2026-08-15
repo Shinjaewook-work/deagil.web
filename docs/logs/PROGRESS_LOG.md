@@ -225,6 +225,37 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-008 — Phase 6 / Mock Provider architecture
+
+**Status:** DONE
+**Goal:** MockFortuneProvider, ProviderRouter, strict schema/content validators, generation fencing, and provider budget을 구현한다.
+
+**Changed**
+- 결정적인 strict JSON을 반환하는 `MockFortuneProvider`를 추가했다.
+- provider chain과 payload schema/content validation을 추가했다.
+- 32KB response bound, required text/number validation, script/iframe/object markup 차단을 적용했다.
+- `GenerationFence`로 최신 epoch만 결과를 commit할 수 있게 했다.
+- `ProviderBudget`으로 session provider request cap을 원자적 reserve 경계로 표현했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 10 tests
+```
+
+**Security / Privacy Check**
+- Flutter에서 외부 AI provider를 호출하지 않는다.
+- client provider ID/base URL/credential 입력 경로를 만들지 않았다.
+- Mock provider는 실제 birth data나 fortune payload를 외부로 전송하지 않는다.
+- 고정 AI 2회 제품 invariant를 만들지 않았다.
+
+**Manual Actions**
+- NONE for development mock architecture.
+
+**Follow-up**
+- Phase 7에서 Supabase SSV webhook 계약과 signature/replay/late-callback 처리 구조를 구현한다. 실제 AdMob 키·콘솔 연결은 production integration manual action으로 유지한다.
+
 **Verified**
 ```text
 command → exit/result
