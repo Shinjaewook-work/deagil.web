@@ -1105,3 +1105,28 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - OpenRouter free endpoint의 DEV_ONLY 상태를 유지한다. Production 전환은 별도 보안·개인정보·약관 승인 후 수행한다.
 - 실제 authenticated session의 worker 성공 경로는 Android callback 및 rewarded/session 생성 flow가 연결된 뒤 synthetic data로 검증한다.
+
+### PROG-20260816-044 — Phase 7~9 서버/클라이언트 바인딩
+
+**Status:** DONE / DEV DEPLOYED
+**Goal:** SSV, pass ledger, Fortune Result를 Master의 server-owned state 계약에 연결한다.
+
+**Changed**
+- `202608160003_phase7_9_contracts.sql`에 원자적 pass 예약, recovery 후 reserved pass 복구, SSV callback idempotency/late 처리 RPC를 추가했다.
+- `use-fortune-pass` Edge Function이 인증 사용자 RPC 결과를 내부 `generate-fortune` worker에 전달하도록 연결했다. client-callable `start-fortune-generation`은 만들지 않았다.
+- `admob-ssv` Edge Function에 GET 제한, query 길이 제한, Google public-key 기반 RSA-SHA256 서명 검증, transaction replay 경계를 추가했다.
+- Flutter `FortuneRepository`가 `get_my_app_state()`를 읽고 서버 payload가 `UNLOCKED`일 때만 typed Fortune Result를 표시하도록 연결했다.
+- Cat Home의 pass count/패스권 CTA를 backend app state에 연결했고, worker 성공 시 reserved pass를 redeemed로 전환한다.
+
+**Validation**
+- Flutter `analyze`: PASS
+- Flutter `test`: 29 tests PASS
+- local DB reset: PASS
+- local DB lint: PASS / No schema errors found
+- remote migration push: applied `202608160003_phase7_9_contracts.sql` (Windows CLI native exit anomaly는 기존과 동일)
+- Edge Functions deployed: `use-fortune-pass`, `admob-ssv`, updated `generate-fortune`
+- public SSV malformed probe: HTTP 400 `SIGNATURE_MISSING`, no mutation
+
+**Manual Actions**
+- AdMob SSV 실제 활성화 전 `ADMOB_SSV_PUBLIC_KEY_URL`, expected ad unit/reward spec, Google console SSV 설정을 입력해야 한다. 현재 malformed callback만 검증했으며 실제 reward mutation은 수행하지 않았다.
+- Android physical/callback QA는 사용자가 요청한 대로 별도 진행한다.

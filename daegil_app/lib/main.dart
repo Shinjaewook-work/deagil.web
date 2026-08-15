@@ -6,6 +6,7 @@ import 'bootstrap.dart';
 import 'core/config/app_config.dart';
 import 'features/auth/data/auth_repository.dart';
 import 'features/auth/presentation/auth_controller.dart';
+import 'features/fortune/data/fortune_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +27,9 @@ Future<void> main() async {
       ProviderScope(
         overrides: [
           authRepositoryProvider.overrideWithValue(productionAuthRepository),
+          fortuneRepositoryProvider.overrideWithValue(
+            SupabaseFortuneRepository(client: Supabase.instance.client),
+          ),
         ],
         child: const LunaBootstrap(),
       ),

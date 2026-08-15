@@ -23,9 +23,9 @@ Phase 3 mock-first auth/legal foundation is present; Flutter now loads legal req
 Phase 4 Cat Home and birth profile foundation is present; the owner-provided cat MP4 is connected for development and native build verification.
 Phase 5 Rewarded Ad service interface and fake flow is present; real AdMob SDK/console integration remains a production gate.
 Phase 6 MockFortuneProvider/provider architecture is complete with strict validation, generation fencing, and budget boundaries; OpenRouter Nemotron server adapter, Supabase secrets, Dev provider registry, and protected internal generation worker are deployed as DEV_APPROVED.
-Phase 7 SSV webhook contract is present with injected signature verification, replay protection, token matching, and late-callback handling; production server crypto/deployment remains a gate.
-Phase 8 pass ledger rules are present with active cap, reserve/redeem, restore, expiry, and goodwill boundaries; Supabase transaction/UI binding remains.
-Phase 9 typed Fortune Result model and result screen are present with AI disclosure and rewarded completion routing; backend result binding remains.
+Phase 7 SSV webhook is deployed as `admob-ssv` with GET/query bounds, Google RSA-SHA256 key verification, replay/token matching, and late-callback handling; real AdMob expected-spec secrets remain a manual gate.
+Phase 8 pass ledger is bound to `use_my_fortune_pass()` and `use-fortune-pass`; active cap, reserve/redeem, recovery restore, and backend pass count are server-owned.
+Phase 9 Fortune Result is bound to `get_my_app_state()`; only server-derived `UNLOCKED` payloads render, while locked/generating/recovery/failed states do not fall back to mock content in remote mode.
 Phase 10 local notification permission/schedule, safe tap route, and logout cancellation contracts are present; native SDK integration remains.
 Phase 11 settings/privacy/account routes and consent withdrawal contracts are present; Supabase deletion and OAuth revocation remain production gates.
 Phase 12 analytics/crash opt-in and normalized safe event contracts are present; native provider configuration remains a production gate.

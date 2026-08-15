@@ -402,7 +402,9 @@ void main() {
   testWidgets('fortune result shows required disclosure and sections', (
     tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: FortuneResultScreen()));
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: FortuneResultScreen())),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('오늘의 AI 운세'), findsOneWidget);

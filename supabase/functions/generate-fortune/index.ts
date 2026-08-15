@@ -129,24 +129,15 @@ Deno.serve(async (request) => {
   try {
     const result = await provider.generate(session.generation_input_snapshot);
     const payload = validateFortunePayload(result.rawContent);
-    const { data: committed, error: commitError } = await admin
-      .from('daily_fortune_sessions')
-      .update({
-        generation_status: 'ready',
-        fortune_payload: payload,
-        generated_at: new Date().toISOString(),
-        successful_provider_id: result.providerId,
-        successful_model_name: result.modelName,
-        provider_request_id: result.providerRequestId,
-        last_provider_error_class: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', session.id)
-      .eq('generation_epoch', session.generation_epoch)
-      .in('generation_status', ['generating', 'recovery_pending'])
-      .select('id')
-      .maybeSingle();
-    if (commitError || !committed) return response(409, { code: 'STALE_GENERATION' });
+    const { data: committed, error: commitError } = await admin.rpc('commit_fortune_generation', {
+      session_id_value: session.id,
+      generation_epoch_value: session.generation_epoch,
+      payload_value: payload,
+      provider_id_value: result.providerId,
+      model_name_value: result.modelName,
+      provider_request_id_value: result.providerRequestId,
+    });
+    if (commitError || committed !== true) return response(409, { code: 'STALE_GENERATION' });
     return response(200, { status: 'ready', session_id: session.id });
   } catch (error) {
     const normalizedError = normalizeWorkerError(error);

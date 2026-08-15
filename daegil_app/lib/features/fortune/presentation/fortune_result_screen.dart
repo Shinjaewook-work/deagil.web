@@ -1,15 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/fortune_repository.dart';
 import '../domain/fortune_result.dart';
 
-class FortuneResultScreen extends StatelessWidget {
+class FortuneResultScreen extends ConsumerWidget {
   const FortuneResultScreen({this.result, super.key});
 
   final FortuneResult? result;
 
   @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (result != null) return _ResultBody(result: result!);
+    final state = ref.watch(fortuneAppStateProvider);
+    return state.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (error, _) =>
+          Scaffold(body: Center(child: Text('운세를 불러오지 못했어요.'))),
+      data: (appState) {
+        if (appState.result == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('오늘의 AI 운세')),
+            body: Center(child: Text(_lockedMessage(appState.access))),
+          );
+        }
+        return _ResultBody(result: appState.result!);
+      },
+    );
+  }
+
+  String _lockedMessage(FortuneAccessState access) => switch (access) {
+    FortuneAccessState.generating => '운세를 만들고 있어요냥.',
+    FortuneAccessState.recoveryPending => '잠시 후 운세 생성을 다시 시도해요냥.',
+    FortuneAccessState.failed => '운세 생성에 실패했어요. 다시 시도해 주세요.',
+    _ => '광고 또는 패스로 오늘의 운세를 열어보세요냥.',
+  };
+}
+
+class _ResultBody extends StatelessWidget {
+  const _ResultBody({required this.result});
+  final FortuneResult result;
+
+  @override
   Widget build(BuildContext context) {
-    final displayedResult = result ?? MockFortuneResult();
+    final displayedResult = result;
     return Scaffold(
       appBar: AppBar(title: const Text('오늘의 AI 운세')),
       body: ListView(

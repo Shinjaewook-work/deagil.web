@@ -32,6 +32,38 @@ class FortuneResult {
   final String luckyTime;
   final String luckyKeyword;
 
+  factory FortuneResult.fromBackendJson(Map<String, dynamic> json) {
+    List<String> lines(String key) => (json[key] as List? ?? const [])
+        .whereType<String>()
+        .toList(growable: false);
+    final ratings = Map<String, dynamic>.from(
+      json['ratings'] as Map? ?? const {},
+    );
+    final lucky = Map<String, dynamic>.from(json['lucky'] as Map? ?? const {});
+    final date =
+        DateTime.tryParse(json['fortune_date'] as String? ?? '') ??
+        DateTime.now();
+    return FortuneResult(
+      fortuneDate: date,
+      headline: json['headline'] as String? ?? '오늘의 흐름을 준비했어요.',
+      overallRating: (ratings['overall'] as num?)?.toInt() ?? 3,
+      overall: lines('overall').join(' '),
+      sections: [
+        FortuneResultSection(title: '재물운', lines: lines('money')),
+        FortuneResultSection(title: '연애운', lines: lines('love')),
+        FortuneResultSection(title: '직장·학업운', lines: lines('career')),
+        FortuneResultSection(title: '인간관계운', lines: lines('relationship')),
+        FortuneResultSection(title: '컨디션운', lines: lines('condition')),
+      ],
+      goodToDo: lines('recommended_actions'),
+      avoid: lines('avoid_actions'),
+      luckyNumber: (lucky['number'] as num?)?.toInt() ?? 1,
+      luckyColor: lucky['color'] as String? ?? '',
+      luckyTime: lucky['time'] as String? ?? '',
+      luckyKeyword: lucky['keyword'] as String? ?? '',
+    );
+  }
+
   String get formattedDate =>
       '${fortuneDate.year}.${fortuneDate.month.toString().padLeft(2, '0')}.${fortuneDate.day.toString().padLeft(2, '0')}';
 }

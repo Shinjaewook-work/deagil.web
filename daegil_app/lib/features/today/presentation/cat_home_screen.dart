@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../ads/domain/rewarded_ad_service.dart';
 import '../../ads/presentation/rewarded_ad_controller.dart';
+import '../../fortune/data/fortune_repository.dart';
 import '../../profile/presentation/birth_profile_controller.dart';
 import '../../../shared/widgets/cat_video.dart';
 
@@ -19,6 +20,11 @@ class CatHomeScreen extends ConsumerWidget {
       }
     });
     final hasBirthProfile = ref.watch(birthProfileProvider) != null;
+    final appState = ref.watch(fortuneAppStateProvider);
+    final currentAppState = appState.maybeWhen(
+      data: (value) => value,
+      orElse: () => null,
+    );
     final adState = ref.watch(rewardedAdControllerProvider);
     final isBusy = {
       RewardedAdFlowStatus.loading,
@@ -39,11 +45,16 @@ class CatHomeScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
         children: [
-          const Align(
+          Align(
             alignment: Alignment.centerRight,
             child: Chip(
               avatar: Icon(Icons.confirmation_num_outlined),
-              label: Text('광고 패스권 0 / 3'),
+              label: Text(
+                appState.maybeWhen(
+                  data: (value) => '광고 패스권 ${value.activePassCount} / 3',
+                  orElse: () => '광고 패스권 확인 중',
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -52,12 +63,26 @@ class CatHomeScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: isBusy
                 ? null
-                : () => hasBirthProfile
-                      ? ref
-                            .read(rewardedAdControllerProvider.notifier)
-                            .start(fortuneDate: _todayFortuneDate())
-                      : context.go('/profile/setup'),
-            child: Text(_ctaLabel(adState.status)),
+                : () async {
+                    if (!hasBirthProfile) {
+                      context.go('/profile/setup');
+                    } else if (currentAppState?.canUsePass == true) {
+                      await ref
+                          .read(fortuneRepositoryProvider)
+                          .useFortunePass();
+                      ref.invalidate(fortuneAppStateProvider);
+                      if (context.mounted) context.go('/fortune/result');
+                    } else {
+                      await ref
+                          .read(rewardedAdControllerProvider.notifier)
+                          .start(fortuneDate: _todayFortuneDate());
+                    }
+                  },
+            child: Text(
+              currentAppState?.canUsePass == true
+                  ? '패스권으로 열기냥!'
+                  : _ctaLabel(adState.status),
+            ),
           ),
           if (adState.status == RewardedAdFlowStatus.failed) ...[
             const SizedBox(height: 12),
