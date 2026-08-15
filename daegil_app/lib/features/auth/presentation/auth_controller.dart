@@ -19,6 +19,7 @@ class AuthState {
     this.age14PlusAttested = false,
     this.isLoading = false,
     this.isAuthenticated = false,
+    this.isAuthPending = false,
     this.errorMessage,
   });
 
@@ -27,6 +28,7 @@ class AuthState {
   final bool age14PlusAttested;
   final bool isLoading;
   final bool isAuthenticated;
+  final bool isAuthPending;
   final String? errorMessage;
 
   bool get canSignIn =>
@@ -41,6 +43,7 @@ class AuthState {
     bool? age14PlusAttested,
     bool? isLoading,
     bool? isAuthenticated,
+    bool? isAuthPending,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -50,6 +53,7 @@ class AuthState {
       age14PlusAttested: age14PlusAttested ?? this.age14PlusAttested,
       isLoading: isLoading ?? this.isLoading,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      isAuthPending: isAuthPending ?? this.isAuthPending,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
@@ -87,14 +91,18 @@ class AuthController extends Notifier<AuthState> {
     if (!state.canSignIn) return;
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      await ref
+      final result = await ref
           .read(authRepositoryProvider)
           .signIn(
             provider: provider,
             age14PlusAttested: state.age14PlusAttested,
             acceptedDocumentIds: state.acceptedDocumentIds,
           );
-      state = state.copyWith(isLoading: false, isAuthenticated: true);
+      state = state.copyWith(
+        isLoading: false,
+        isAuthenticated: result.isAuthenticated,
+        isAuthPending: result.isPending,
+      );
     } on StateError catch (error) {
       state = state.copyWith(isLoading: false, errorMessage: error.message);
     } on AuthException {

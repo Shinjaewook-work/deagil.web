@@ -122,6 +122,27 @@ flutter test → PASS
 **Manual Actions**
 - `MANUAL_ACTION_REQUIRED`: Google physical/cloud-device callback QA only.
 
+### PROG-20260815-030 — OAuth pending-session state
+
+**Status:** DONE
+**Goal:** Google OAuth browser launch와 실제 Supabase session 인증 완료를 구분한다.
+
+**Changed**
+- Auth repository가 `authenticated`와 `pending` 결과를 구분해 반환한다.
+- Supabase OAuth는 callback 전까지 authenticated로 표시하지 않는다.
+- Mock 로그인은 기존 테스트 편의를 위해 authenticated 결과를 반환한다.
+- Auth controller에 `isAuthPending` 상태를 추가했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: physical/cloud-device callback test must confirm pending → session transition.
+
 ### PROG-20260815-026 — Production OAuth redirect fail-closed gate
 
 **Status:** DONE

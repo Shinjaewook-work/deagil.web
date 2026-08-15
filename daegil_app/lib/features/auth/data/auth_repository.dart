@@ -5,11 +5,27 @@ enum SocialProvider { google }
 
 abstract interface class AuthRepository {
   Future<List<RegistrationRequirement>> getRegistrationRequirements();
-  Future<void> signIn({
+  Future<AuthSignInResult> signIn({
     required SocialProvider provider,
     required bool age14PlusAttested,
     required Set<String> acceptedDocumentIds,
   });
+}
+
+class AuthSignInResult {
+  const AuthSignInResult({
+    required this.isAuthenticated,
+    required this.isPending,
+  });
+
+  const AuthSignInResult.authenticated()
+    : isAuthenticated = true,
+      isPending = false;
+
+  const AuthSignInResult.pending() : isAuthenticated = false, isPending = true;
+
+  final bool isAuthenticated;
+  final bool isPending;
 }
 
 class FakeAuthRepository implements AuthRepository {
@@ -42,7 +58,7 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signIn({
+  Future<AuthSignInResult> signIn({
     required SocialProvider provider,
     required bool age14PlusAttested,
     required Set<String> acceptedDocumentIds,
@@ -52,6 +68,7 @@ class FakeAuthRepository implements AuthRepository {
         !acceptedDocumentIds.contains('ai-processing-v1')) {
       throw StateError('REGISTRATION_REQUIREMENTS_INCOMPLETE');
     }
+    return const AuthSignInResult.authenticated();
   }
 }
 
@@ -70,7 +87,7 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signIn({
+  Future<AuthSignInResult> signIn({
     required SocialProvider provider,
     required bool age14PlusAttested,
     required Set<String> acceptedDocumentIds,
@@ -85,5 +102,6 @@ class SupabaseAuthRepository implements AuthRepository {
       redirectTo: redirectTo,
     );
     if (!response) throw StateError('OAUTH_FLOW_NOT_STARTED');
+    return const AuthSignInResult.pending();
   }
 }
