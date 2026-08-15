@@ -357,3 +357,37 @@ debug APK with corrected URL: PASS
 Before staging or production OAuth QA, compare the Dashboard project URL and
 the API key's project endpoint with a read-only request; never infer the ref
 from a copied command or historical log entry.
+
+### ERR-20260816-003 — Supabase CLI linked status process exit anomaly
+
+**Status:** MITIGATED
+**Task/Phase:** Phase 2 / remote migration push
+**Area:** Supabase CLI on Windows
+
+#### Fingerprint
+
+```text
+ERROR_CODE: SUPABASE_CLI_STATUS_PROCESS_EXIT
+EXCEPTION_TYPE: CLI process termination after linked database operation
+CORE_MESSAGE: profile file warning and non-zero native process exit during follow-up status/list commands
+COMPONENT: Supabase CLI 2.114.0 / Windows ARM64
+ENVIRONMENT/VERSION: Windows 10.0.26200.9168 / npx supabase
+```
+
+#### Root Cause
+
+The CLI authenticated successfully and reached the linked database, but
+follow-up status/list invocations emitted a missing profile-file warning and
+could terminate with a native process exit before returning normal status.
+
+#### Mitigation
+
+The migration push was rerun with debug output and returned a completed push
+result with exit marker 0. The remote schema was then verified through the
+authenticated public REST endpoints for `legal_documents` and `birth_profiles`.
+
+#### Regression Guard
+
+For this Windows CLI behavior, do not treat the status/list process exit alone
+as proof that a migration failed. Confirm the push result and verify one or
+more expected remote schema endpoints without printing credentials or data.

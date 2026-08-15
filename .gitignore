@@ -13,6 +13,9 @@ pubspec.lock
 .env.*
 !.env.example
 
+# Supabase CLI local link/runtime metadata
+supabase/.temp/
+
 # IDE files
 .idea/
 .vscode/

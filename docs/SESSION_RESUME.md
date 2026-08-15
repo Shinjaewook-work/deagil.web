@@ -18,7 +18,7 @@ Current status:
 Phase 0 scaffold and native verification are complete.
 Flutter 3.41.9 / Dart 3.11.5 are installed at C:\tools\flutter; this shell prepends that path for commands.
 Phase 1 app foundation/design is complete.
-Phase 2 migration/RPC/RLS skeleton is present; live Supabase reset verification is pending Dev project/CLI setup.
+Phase 2 migration/RPC/RLS skeleton is present; the linked Dev project migration was pushed and remote table endpoints were verified.
 Phase 3 mock-first auth/legal foundation is present; Google development OAuth is connected in Supabase, while release IDs and physical callback QA remain manual.
 Phase 4 Cat Home and birth profile foundation is present; the owner-provided cat MP4 is connected for development and native build verification.
 Phase 5 Rewarded Ad service interface and fake flow is present; real AdMob SDK/console integration remains a production gate.
@@ -29,7 +29,7 @@ Phase 9 typed Fortune Result model and result screen are present with AI disclos
 Phase 10 local notification permission/schedule, safe tap route, and logout cancellation contracts are present; native SDK integration remains.
 Phase 11 settings/privacy/account routes and consent withdrawal contracts are present; Supabase deletion and OAuth revocation remain production gates.
 Phase 12 analytics/crash opt-in and normalized safe event contracts are present; native provider configuration remains a production gate.
-Phase 13 security hardening audit and client secret scan are present; live Supabase adversarial execution remains blocked on Dev project/CLI credentials.
+Phase 13 security hardening audit and client secret scan are present; live Supabase adversarial execution remains a follow-up validation task.
 Phase 14 production fail-closed config boundary is present; actual service credentials and console approvals remain manual gates.
 Phase 15 release audit is present; automated artifact/security checks pass, but production identities, credentials, physical QA, signing, store, and legal gates remain open.
 Continue by resolving `MANUAL_ACTION_REQUIRED` release gates; then run the physical P0 matrix.

@@ -1000,3 +1000,25 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - 실제 Android 실행 환경에서 Google 로그인 callback을 1회 확인해야 한다.
 - 원격 Supabase migration/RLS push에는 PAT 입력이 필요하다. 토큰은 채팅으로 보내지 않는다.
+
+### PROG-20260816-040 — 원격 Supabase migration push
+
+**Status:** DONE
+**Goal:** 인증된 Dev project에 Phase 2 migration을 적용하고 원격 스키마를 확인한다.
+
+**Changed**
+- Supabase CLI 로그인 완료 후 project ref `nbdgwssdikmzitebqwkq`에 link했다.
+- `202608150001_phase2_foundation.sql` 원격 push를 실행했다.
+
+**Validation**
+- Supabase project 목록에서 대상 project `ACTIVE_HEALTHY` 확인
+- `legal_documents` REST endpoint: HTTP 200
+- `birth_profiles` REST endpoint: HTTP 200
+- CLI push 완료 결과: migration 적용 대상 1개, exit marker 0 확인
+
+**Notes**
+- Windows CLI의 `migration list` 후속 호출에서 profile 파일 경고와 프로세스 종료 이상이 관찰되어 REST endpoint로 실제 적용을 교차 검증했다.
+
+**Manual Actions**
+- PAT는 채팅에 기록하지 않고 CLI 로그인 과정에서만 입력했다.
+- Android physical callback QA는 다음 작업일에 진행한다.
