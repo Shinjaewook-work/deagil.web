@@ -32,7 +32,9 @@ EXPECTED = {
 actual={
     str(p.relative_to(ROOT)).replace('\\','/')
     for p in ROOT.rglob('*')
-    if p.is_file() and '.git' not in p.relative_to(ROOT).parts
+    if p.is_file()
+    and '.git' not in p.relative_to(ROOT).parts
+    and '__pycache__' not in p.relative_to(ROOT).parts
 }
 missing=sorted(EXPECTED-actual)
 allowed_project_prefixes=('lib/','test/','config/','assets/','pubspec.yaml','analysis_options.yaml','.gitignore')
