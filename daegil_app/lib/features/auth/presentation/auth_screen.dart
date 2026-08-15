@@ -65,12 +65,18 @@ class AuthScreen extends ConsumerWidget {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
+          if (state.isAuthPending)
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Text('Google 인증을 완료하면 앱으로 돌아온다냥.'),
+            ),
           const SizedBox(height: 24),
           for (final provider in SocialProvider.values)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: ElevatedButton(
-                onPressed: state.canSignIn && !state.isLoading
+                onPressed:
+                    state.canSignIn && !state.isLoading && !state.isAuthPending
                     ? () => ref
                           .read(authControllerProvider.notifier)
                           .signIn(provider)

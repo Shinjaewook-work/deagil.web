@@ -143,6 +143,25 @@ flutter test → PASS
 **Manual Actions**
 - `MANUAL_ACTION_REQUIRED`: physical/cloud-device callback test must confirm pending → session transition.
 
+### PROG-20260815-031 — OAuth pending UI feedback
+
+**Status:** DONE
+**Goal:** OAuth callback 대기 상태를 사용자에게 명확히 표시하고 중복 시작을 막는다.
+
+**Changed**
+- Google 인증 callback 대기 문구를 추가했다.
+- pending 상태에서는 로그인 버튼을 비활성화한다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: physical/cloud-device callback test remains pending.
+
 ### PROG-20260815-026 — Production OAuth redirect fail-closed gate
 
 **Status:** DONE
