@@ -26,11 +26,11 @@ Phase 6 MockFortuneProvider/provider architecture is complete with strict valida
 Phase 7 SSV webhook is deployed as `admob-ssv` with GET/query bounds, Google RSA-SHA256 key verification, replay/token matching, and late-callback handling; real AdMob expected-spec secrets remain a manual gate.
 Phase 8 pass ledger is bound to `use_my_fortune_pass()` and `use-fortune-pass`; active cap, reserve/redeem, recovery restore, and backend pass count are server-owned.
 Phase 9 Fortune Result is bound to `get_my_app_state()`; only server-derived `UNLOCKED` payloads render, while locked/generating/recovery/failed states do not fall back to mock content in remote mode.
-Phase 10 local notification permission/schedule, safe tap route, and logout cancellation contracts are present; native SDK integration remains.
-Phase 11 settings/privacy/account routes and consent withdrawal contracts are present; Supabase deletion and OAuth revocation remain production gates.
-Phase 12 analytics/crash opt-in and normalized safe event contracts are present; native provider configuration remains a production gate.
-Phase 13 security hardening audit and client secret scan are present; live Supabase adversarial execution remains a follow-up validation task.
-Phase 14 production fail-closed config boundary is present; actual service credentials and console approvals remain manual gates.
+Phase 10 notification settings now persist server preferences and cancel local schedules on logout/deletion; native permission/channel and physical time-boundary QA remain.
+Phase 11 Supabase AI-consent withdrawal and `delete-account` Edge Function are implemented; OAuth provider revocation and remote migration retry remain gates.
+Phase 12 telemetry opt-in/opt-out now clears unsent crash reports where the abstraction supports it and rejects sensitive/oversized parameters; Firebase native wiring remains manual.
+Phase 13 security hardening audit and client secret scan pass; live adversarial/RLS race execution remains follow-up validation.
+Phase 14 production config now fails closed unless Firebase project/app IDs and existing production approvals are present; actual credentials/console approvals remain manual.
 Phase 15 release audit is present; automated artifact/security checks pass, but production identities, credentials, physical QA, signing, store, and legal gates remain open.
 Continue by resolving `MANUAL_ACTION_REQUIRED` release gates; then run the physical P0 matrix.
 ```

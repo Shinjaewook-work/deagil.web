@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.admob-ssv]
 verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = false

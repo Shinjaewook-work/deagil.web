@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/account_service.dart';
+import '../../notifications/presentation/notification_controller.dart';
 
 final accountServiceProvider = Provider<AccountService>(
   (ref) => FakeAccountService(),
@@ -26,8 +27,13 @@ class SettingsController extends Notifier<PrivacyState> {
     state = const PrivacyState(aiPersonalizationAllowed: false);
   }
 
-  Future<void> logout() => ref.read(accountServiceProvider).logout();
+  Future<void> logout() async {
+    await ref.read(notificationControllerProvider.notifier).logout();
+    await ref.read(accountServiceProvider).logout();
+  }
 
-  Future<void> deleteAccount() =>
-      ref.read(accountServiceProvider).deleteAccount();
+  Future<void> deleteAccount() async {
+    await ref.read(notificationControllerProvider.notifier).logout();
+    await ref.read(accountServiceProvider).deleteAccount();
+  }
 }

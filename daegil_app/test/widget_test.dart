@@ -464,6 +464,19 @@ void main() {
   });
 
   test(
+    'notification preference stays non-sensitive and can be persisted',
+    () async {
+      final service = FakeLocalNotificationService();
+      await service.persistPreference(
+        enabled: true,
+        notificationTime: DateTime(2026, 8, 16, 8),
+      );
+      expect(service.preferenceEnabled, isTrue);
+      expect(service.preferenceTime?.hour, 8);
+    },
+  );
+
+  test(
     'consent withdrawal disables analytics and AI personalization',
     () async {
       final service = FakeAccountService();
@@ -522,6 +535,8 @@ void main() {
     await crash.record(errorCode: 'AUTH_TIMEOUT', fatal: false);
     expect(crash.recordedCodes, isEmpty);
     await crash.setCollectionEnabled(true);
+    await crash.deleteUnsentReports();
+    expect(crash.deletedUnsentReports, 1);
     await crash.record(errorCode: 'AUTH_TIMEOUT', fatal: false);
     expect(crash.recordedCodes, ['nonfatal:AUTH_TIMEOUT']);
     await expectLater(

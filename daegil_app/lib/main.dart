@@ -7,6 +7,10 @@ import 'core/config/app_config.dart';
 import 'features/auth/data/auth_repository.dart';
 import 'features/auth/presentation/auth_controller.dart';
 import 'features/fortune/data/fortune_repository.dart';
+import 'features/settings/presentation/settings_controller.dart';
+import 'features/settings/data/account_service.dart';
+import 'features/notifications/data/notification_preference_repository.dart';
+import 'features/notifications/presentation/notification_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +33,14 @@ Future<void> main() async {
           authRepositoryProvider.overrideWithValue(productionAuthRepository),
           fortuneRepositoryProvider.overrideWithValue(
             SupabaseFortuneRepository(client: Supabase.instance.client),
+          ),
+          accountServiceProvider.overrideWithValue(
+            SupabaseAccountService(client: Supabase.instance.client),
+          ),
+          notificationPreferenceRepositoryProvider.overrideWithValue(
+            SupabaseNotificationPreferenceRepository(
+              client: Supabase.instance.client,
+            ),
           ),
         ],
         child: const LunaBootstrap(),

@@ -46,6 +46,8 @@ abstract interface class CrashReporter {
 
   Future<void> setCollectionEnabled(bool enabled);
 
+  Future<void> deleteUnsentReports();
+
   Future<void> record({required String errorCode, required bool fatal});
 }
 
@@ -66,6 +68,9 @@ class FakeAnalyticsService implements AnalyticsService {
     if (event.parameters.keys.any(_isSensitiveKey)) {
       throw StateError('TELEMETRY_SENSITIVE_PARAMETER');
     }
+    if (event.parameters.values.any((value) => value.length > 80)) {
+      throw StateError('TELEMETRY_PARAMETER_TOO_LONG');
+    }
     events.add(event);
   }
 
@@ -85,10 +90,16 @@ class FakeCrashReporter implements CrashReporter {
   bool collectionEnabled = false;
 
   final List<String> recordedCodes = [];
+  int deletedUnsentReports = 0;
 
   @override
   Future<void> setCollectionEnabled(bool enabled) async {
     collectionEnabled = enabled;
+  }
+
+  @override
+  Future<void> deleteUnsentReports() async {
+    deletedUnsentReports += 1;
   }
 
   @override

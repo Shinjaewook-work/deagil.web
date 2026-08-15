@@ -24,6 +24,11 @@ abstract interface class LocalNotificationService {
 
   Future<void> cancelAll();
 
+  Future<void> persistPreference({
+    required bool enabled,
+    required DateTime notificationTime,
+  });
+
   String routeForTap({required String? payloadRoute});
 }
 
@@ -35,6 +40,8 @@ class FakeLocalNotificationService implements LocalNotificationService {
   NotificationPermissionStatus permissionStatus;
   final List<String> events = [];
   LocalNotificationRequest? scheduledRequest;
+  bool preferenceEnabled = false;
+  DateTime? preferenceTime;
 
   @override
   Future<NotificationPermissionStatus> requestPermission() async {
@@ -65,6 +72,16 @@ class FakeLocalNotificationService implements LocalNotificationService {
   Future<void> cancelAll() async {
     scheduledRequest = null;
     events.add('cancel_all');
+  }
+
+  @override
+  Future<void> persistPreference({
+    required bool enabled,
+    required DateTime notificationTime,
+  }) async {
+    preferenceEnabled = enabled;
+    preferenceTime = notificationTime;
+    events.add('preference:${enabled ? 'enabled' : 'disabled'}');
   }
 
   @override

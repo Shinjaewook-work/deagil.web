@@ -36,8 +36,7 @@ GoRouter buildLunaRouter(AppConfig config) {
       ),
       GoRoute(
         path: '/settings/notification',
-        builder: (context, state) =>
-            const SettingsPlaceholderScreen(title: '알림'),
+        builder: (context, state) => const NotificationSettingsScreen(),
       ),
       GoRoute(
         path: '/settings/privacy',

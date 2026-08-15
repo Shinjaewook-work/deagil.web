@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'settings_controller.dart';
+import '../../notifications/presentation/notification_controller.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -149,4 +150,70 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     appBar: AppBar(title: Text(title)),
     body: const Center(child: Text('이 설정은 다음 연결 단계에서 준비된다냥.')),
   );
+}
+
+class NotificationSettingsScreen extends ConsumerStatefulWidget {
+  const NotificationSettingsScreen({super.key});
+
+  @override
+  ConsumerState<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
+}
+
+class _NotificationSettingsScreenState
+    extends ConsumerState<NotificationSettingsScreen> {
+  bool enabled = false;
+  TimeOfDay time = const TimeOfDay(hour: 8, minute: 0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('알림')),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const Text('오늘의 운세 알림은 기기 알림 권한과 서버 설정을 함께 사용한다냥.'),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('매일 운세 알림'),
+            value: enabled,
+            onChanged: (value) => _save(value, time),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            enabled: enabled,
+            title: const Text('알림 시간'),
+            trailing: Text(time.format(context)),
+            onTap: enabled ? _pickTime : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(context: context, initialTime: time);
+    if (picked != null) await _save(enabled, picked);
+  }
+
+  Future<void> _save(bool nextEnabled, TimeOfDay nextTime) async {
+    final now = DateTime.now();
+    await ref
+        .read(notificationControllerProvider.notifier)
+        .setEnabled(
+          enabled: nextEnabled,
+          time: DateTime(
+            now.year,
+            now.month,
+            now.day,
+            nextTime.hour,
+            nextTime.minute,
+          ),
+        );
+    if (!mounted) return;
+    setState(() {
+      enabled = nextEnabled;
+      time = nextTime;
+    });
+  }
 }

@@ -30,8 +30,14 @@ class TelemetryController extends Notifier<TelemetryState> {
   TelemetryState build() => const TelemetryState();
 
   Future<void> setCollectionEnabled(bool enabled) async {
+    if (enabled) {
+      await ref.read(crashReporterProvider).deleteUnsentReports();
+    }
     await ref.read(analyticsServiceProvider).setCollectionEnabled(enabled);
     await ref.read(crashReporterProvider).setCollectionEnabled(enabled);
+    if (!enabled) {
+      await ref.read(crashReporterProvider).deleteUnsentReports();
+    }
     state = TelemetryState(analyticsEnabled: enabled, crashEnabled: enabled);
   }
 

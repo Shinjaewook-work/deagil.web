@@ -1130,3 +1130,29 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - AdMob SSV 실제 활성화 전 `ADMOB_SSV_PUBLIC_KEY_URL`, expected ad unit/reward spec, Google console SSV 설정을 입력해야 한다. 현재 malformed callback만 검증했으며 실제 reward mutation은 수행하지 않았다.
 - Android physical/callback QA는 사용자가 요청한 대로 별도 진행한다.
+
+### PROG-20260816-045 — Phase 10~14 연결 및 hardening
+
+**Status:** IMPLEMENTED / LOCAL VERIFIED / DEV FUNCTION DEPLOYED
+**Goal:** 알림·계정·telemetry·보안 경계와 production fail-closed 설정을 Master 계약에 연결한다.
+
+**Changed**
+- 알림 설정 화면과 서버 `set_my_notification_preferences` 저장 경계를 연결하고, logout/account deletion 시 local notification 취소를 먼저 수행한다.
+- `withdraw_my_ai_consent()` RPC와 `delete-account` Edge Function을 추가했다. 계정 삭제는 fresh user JWT 확인 후 Auth user를 삭제한다.
+- telemetry opt-in 전/opt-out 시 unsent crash report 정리 경계를 추가하고, 이벤트 parameter 길이와 민감 키를 제한했다.
+- production config에 Firebase project/app ID 필수값을 추가해 미설정 production을 fail closed로 유지했다.
+- Phase 13 보안 audit와 client secret scan을 다시 통과시켰다.
+
+**Validation**
+- Flutter analyze: PASS
+- Flutter test: 29 tests PASS
+- local DB reset/lint: PASS
+- security_hardening_audit: PASS
+- harness/master/repo guard: PASS
+- `delete-account` malformed unauthenticated probe: HTTP 401
+- `delete-account` Edge Function: deployed
+
+**Manual Actions**
+- Firebase Analytics/Crashlytics native SDK와 실제 Firebase app IDs는 production credential/console 작업이므로 아직 설정하지 않았다.
+- Android/iOS native notification permission/channel 및 reboot/timezone QA는 실기기 단계에서 수행한다.
+- 원격 migration push는 Supabase API login-role 502로 재시도 필요하며, 코드와 local migration은 검증 완료 상태다.

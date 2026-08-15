@@ -34,6 +34,9 @@ class AppConfig {
     this.termsUrl = '',
     this.accountDeletionUrl = '',
     this.aiProviderRegistryStatus = '',
+    this.firebaseProjectId = '',
+    this.firebaseAndroidAppId = '',
+    this.firebaseIosAppId = '',
     this.authRedirectUrl = 'com.example.daegil_app://login-callback/',
     this.enableSupabaseAuth = false,
   });
@@ -70,6 +73,11 @@ class AppConfig {
       aiProviderRegistryStatus: const String.fromEnvironment(
         'AI_PROVIDER_REGISTRY_STATUS',
       ),
+      firebaseProjectId: const String.fromEnvironment('FIREBASE_PROJECT_ID'),
+      firebaseAndroidAppId: const String.fromEnvironment(
+        'FIREBASE_ANDROID_APP_ID',
+      ),
+      firebaseIosAppId: const String.fromEnvironment('FIREBASE_IOS_APP_ID'),
       authRedirectUrl: const String.fromEnvironment(
         'AUTH_REDIRECT_URL',
         defaultValue: 'com.example.daegil_app://login-callback/',
@@ -97,6 +105,9 @@ class AppConfig {
   final String termsUrl;
   final String accountDeletionUrl;
   final String aiProviderRegistryStatus;
+  final String firebaseProjectId;
+  final String firebaseAndroidAppId;
+  final String firebaseIosAppId;
   final String authRedirectUrl;
   final bool enableSupabaseAuth;
 
@@ -147,6 +158,15 @@ class AppConfig {
     }
     if (aiProviderRegistryStatus != 'PROD_APPROVED') {
       errors.add('AI_PROVIDER_NOT_PROD_APPROVED');
+    }
+    if (firebaseProjectId.trim().isEmpty) {
+      errors.add('FIREBASE_PROJECT_MISSING');
+    }
+    if (firebaseAndroidAppId.trim().isEmpty) {
+      errors.add('FIREBASE_ANDROID_APP_ID_MISSING');
+    }
+    if (firebaseIosAppId.trim().isEmpty) {
+      errors.add('FIREBASE_IOS_APP_ID_MISSING');
     }
     return List.unmodifiable(errors);
   }
