@@ -11,6 +11,12 @@ abstract interface class AuthRepository {
     required bool age14PlusAttested,
     required Set<String> acceptedDocumentIds,
   });
+  Future<void> completeRegistration({
+    required bool age14PlusAttested,
+    required Set<String> displayedDocumentIds,
+    required Set<String> acceptedDocumentIds,
+    required bool analyticsEnabled,
+  });
 }
 
 class AuthSignInResult {
@@ -74,6 +80,19 @@ class FakeAuthRepository implements AuthRepository {
     }
     return const AuthSignInResult.authenticated();
   }
+
+  @override
+  Future<void> completeRegistration({
+    required bool age14PlusAttested,
+    required Set<String> displayedDocumentIds,
+    required Set<String> acceptedDocumentIds,
+    required bool analyticsEnabled,
+  }) async {
+    if (!age14PlusAttested ||
+        !acceptedDocumentIds.every(displayedDocumentIds.contains)) {
+      throw StateError('REGISTRATION_REQUIREMENTS_INCOMPLETE');
+    }
+  }
 }
 
 class SupabaseAuthRepository implements AuthRepository {
@@ -91,7 +110,19 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<List<RegistrationRequirement>> getRegistrationRequirements() async {
-    return FakeAuthRepository.requirements;
+    final response = await _client.rpc('get_public_registration_requirements');
+    final payload = response as Map<String, dynamic>;
+    final documents = payload['documents'];
+    if (documents is! List) {
+      throw const FormatException('INVALID_LEGAL_RESPONSE');
+    }
+    return documents
+        .map(
+          (document) => RegistrationRequirement.fromJson(
+            Map<String, dynamic>.from(document as Map),
+          ),
+        )
+        .toList(growable: false);
   }
 
   @override
@@ -111,5 +142,23 @@ class SupabaseAuthRepository implements AuthRepository {
     );
     if (!response) throw StateError('OAUTH_FLOW_NOT_STARTED');
     return const AuthSignInResult.pending();
+  }
+
+  @override
+  Future<void> completeRegistration({
+    required bool age14PlusAttested,
+    required Set<String> displayedDocumentIds,
+    required Set<String> acceptedDocumentIds,
+    required bool analyticsEnabled,
+  }) async {
+    await _client.rpc(
+      'complete_my_registration',
+      params: {
+        'age_14_plus_attested': age14PlusAttested,
+        'displayed_document_ids': displayedDocumentIds.toList(growable: false),
+        'accepted_document_ids': acceptedDocumentIds.toList(growable: false),
+        'analytics_enabled': analyticsEnabled,
+      },
+    );
   }
 }

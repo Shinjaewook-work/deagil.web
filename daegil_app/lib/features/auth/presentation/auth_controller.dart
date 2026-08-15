@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:async';
 
 import '../data/auth_repository.dart';
 import '../models/registration_requirement.dart';
@@ -70,6 +71,7 @@ class AuthController extends Notifier<AuthState> {
             isAuthenticated: isAuthenticated,
             isAuthPending: false,
           );
+          if (isAuthenticated) unawaited(_completeRegistration());
         });
     ref.onDispose(authSubscription.cancel);
     _loadRequirements();
@@ -113,6 +115,7 @@ class AuthController extends Notifier<AuthState> {
         isAuthenticated: result.isAuthenticated,
         isAuthPending: result.isPending,
       );
+      if (result.isAuthenticated) await _completeRegistration();
     } on StateError catch (error) {
       state = state.copyWith(isLoading: false, errorMessage: error.message);
     } on AuthException {
@@ -120,6 +123,25 @@ class AuthController extends Notifier<AuthState> {
         isLoading: false,
         errorMessage: 'AUTH_PROVIDER_FAILED',
       );
+    }
+  }
+
+  Future<void> _completeRegistration() async {
+    try {
+      await ref
+          .read(authRepositoryProvider)
+          .completeRegistration(
+            age14PlusAttested: state.age14PlusAttested,
+            displayedDocumentIds: state.requirements
+                .map((item) => item.id)
+                .toSet(),
+            acceptedDocumentIds: state.acceptedDocumentIds,
+            analyticsEnabled: false,
+          );
+    } on StateError catch (error) {
+      state = state.copyWith(errorMessage: error.message);
+    } on AuthException {
+      state = state.copyWith(errorMessage: 'REGISTRATION_SYNC_FAILED');
     }
   }
 }

@@ -1022,3 +1022,34 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - PAT는 채팅에 기록하지 않고 CLI 로그인 과정에서만 입력했다.
 - Android physical callback QA는 다음 작업일에 진행한다.
+
+### PROG-20260816-041 — 서버 주도 registration RPC 및 Flutter Dev 연결
+
+**Status:** DONE
+**Goal:** Master가 요구하는 legal registration contract를 구현하고 Flutter를 원격 Dev project의 Auth/RPC에 연결한다.
+
+**Changed**
+- `get_public_registration_requirements()`를 추가해 active legal documents만 공개 RPC로 반환한다.
+- `complete_my_registration()`을 추가해 age attestation, 표시 문서, 수락 문서, analytics preference를 한 transaction으로 기록한다.
+- 직접 client write 없이 `profiles`, `user_entry_records`, `privacy_preferences`, `user_consent_events`를 server function으로 갱신하도록 했다.
+- Flutter `SupabaseAuthRepository`가 Fake legal requirements 대신 원격 RPC를 호출하도록 연결했다.
+- OAuth session callback 이후 registration completion RPC를 호출하도록 AuthController를 연결했다.
+- server legal document payload parser와 RPC contract 테스트를 추가했다.
+
+**Validation**
+- `flutter analyze`: PASS
+- `flutter test`: 29 tests PASS
+- debug APK with remote Dev URL/publishable key: PASS
+- local migration reset: new registration migration applied
+- local `get_public_registration_requirements()`: returns contract version and documents array
+- local `complete_my_registration()`: authenticated claim test created registration and privacy rows
+- remote registration RPC: HTTP 200
+- remote anonymous birth profile response: empty result under RLS
+- remote migration push result: `202608160001_registration_rpc.sql` applied
+
+**Notes**
+- Windows Supabase CLI still emits the known profile-file/native-exit anomaly after DB operations; remote schema/RPC endpoints were cross-checked independently.
+
+**Manual Actions**
+- Android callback QA remains deferred to the next workday.
+- Production Kakao/Apple/AdMob/Firebase/provider/signing/legal work remains outside the Dev Google-only scope.

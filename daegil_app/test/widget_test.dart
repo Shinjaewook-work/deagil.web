@@ -10,6 +10,7 @@ import 'package:daegil_app/features/ads/domain/rewarded_ad_service.dart';
 import 'package:daegil_app/features/ads/presentation/rewarded_ad_controller.dart';
 import 'package:daegil_app/features/ads/domain/ssv_verification.dart';
 import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
+import 'package:daegil_app/features/auth/models/registration_requirement.dart';
 import 'package:daegil_app/features/fortune/domain/fortune_generation.dart';
 import 'package:daegil_app/features/fortune/presentation/fortune_result_screen.dart';
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
@@ -20,6 +21,25 @@ import 'package:daegil_app/features/settings/presentation/settings_screens.dart'
 import 'package:daegil_app/features/telemetry/domain/telemetry_service.dart';
 
 void main() {
+  test('server legal document payload maps to a registration requirement', () {
+    final requirement = RegistrationRequirement.fromJson({
+      'id': 'doc-1',
+      'document_type': 'terms',
+      'version': 'v1',
+      'title': '서비스 이용약관',
+      'public_url': 'https://example.test/terms',
+      'interaction': 'acceptance_required',
+      'required_for_registration': true,
+      'required_for_ai': false,
+      'withdrawable': false,
+    });
+
+    expect(requirement.id, 'doc-1');
+    expect(requirement.interaction, LegalInteraction.acceptanceRequired);
+    expect(requirement.required, isTrue);
+    expect(requirement.publicUrl, 'https://example.test/terms');
+  });
+
   testWidgets('auth route renders the legal gate', (tester) async {
     const config = AppConfig(
       environment: AppEnvironment.dev,
