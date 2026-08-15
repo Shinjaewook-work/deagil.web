@@ -573,3 +573,28 @@ Supabase project ref → nbdgwssdikmzitebqwdkq (user-provided JWT payload derive
 **Follow-up**
 - Chrome URL detection failed in the Windows Computer Use helper, so no console form was submitted.
 - Google Android OAuth form can use package `com.example.daegil_app` and the SHA-1 above for local development.
+
+### PROG-20260815-019 — Google Android OAuth client created
+
+**Status:** PARTIAL
+**Goal:** Google Android 개발 OAuth client 생성 결과를 계약 문서에 반영한다.
+
+**Changed**
+- 사용자가 Google Cloud OAuth Android client 생성을 완료했다.
+- client ID, 개발 package, debug SHA-1, TEST 전용 상태를 `docs/EXTERNAL_SETUP.md`에 기록했다.
+- client secret, access token, anon key 원문은 저장하지 않았다.
+
+**Verified**
+```text
+Google Android OAuth client → CREATED
+Package → com.example.daegil_app
+SHA-1 → F4:04:9C:D4:E0:6E:57:EA:43:13:D7:96:60:26:F5:1E:11:C1:08:22
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Supabase Auth Google provider에 client ID/secret과 redirect configuration을 연결한다.
+- `MANUAL_ACTION_REQUIRED`: production release signing SHA-1, physical-device callback, and OAuth consent publishing remain pending.
+
+**Follow-up**
+- Apple OAuth는 사용자가 요청한 대로 보류한다.
+- Web OAuth client/domain은 만들지 않는다.

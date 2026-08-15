@@ -192,6 +192,17 @@ Kakao app/redirect config
 
 실제 callback/deep-link를 physical device에서 검증.
 
+현재 확인된 개발 Android Google OAuth client:
+
+```text
+Client ID: 271172249944-7e181c4trkh6eg511l6fenrcb9v3q590.apps.googleusercontent.com
+Package: com.example.daegil_app
+SHA-1: F4:04:9C:D4:E0:6E:57:EA:43:13:D7:96:60:26:F5:1E:11:C1:08:22
+Status: TEST / development client only
+```
+
+이 client ID는 비밀키가 아니지만, production release signing SHA-1과 별도다. Google OAuth production 전환 및 physical-device callback 검증 전에는 release credential로 간주하지 않는다.
+
 ## Apple Operations
 
 Sign in with Apple을 사용하므로 production 전 current Apple docs로:
