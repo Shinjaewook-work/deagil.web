@@ -225,6 +225,35 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-017 — Phase 15 / release gate audit
+
+**Status:** PARTIAL
+**Goal:** Release artifact/config automated checks를 실행하고 owner-only release gates를 분리한다.
+
+**Changed**
+- `release_gate_audit.py`를 추가해 target app files, dependencies, asset declaration, non-empty cat video, and native project presence를 검사한다.
+- Release checklist에 현재 automated verification record를 추가했다.
+- Android/iOS `com.example...` identity는 임의 변경하지 않고 manual owner gate로 남겼다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 27 tests
+flutter build windows → PASS
+python scripts/release_gate_audit.py → PASS + manual gates listed
+python scripts/security_hardening_audit.py → PASS
+python scripts/repo_guard.py → PASS
+python scripts/harness_lint.py → PASS
+python scripts/master_contract_audit.py → PASS
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: final app/package identities, service credentials/console settings, physical devices, signing, store/legal/privacy review, and asset license approval.
+
+**Follow-up**
+- Do not claim release readiness until manual gates are configured and physical P0 matrix passes.
+
 ### PROG-20260815-016 — Phase 14 / production fail-closed integration boundary
 
 **Status:** PARTIAL

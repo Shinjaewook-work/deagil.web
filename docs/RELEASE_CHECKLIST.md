@@ -1,5 +1,16 @@
 # Release Checklist — v8 Compact
 
+Automated gate record (2026-08-15):
+
+```text
+PASS: flutter format/analyze/test
+PASS: Windows release build
+PASS: harness lint / repo guard / Master audit
+PASS: security hardening and client secret scan
+PASS: cat video asset declared and non-empty
+MANUAL_ACTION_REQUIRED: production credentials, package IDs, physical devices, store/legal/signing approval
+```
+
 ## Master / Build
 
 - [ ] `LUNA_IMPLEMENTATION_MASTER.md` 구현 완료

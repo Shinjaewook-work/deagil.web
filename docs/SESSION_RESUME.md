@@ -31,7 +31,8 @@ Phase 11 settings/privacy/account routes and consent withdrawal contracts are pr
 Phase 12 analytics/crash opt-in and normalized safe event contracts are present; native provider configuration remains a production gate.
 Phase 13 security hardening audit and client secret scan are present; live Supabase adversarial execution remains blocked on Dev project/CLI credentials.
 Phase 14 production fail-closed config boundary is present; actual service credentials and console approvals remain manual gates.
-Continue with Phase 15 — release gates after production credentials and approvals are supplied.
+Phase 15 release audit is present; automated artifact/security checks pass, but production identities, credentials, physical QA, signing, store, and legal gates remain open.
+Continue by resolving `MANUAL_ACTION_REQUIRED` release gates; then run the physical P0 matrix.
 ```
 
 Phase 0 changed:

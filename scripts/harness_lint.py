@@ -28,6 +28,7 @@ EXPECTED = {
     'scripts/master_contract_audit.py',
     'scripts/harness_hashes.py',
     'scripts/security_hardening_audit.py',
+    'scripts/release_gate_audit.py',
 }
 
 actual={
