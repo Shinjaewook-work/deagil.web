@@ -80,6 +80,27 @@ client secret scan → PASS
 **Follow-up**
 - Android emulator is blocked on this Snapdragon ARM workstation; continue mock/contract work until a physical or cloud Android device is available.
 
+### PROG-20260815-028 — Kakao OAuth adapter preparation
+
+**Status:** PARTIAL
+**Goal:** Apple은 보류하면서 Kakao OAuth provider mapping을 준비한다.
+
+**Changed**
+- Supabase OAuth adapter가 Google과 Kakao provider를 구분해 호출하도록 확장했다.
+- Kakao credential이나 console 설정은 저장·활성화하지 않았다.
+- Apple은 계속 `SOCIAL_PROVIDER_NOT_CONFIGURED`로 fail-closed 상태다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Kakao Developers app key, redirect configuration, and Supabase Kakao Provider setup.
+- `MANUAL_ACTION_REQUIRED`: Apple OAuth remains deferred by owner request.
+
 ### PROG-20260815-026 — Production OAuth redirect fail-closed gate
 
 **Status:** DONE

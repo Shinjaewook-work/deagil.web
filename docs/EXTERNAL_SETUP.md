@@ -214,6 +214,8 @@ Apple: not configured
 Web OAuth client/domain: not configured
 ```
 
+Kakao adapter는 Flutter에 준비되어 있으나, Kakao Developers 앱 키/redirect 설정과 Supabase Kakao Provider 활성화 전까지는 production provider로 간주하지 않는다. Apple은 아직 adapter/console 설정을 보류한다.
+
 Supabase `Authentication → URL Configuration → Redirect URLs`에도 mobile redirect URL을 추가해야 실제 앱 callback이 허용된다. 이는 공개 웹사이트를 만드는 설정이 아니다.
 
 ## Apple Operations

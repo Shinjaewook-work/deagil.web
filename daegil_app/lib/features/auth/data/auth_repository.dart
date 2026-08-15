@@ -80,12 +80,16 @@ class SupabaseAuthRepository implements AuthRepository {
         !acceptedDocumentIds.contains('ai-processing-v1')) {
       throw StateError('REGISTRATION_REQUIREMENTS_INCOMPLETE');
     }
-    if (provider != SocialProvider.google) {
-      throw StateError('SOCIAL_PROVIDER_NOT_CONFIGURED');
-    }
+    final oauthProvider = switch (provider) {
+      SocialProvider.google => OAuthProvider.google,
+      SocialProvider.kakao => OAuthProvider('kakao'),
+      SocialProvider.apple => throw StateError(
+        'SOCIAL_PROVIDER_NOT_CONFIGURED',
+      ),
+    };
 
     final response = await _client.auth.signInWithOAuth(
-      OAuthProvider.google,
+      oauthProvider,
       redirectTo: redirectTo,
     );
     if (!response) throw StateError('OAUTH_FLOW_NOT_STARTED');
