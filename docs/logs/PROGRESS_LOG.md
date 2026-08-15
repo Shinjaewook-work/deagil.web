@@ -63,6 +63,39 @@ python scripts/repo_guard.py → PASS
 
 **Follow-up**
 - Phase 2에서 authoritative DB schema, Fortune Day functions, RLS, validated RPC 계약을 구현한다.
+
+### PROG-20260815-003 — Phase 2 / Supabase DB contract skeleton
+
+**Status:** PARTIAL
+**Goal:** Master DB schema, Fortune Day functions, validated write RPCs, app-state RPC, and RLS boundary를 추가한다.
+
+**Changed**
+- Supabase migration에 profile/legal/consent/birth/session/ad/pass/provider/budget tables를 추가했다.
+- Korea Fortune Day 중앙 함수와 `get_my_app_state()`를 추가했다.
+- birth/profile/privacy/notification/consent validated RPC를 추가했다.
+- own-read RLS와 server-owned table direct access revoke를 추가했다.
+- Supabase local config skeleton을 추가했다.
+
+**Verified**
+```text
+python scripts/harness_lint.py → PASS
+python scripts/master_contract_audit.py → PASS
+python scripts/repo_guard.py → PASS
+flutter analyze → PASS
+flutter test → PASS: 3 tests
+Supabase db reset/RLS execution → BLOCKED: Supabase CLI and Dev project are not configured
+```
+
+**Security / Privacy Check**
+- mutable `unlock_status`를 만들지 않았다.
+- client direct birth/session/ad/AI writes를 grant하지 않았다.
+- app state에서 fortune payload는 readable 조건을 만족할 때만 반환하도록 했다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Supabase Dev project URL/publishable key와 local CLI/Docker 실행 환경 준비.
+
+**Follow-up**
+- Phase 3 mock-first auth/legal UI를 구현하고, Supabase 연결 전까지 실제 OAuth credential 없이 테스트한다.
 - Chocolatey 자동 설치는 비관리자 셸 확인 프롬프트에서 중단되었고 미완료 산출물은 남기지 않았다.
 
 ## Entry Template

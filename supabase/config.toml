@@ -1,0 +1,10 @@
+project_id = "fortune_cat_app_dev"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[auth]
+enabled = true

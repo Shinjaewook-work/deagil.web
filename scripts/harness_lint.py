@@ -40,7 +40,7 @@ actual={
     and p.name != 'pubspec.lock'
 }
 missing=sorted(EXPECTED-actual)
-allowed_project_prefixes=('lib/','test/','config/','assets/','pubspec.yaml','analysis_options.yaml','.gitignore')
+allowed_project_prefixes=('lib/','test/','config/','assets/','supabase/','pubspec.yaml','analysis_options.yaml','.gitignore')
 extra=sorted(
     path for path in (actual-EXPECTED)
     if not path.startswith(allowed_project_prefixes)

@@ -53,7 +53,7 @@ ACCOUNT_DELETION_URL = TBD
 
 | Service | Purpose | Initial Status |
 |---|---|---|
-| Supabase Dev | Auth/DB/Edge | NOT_STARTED |
+| Supabase Dev | Auth/DB/Edge | MANUAL_ACTION_REQUIRED |
 | Supabase Prod | Production backend | NOT_STARTED |
 | Google OAuth | Login | NOT_STARTED |
 | Apple Developer / Sign in with Apple | Login/deletion | NOT_STARTED |
