@@ -225,3 +225,15 @@ Production:
 
 Release 시 실제 Supabase plan의 backup retention을 확인하고 privacy copy와 일치시킨다.
 Active DB delete와 managed backup retention을 같은 것으로 표현하지 않는다.
+
+## AdMob SSV Verification Ledger
+
+```text
+Task/Phase: Phase 7 / SSV webhook contract
+Vendor: Google AdMob
+Topic: Rewarded SSV callback parameters, custom_data escaping, public-key verification, duplicate transaction handling
+Official URL: https://developers.google.com/admob/flutter/ssv
+Verified date: 2026-08-15
+Behavior relied on: callback query includes ad_unit, custom_data, key_id, reward_amount, reward_item, signature, timestamp, transaction_id; custom_data may be percent-escaped; signature verification uses the matching AdMob public key
+Version/API note: Current official Flutter SSV guidance; crypto implementation deferred to a vetted server library
+```

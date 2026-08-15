@@ -23,7 +23,8 @@ Phase 3 mock-first auth/legal foundation is present; production OAuth console se
 Phase 4 Cat Home and birth profile foundation is present; the owner-provided cat MP4 is connected for development and native build verification.
 Phase 5 Rewarded Ad service interface and fake flow is present; real AdMob SDK/console integration remains a production gate.
 Phase 6 MockFortuneProvider/provider architecture is complete with strict validation, generation fencing, and budget boundaries.
-Continue with Phase 7 — SSV webhook contract and replay-safe verification.
+Phase 7 SSV webhook contract is present with injected signature verification, replay protection, token matching, and late-callback handling; production server crypto/deployment remains a gate.
+Continue with Phase 8 — pass reserve/redeem/restore/expiry/goodwill compensation.
 ```
 
 Phase 0 changed:

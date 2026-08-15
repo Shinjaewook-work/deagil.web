@@ -8,6 +8,7 @@ import 'package:daegil_app/core/config/app_config.dart';
 import 'package:daegil_app/core/errors/app_failure.dart';
 import 'package:daegil_app/features/ads/domain/rewarded_ad_service.dart';
 import 'package:daegil_app/features/ads/presentation/rewarded_ad_controller.dart';
+import 'package:daegil_app/features/ads/domain/ssv_verification.dart';
 import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
 import 'package:daegil_app/features/fortune/domain/fortune_generation.dart';
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
@@ -164,6 +165,117 @@ void main() {
     expect(
       () => FortunePayload.fromJsonString('{"headline":"missing"}'),
       throwsA(isA<FortuneValidationException>()),
+    );
+  });
+
+  test('SSV grants once and makes duplicate transactions idempotent', () async {
+    final now = DateTime.utc(2026, 8, 15, 12);
+    final timestamp = now.millisecondsSinceEpoch;
+    final store = InMemorySsvTokenStore(
+      tokens: {'attempt-digest': 'attempt-1'},
+    );
+    final handler = SsvWebhookHandler(
+      expectedAdUnit: 'test-unit',
+      expectedRewardItem: 'fortune',
+      expectedRewardAmount: 1,
+      tokenStore: store,
+      signatureVerifier: const FakeSsvSignatureVerifier(),
+      digest: (value) => '$value-digest',
+    );
+    final uri = Uri.parse(
+      'https://example.test/admob-ssv?ad_unit=test-unit&custom_data='
+      'attempt&key_id=key-1&reward_amount=1&reward_item=fortune&'
+      'signature=valid-signature&timestamp=$timestamp&transaction_id=tx-1',
+    );
+
+    expect(
+      await handler.handle(
+        method: 'GET',
+        callbackUri: uri,
+        serverNow: now,
+        fortuneExpiresAt: now.add(const Duration(hours: 1)),
+      ),
+      SsvDisposition.granted,
+    );
+    expect(
+      await handler.handle(
+        method: 'GET',
+        callbackUri: uri,
+        serverNow: now,
+        fortuneExpiresAt: now.add(const Duration(hours: 1)),
+      ),
+      SsvDisposition.duplicate,
+    );
+  });
+
+  test('SSV late callback never resurrects an expired Fortune', () async {
+    final now = DateTime.utc(2026, 8, 15, 12);
+    final timestamp = now
+        .subtract(const Duration(seconds: 30))
+        .millisecondsSinceEpoch;
+    final handler = SsvWebhookHandler(
+      expectedAdUnit: 'test-unit',
+      expectedRewardItem: 'fortune',
+      expectedRewardAmount: 1,
+      tokenStore: InMemorySsvTokenStore(
+        tokens: {'attempt-digest': 'attempt-1'},
+      ),
+      signatureVerifier: const FakeSsvSignatureVerifier(),
+      digest: (value) => '$value-digest',
+    );
+    final uri = Uri.parse(
+      'https://example.test/admob-ssv?ad_unit=test-unit&custom_data=attempt&'
+      'key_id=key-1&reward_amount=1&reward_item=fortune&'
+      'signature=valid-signature&timestamp=$timestamp&transaction_id=tx-late',
+    );
+
+    expect(
+      await handler.handle(
+        method: 'GET',
+        callbackUri: uri,
+        serverNow: now,
+        fortuneExpiresAt: now.subtract(const Duration(minutes: 1)),
+      ),
+      SsvDisposition.lateCompensationOnly,
+    );
+  });
+
+  test('SSV rejects invalid method, reward values, and signature', () async {
+    final now = DateTime.utc(2026, 8, 15, 12);
+    final timestamp = now.millisecondsSinceEpoch;
+    final handler = SsvWebhookHandler(
+      expectedAdUnit: 'test-unit',
+      expectedRewardItem: 'fortune',
+      expectedRewardAmount: 1,
+      tokenStore: InMemorySsvTokenStore(
+        tokens: {'attempt-digest': 'attempt-1'},
+      ),
+      signatureVerifier: const FakeSsvSignatureVerifier(),
+      digest: (value) => '$value-digest',
+    );
+    final invalidUri = Uri.parse(
+      'https://example.test/admob-ssv?ad_unit=other&custom_data=attempt&'
+      'key_id=key-1&reward_amount=9&reward_item=other&'
+      'signature=invalid&timestamp=$timestamp&transaction_id=tx-invalid',
+    );
+
+    expect(
+      await handler.handle(
+        method: 'POST',
+        callbackUri: invalidUri,
+        serverNow: now,
+        fortuneExpiresAt: now.add(const Duration(hours: 1)),
+      ),
+      SsvDisposition.rejected,
+    );
+    expect(
+      await handler.handle(
+        method: 'GET',
+        callbackUri: invalidUri,
+        serverNow: now,
+        fortuneExpiresAt: now.add(const Duration(hours: 1)),
+      ),
+      SsvDisposition.rejected,
     );
   });
 }

@@ -148,6 +148,42 @@ Rewarded-ad tests exercise both `fast` and `ssv_strict` paths.
 
 When adding an environment-backed final config field, update its constructor, parser, default, and test path together.
 
+### ERR-20260815-003 — SSV late-callback fixture before expiry
+
+**Status:** RESOLVED
+**Task/Phase:** Phase 7 / SSV webhook contract
+**Area:** SSV
+
+#### Fingerprint
+
+```text
+ERROR_CODE: TEST_FIXTURE_WRONG_TIME_ORDER
+EXCEPTION_TYPE: Assertion failure
+CORE_MESSAGE: expected lateCompensationOnly, actual granted
+COMPONENT: daegil_app/test/widget_test.dart
+ENVIRONMENT/VERSION: Flutter 3.41.9 / Dart 3.11.5
+```
+
+#### Root Cause
+
+The test reward timestamp was five minutes before the expiry timestamp, so the handler correctly granted it.
+
+#### Permanent Fix
+
+Changed the fixture so the reward timestamp is 30 seconds before server time while Fortune expiry is one minute before server time.
+
+#### Verification
+
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 13 tests
+```
+
+#### Regression Guard
+
+The test now explicitly proves a verified late callback returns `lateCompensationOnly` and does not resurrect expired Fortune content.
+
 ## Known Historical Prevention Rules
 
 1. Active spec에 오래된 규칙을 남기고 override만 얹지 않는다.

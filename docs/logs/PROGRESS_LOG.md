@@ -225,6 +225,38 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-009 — Phase 7 / SSV webhook contract
+
+**Status:** PARTIAL
+**Goal:** Public SSV webhook validation, signature verifier boundary, custom_data matching, transaction replay protection, and late callback handling을 구현한다.
+
+**Changed**
+- GET-only, bounded URI, required field, timestamp sanity validation을 추가했다.
+- 실제 ECDSA를 직접 구현하지 않고 `SsvSignatureVerifier` 주입 경계를 만들었다.
+- `custom_data`를 exactly-once decode하고 server-side digest/token store와 매칭한다.
+- `transaction_id` replay를 idempotent duplicate로 처리한다.
+- 만료 후 callback은 `lateCompensationOnly`로 분리해 이전 Fortune을 부활시키지 않는다.
+- AdMob 공식 SSV 문서 확인 내용을 `docs/EXTERNAL_SETUP.md`에 기록했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 13 tests
+```
+
+**Security / Privacy Check**
+- source IP를 인증 수단으로 사용하지 않는다.
+- invalid callback은 transaction을 소비하지 않는다.
+- signature crypto와 key fetching은 vetted server library/Edge Function 통합 경계 뒤로 남겼다.
+- callback/query, signature, token, user/fortune data를 로그하지 않는다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: production AdMob SSV URL, AdMob app/unit configuration, and vetted server-side ECDSA library selection/deployment.
+
+**Follow-up**
+- Phase 8에서 pass reserve/redeem/restore/expiry/goodwill compensation 구조를 구현한다.
+
 ### PROG-20260815-008 — Phase 6 / Mock Provider architecture
 
 **Status:** DONE
