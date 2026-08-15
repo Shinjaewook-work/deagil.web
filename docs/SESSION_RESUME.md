@@ -19,7 +19,7 @@ Phase 0 scaffold and native verification are complete.
 Flutter 3.41.9 / Dart 3.11.5 are installed at C:\tools\flutter; this shell prepends that path for commands.
 Phase 1 app foundation/design is complete.
 Phase 2 migration/RPC/RLS skeleton is present; live Supabase reset verification is pending Dev project/CLI setup.
-Phase 3 mock-first auth/legal foundation is present; production OAuth console setup remains manual.
+Phase 3 mock-first auth/legal foundation is present; Google development OAuth is connected in Supabase, while release IDs and physical callback QA remain manual.
 Phase 4 Cat Home and birth profile foundation is present; the owner-provided cat MP4 is connected for development and native build verification.
 Phase 5 Rewarded Ad service interface and fake flow is present; real AdMob SDK/console integration remains a production gate.
 Phase 6 MockFortuneProvider/provider architecture is complete with strict validation, generation fencing, and budget boundaries.

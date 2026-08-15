@@ -598,3 +598,26 @@ SHA-1 → F4:04:9C:D4:E0:6E:57:EA:43:13:D7:96:60:26:F5:1E:11:C1:08:22
 **Follow-up**
 - Apple OAuth는 사용자가 요청한 대로 보류한다.
 - Web OAuth client/domain은 만들지 않는다.
+
+### PROG-20260815-020 — Supabase Google Provider connected
+
+**Status:** PARTIAL
+**Goal:** 사용자가 Supabase Auth Google Provider 설정을 완료한 결과를 기록한다.
+
+**Changed**
+- 사용자가 Supabase Dashboard에서 Google Provider를 활성화하고 Google OAuth Client ID/Client Secret을 입력·저장했다.
+- Supabase callback URL을 `https://nbdgwssdikmzitebqwdkq.supabase.co/auth/v1/callback`으로 기록했다.
+- Secret 원문은 로그나 저장소에 기록하지 않았다.
+
+**Verified**
+```text
+Supabase Google Provider → ENABLED / user-confirmed
+Google development OAuth → CONNECTED / user-confirmed
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: 실제 Flutter Auth 호출 연결 및 physical Android callback test.
+- `MANUAL_ACTION_REQUIRED`: release signing SHA-1과 production OAuth consent publishing.
+
+**Follow-up**
+- Apple OAuth와 Web OAuth client/domain은 계속 보류한다.

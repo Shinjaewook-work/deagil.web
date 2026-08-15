@@ -57,7 +57,7 @@ ACCOUNT_DELETION_URL = TBD
 |---|---|---|
 | Supabase Dev | Auth/DB/Edge | MANUAL_ACTION_REQUIRED |
 | Supabase Prod | Production backend | NOT_STARTED |
-| Google OAuth | Login | CODE_READY / MANUAL_ACTION_REQUIRED for production IDs |
+| Google OAuth | Login | DEV_CONNECTED / MANUAL_ACTION_REQUIRED for release IDs and physical QA |
 | Apple Developer / Sign in with Apple | Login/deletion | CODE_READY / MANUAL_ACTION_REQUIRED for production IDs |
 | Kakao Developers | Login | CODE_READY / MANUAL_ACTION_REQUIRED for production IDs |
 | Firebase Dev | Analytics/Crash | NOT_STARTED |
@@ -202,6 +202,16 @@ Status: TEST / development client only
 ```
 
 이 client ID는 비밀키가 아니지만, production release signing SHA-1과 별도다. Google OAuth production 전환 및 physical-device callback 검증 전에는 release credential로 간주하지 않는다.
+
+Supabase Auth Google Provider 상태:
+
+```text
+Enabled: yes (user-confirmed)
+Client ID/Secret: entered in Supabase Dashboard (user-confirmed)
+Callback URL: https://nbdgwssdikmzitebqwdkq.supabase.co/auth/v1/callback
+Apple: not configured
+Web OAuth client/domain: not configured
+```
 
 ## Apple Operations
 
