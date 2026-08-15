@@ -22,7 +22,7 @@ Phase 2 migration/RPC/RLS skeleton is present; server-driven registration RPCs w
 Phase 3 mock-first auth/legal foundation is present; Flutter now loads legal requirements from Supabase and syncs registration after auth, while release IDs and physical callback QA remain manual.
 Phase 4 Cat Home and birth profile foundation is present; the owner-provided cat MP4 is connected for development and native build verification.
 Phase 5 Rewarded Ad service interface and fake flow is present; real AdMob SDK/console integration remains a production gate.
-Phase 6 MockFortuneProvider/provider architecture is complete with strict validation, generation fencing, and budget boundaries; OpenRouter Nemotron server adapter and Supabase secrets are configured as DEV_APPROVED, while internal generation worker/provider registry activation remains.
+Phase 6 MockFortuneProvider/provider architecture is complete with strict validation, generation fencing, and budget boundaries; OpenRouter Nemotron server adapter, Supabase secrets, Dev provider registry, and protected internal generation worker are deployed as DEV_APPROVED.
 Phase 7 SSV webhook contract is present with injected signature verification, replay protection, token matching, and late-callback handling; production server crypto/deployment remains a gate.
 Phase 8 pass ledger rules are present with active cap, reserve/redeem, restore, expiry, and goodwill boundaries; Supabase transaction/UI binding remains.
 Phase 9 typed Fortune Result model and result screen are present with AI disclosure and rewarded completion routing; backend result binding remains.

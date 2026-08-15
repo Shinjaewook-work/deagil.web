@@ -1078,3 +1078,30 @@ Google development OAuth → CONNECTED / user-confirmed
 
 **Next**
 - 내부 generation worker에서 frozen birth snapshot을 OpenRouter adapter로 전달하고, schema/content 검증 후 canonical payload를 기록한다.
+
+### PROG-20260816-043 — OpenRouter 내부 generation worker 배포
+
+**Status:** DONE / DEV_ONLY
+**Goal:** OpenRouter adapter를 실제 Supabase 내부 generation worker와 Dev provider registry에 연결한다.
+
+**Changed**
+- `supabase/functions/generate-fortune/index.ts`를 추가·배포했다.
+- worker는 `apikey`가 Supabase service-role secret과 일치할 때만 실행된다.
+- session id와 `generation_epoch`를 검증하고, frozen `generation_input_snapshot`만 provider에 전달한다.
+- provider set이 `dev-openrouter-nemotron-v1`이 아니면 실행하지 않는다.
+- 응답 JSON schema, 배열 길이, rating 범위, 금지 콘텐츠, payload byte cap을 server에서 재검증한다.
+- 성공 시 epoch 조건부 update로 canonical payload를 저장하고, 실패 시 entitlement 유무에 따라 `failed` 또는 `recovery_pending`으로 정규화한다.
+- Dev migration에 OpenRouter provider set/prompt version을 active로 등록하고 새 세션 기본값을 교체했다.
+
+**Validation**
+- local reset: `202608160002_openrouter_dev_provider.sql` applied
+- local provider registry/prompt/default columns: PASS
+- remote migration push: `202608160002_openrouter_dev_provider.sql` applied
+- Edge Function deploy: `generate-fortune` deployed
+- publishable key direct invocation: HTTP 401
+- repository secret scan: PASS
+- `harness_lint`, `master_contract_audit`, `repo_guard`: PASS
+
+**Manual Actions**
+- OpenRouter free endpoint의 DEV_ONLY 상태를 유지한다. Production 전환은 별도 보안·개인정보·약관 승인 후 수행한다.
+- 실제 authenticated session의 worker 성공 경로는 Android callback 및 rewarded/session 생성 flow가 연결된 뒤 synthetic data로 검증한다.
