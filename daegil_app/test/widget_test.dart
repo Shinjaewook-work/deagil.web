@@ -11,6 +11,7 @@ import 'package:daegil_app/features/ads/presentation/rewarded_ad_controller.dart
 import 'package:daegil_app/features/ads/domain/ssv_verification.dart';
 import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
 import 'package:daegil_app/features/fortune/domain/fortune_generation.dart';
+import 'package:daegil_app/features/fortune/presentation/fortune_result_screen.dart';
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
 import 'package:daegil_app/features/passes/domain/fortune_pass_ledger.dart';
 
@@ -372,5 +373,23 @@ void main() {
     expect(ledger.expireBefore(day), 1);
     expect(ledger.reserve(fortuneDate: day), isNull);
     expect(ledger.passes.single.status, FortunePassStatus.expired);
+  });
+
+  testWidgets('fortune result shows required disclosure and sections', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: FortuneResultScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('오늘의 AI 운세'), findsOneWidget);
+    expect(find.text('재물운'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.textContaining('AI 생성 콘텐츠'),
+      500,
+      scrollable: find.byType(Scrollable),
+    );
+    expect(find.textContaining('AI 생성 콘텐츠'), findsOneWidget);
+    expect(find.text('행운 숫자/색상/시간/키워드'), findsNothing);
+    expect(find.textContaining('숫자 7'), findsOneWidget);
   });
 }

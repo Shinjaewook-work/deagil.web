@@ -225,6 +225,37 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-011 — Phase 9 / typed Fortune Result and screen
+
+**Status:** PARTIAL
+**Goal:** Typed Fortune Result model, result sections, lucky metadata, AI disclosure, and result route를 구현한다.
+
+**Changed**
+- 날짜/headline/overall rating/overall을 typed `FortuneResult`로 추가했다.
+- 재물운·연애운·직장·학업운·인간관계운·컨디션운을 각각 3문장 section으로 구성했다.
+- 오늘 하면 좋다냥/피하라냥과 행운 숫자·색상·시간·키워드를 추가했다.
+- AI disclosure를 결과 화면 하단에 고정했다.
+- `/fortune/result` route를 추가하고 rewarded flow 완료 시 결과 화면으로 이동시켰다.
+- 개발용 Mock Result로 외부 provider 없이 화면을 검증했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 18 tests
+```
+
+**Security / Privacy Check**
+- 결과 화면은 client가 임의 entitlement를 생성하지 않는다.
+- AI disclosure는 결과 화면에 항상 표시된다.
+- 실제 fortune payload/provider credential를 로그하지 않는다.
+
+**Manual Actions**
+- NONE for development result UI.
+
+**Follow-up**
+- Phase 10에서 local notification permission/schedule, tap route, logout cancellation을 구현한다.
+
 ### PROG-20260815-010 — Phase 8 / pass ledger rules
 
 **Status:** PARTIAL

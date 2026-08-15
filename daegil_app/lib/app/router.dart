@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'app.dart';
 import '../core/config/app_config.dart';
 import '../features/auth/presentation/auth_screen.dart';
+import '../features/fortune/presentation/fortune_result_screen.dart';
 import '../features/profile/presentation/birth_profile_screen.dart';
 import '../features/today/presentation/cat_home_screen.dart';
 
@@ -19,6 +20,10 @@ GoRouter buildLunaRouter(AppConfig config) {
       GoRoute(
         path: '/profile/setup',
         builder: (context, state) => const BirthProfileScreen(),
+      ),
+      GoRoute(
+        path: '/fortune/result',
+        builder: (context, state) => FortuneResultScreen(),
       ),
     ],
     errorBuilder: (context, state) => PlaceholderScreen(

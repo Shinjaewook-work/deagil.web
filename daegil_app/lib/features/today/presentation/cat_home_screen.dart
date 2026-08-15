@@ -12,6 +12,12 @@ class CatHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(rewardedAdControllerProvider, (previous, next) {
+      if (next.status == RewardedAdFlowStatus.completed &&
+          previous?.status != RewardedAdFlowStatus.completed) {
+        context.go('/fortune/result');
+      }
+    });
     final hasBirthProfile = ref.watch(birthProfileProvider) != null;
     final adState = ref.watch(rewardedAdControllerProvider);
     final isBusy = {

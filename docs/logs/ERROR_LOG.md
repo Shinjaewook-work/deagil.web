@@ -220,6 +220,42 @@ flutter test → PASS: 17 tests
 
 The pass test reserves all three existing passes, rejects a fourth, and separately rejects a fourth goodwill pass.
 
+### ERR-20260815-005 — Fortune Result mock DateTime const fixture
+
+**Status:** RESOLVED
+**Task/Phase:** Phase 9 / typed Fortune Result
+**Area:** Flutter
+
+#### Fingerprint
+
+```text
+ERROR_CODE: CONST_DATETIME_FIXTURE
+EXCEPTION_TYPE: Dart compile error
+CORE_MESSAGE: Cannot invoke a non-const DateTime constructor in a const expression
+COMPONENT: daegil_app/lib/features/fortune/domain/fortune_result.dart
+ENVIRONMENT/VERSION: Flutter 3.41.9 / Dart 3.11.5
+```
+
+#### Root Cause
+
+Dart's `DateTime` constructor is not const, while the Mock Result subclass initializer was declared as a const expression.
+
+#### Permanent Fix
+
+Made the Mock Result construction non-const and kept the screen's optional result input const-safe.
+
+#### Verification
+
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 18 tests
+```
+
+#### Regression Guard
+
+The result screen widget test constructs the default mock result and verifies the typed sections and disclosure.
+
 ## Known Historical Prevention Rules
 
 1. Active spec에 오래된 규칙을 남기고 override만 얹지 않는다.
