@@ -186,6 +186,37 @@ flutter test → PASS: 5 tests
 **Follow-up**
 - Phase 5 Rewarded Ad flow로 진행한다.
 
+### PROG-20260815-007 — Phase 5 / Rewarded Ad service and fake flow
+
+**Status:** PARTIAL
+**Goal:** RewardedAdService interface/fake, test ad configuration, prepare/impression/reward/dismiss flow, pending reward boundary, and the single AD_SECURITY_MODE preset을 구현한다.
+
+**Changed**
+- `RewardedAdService` 추상화와 개발용 `FakeRewardedAdService`를 추가했다.
+- Master의 Google Rewarded test unit ID를 dev fake configuration에 연결했다.
+- preload → prepare-ad-session → opaque custom_data → show → impression → reward claim → dismiss 이벤트 순서를 모델링했다.
+- `fast`, `reward_gated`, `ssv_strict` typed mode를 추가하고 strict mode에서는 server verification 전 claim하지 않도록 했다.
+- pending reward retry boundary와 Cat Home CTA 상태 표시를 연결했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 6 tests
+```
+
+**Security / Privacy Check**
+- 실제 광고 SDK, credential, SSV secret, user/fortune data를 호출하거나 저장하지 않는다.
+- custom_data는 fake opaque token이며 실제 identity/PII를 포함하지 않는다.
+- 3/3 pass 상태를 광고 차단 조건으로 사용하지 않는다.
+- `AD_SECURITY_MODE`는 단일 enum으로만 노출한다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: production AdMob app/unit IDs와 실제 모바일 SDK/콘솔 설정은 Phase 14 external integration에서 owner가 제공·승인해야 한다.
+
+**Follow-up**
+- Phase 6에서 MockFortuneProvider, ProviderRouter, strict schema/content validation, generation fencing, budget/recovery 구조를 구현한다.
+
 ### PROG-YYYYMMDD-NNN — <Phase/Task>
 
 **Status:** DONE | PARTIAL | BLOCKED  

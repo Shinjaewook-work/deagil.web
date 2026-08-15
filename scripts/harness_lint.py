@@ -37,6 +37,7 @@ actual={
     and '__pycache__' not in p.relative_to(ROOT).parts
     and '.dart_tool' not in p.relative_to(ROOT).parts
     and 'build' not in p.relative_to(ROOT).parts
+    and 'daegil_app' not in p.relative_to(ROOT).parts
     and p.name != 'pubspec.lock'
     and p.name != '.flutter-plugins-dependencies'
 }

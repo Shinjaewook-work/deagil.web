@@ -97,6 +97,57 @@ ENVIRONMENT/VERSION:
 
 ---
 
+### ERR-20260815-002 — AppConfig ad security mode constructor omission
+
+**Status:** RESOLVED
+**Task/Phase:** Phase 5 / Rewarded Ad flow
+**Area:** AdMob
+
+#### Fingerprint
+
+```text
+ERROR_CODE: CONFIG_FIELD_NOT_INITIALIZED
+EXCEPTION_TYPE: Dart compile error
+CORE_MESSAGE: The named parameter 'adSecurityMode' isn't defined
+COMPONENT: daegil_app/lib/core/config/app_config.dart
+ENVIRONMENT/VERSION: Flutter 3.41.9 / Dart 3.11.5
+```
+
+#### Symptom
+
+`AppConfig.fromEnvironment()` could not construct `AppConfig` after adding the `AD_SECURITY_MODE` parser.
+
+#### Root Cause
+
+The field and parser were added without wiring the optional constructor parameter and development default.
+
+#### DO_NOT_REPEAT
+
+```text
+- failed approach: add an environment-backed final field without updating all constructors
+- why it failed: Dart requires every final field to be initialized and named arguments to exist
+```
+
+#### Permanent Fix
+
+Added `adSecurityMode` to the const constructor with the Master default `fast`.
+
+#### Verification
+
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 6 tests
+```
+
+#### Regression Guard
+
+Rewarded-ad tests exercise both `fast` and `ssv_strict` paths.
+
+#### Prevention Rule
+
+When adding an environment-backed final config field, update its constructor, parser, default, and test path together.
+
 ## Known Historical Prevention Rules
 
 1. Active spec에 오래된 규칙을 남기고 override만 얹지 않는다.
