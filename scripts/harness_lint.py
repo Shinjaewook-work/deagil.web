@@ -38,6 +38,7 @@ actual={
     and '.dart_tool' not in p.relative_to(ROOT).parts
     and 'build' not in p.relative_to(ROOT).parts
     and p.name != 'pubspec.lock'
+    and p.name != '.flutter-plugins-dependencies'
 }
 missing=sorted(EXPECTED-actual)
 allowed_project_prefixes=('lib/','test/','config/','assets/','supabase/','pubspec.yaml','analysis_options.yaml','.gitignore')
