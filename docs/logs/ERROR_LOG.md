@@ -397,6 +397,11 @@ more expected remote schema endpoints without printing credentials or data.
 the retry was not treated as an applied remote migration; deployment must be
 rechecked after the Supabase control plane recovers.
 
+Official troubleshooting was checked: `supabase@beta link --skip-pooler`
+confirmed the alternate path, but this PC has no IPv6 support. The remaining
+supported path is `SUPABASE_DB_PASSWORD=<database-password> supabase db push`;
+the password is not available in the workspace and was not requested or logged.
+
 ### ERR-20260816-004 — OpenRouter API key exposed in chat
 
 **Status:** OPEN / MANUAL_ACTION_REQUIRED

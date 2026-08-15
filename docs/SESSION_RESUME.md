@@ -31,7 +31,7 @@ Phase 11 Supabase AI-consent withdrawal and `delete-account` Edge Function are i
 Phase 12 telemetry opt-in/opt-out now clears unsent crash reports where the abstraction supports it and rejects sensitive/oversized parameters; Firebase native wiring remains manual.
 Phase 13 security hardening audit and client secret scan pass; live adversarial/RLS race execution remains follow-up validation.
 Phase 14 production config now fails closed unless Firebase project/app IDs and existing production approvals are present; actual credentials/console approvals remain manual.
-Phase 15 release audit is present; automated artifact/security checks pass, but production identities, credentials, physical QA, signing, store, and legal gates remain open.
+Phase 15 release audit is complete: automated artifact/security checks pass and a Dev release APK was built; production identities, credentials, physical QA, signing, store, legal gates, and remote `202608160004` migration application remain open.
 Continue by resolving `MANUAL_ACTION_REQUIRED` release gates; then run the physical P0 matrix.
 ```
 

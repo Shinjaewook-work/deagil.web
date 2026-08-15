@@ -1156,3 +1156,23 @@ Google development OAuth → CONNECTED / user-confirmed
 - Firebase Analytics/Crashlytics native SDK와 실제 Firebase app IDs는 production credential/console 작업이므로 아직 설정하지 않았다.
 - Android/iOS native notification permission/channel 및 reboot/timezone QA는 실기기 단계에서 수행한다.
 - 원격 migration push는 Supabase API login-role 502로 재시도 필요하며, 코드와 local migration은 검증 완료 상태다.
+
+### PROG-20260816-046 — Phase 15 release audit
+
+**Status:** AUTOMATED GATES PASS / MANUAL RELEASE GATES OPEN
+**Goal:** 릴리스 artifact·P0 자동 검증과 남은 출시 승인 경계를 확정한다.
+
+**Validation**
+- `release_gate_audit.py`: automated release artifact/config checks PASS
+- Flutter analyze: PASS
+- Flutter test: 30 tests PASS
+- security/harness/master/repo guard: PASS
+- Android release APK built: `daegil_app/build/app/outputs/flutter-apk/app-release.apk`
+- APK SHA-256: `E654B4DE189CCF2C1BB761E53110370379ECA3193ADBA94AD612A0F1F16974C8`
+- Android artifact applicationId remains placeholder `com.example.daegil_app`; release signing/identity is not claimed complete.
+
+**MANUAL_ACTION_REQUIRED**
+- Final Android applicationId/iOS Bundle ID, signing, physical Android/iOS QA
+- production Supabase/OAuth/AdMob/Firebase/AI credentials and console approvals
+- store privacy/Data Safety/legal/asset license approvals
+- Supabase migration `202608160004` remote push after DB password or IPv6-capable network is available
