@@ -920,3 +920,22 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - Firebase Device Streaming 무료 사용량 소진으로 추가 원격 QA는 중단한다.
 - 실제 서비스 credential/console 승인, 실기기 callback·알림·시간 경계 QA, signing/store/legal 승인은 출시 시점까지 유지한다.
+
+### PROG-20260815-036 — Supabase CLI 준비 및 로컬 DB 점검
+
+**Status:** PARTIAL
+**Goal:** Supabase migration/RLS 검증을 실행할 수 있는 로컬 도구 상태를 확보한다.
+
+**Changed**
+- 사용자 npm 환경에서 Supabase CLI `2.114.0` 실행을 확인했다.
+- Docker Desktop 재시작을 시도했다.
+
+**Validation**
+- `npx supabase --version`: PASS
+- `npx supabase db lint --local`: BLOCKED (`127.0.0.1:54322` 연결 거부)
+- Docker Engine: BLOCKED (Docker Desktop Linux engine unable to start)
+- 저장소 Git 변경: 없음
+
+**Manual Actions**
+- Docker Desktop WSL Linux engine 복구가 필요하다. 복구되면 `npx supabase start` 후 `npx supabase db lint --local`과 `npx supabase db reset`을 실행한다.
+- 원격 Dev project link/push에는 Supabase personal access token이 필요하며, 토큰은 채팅으로 보내지 않는다.
