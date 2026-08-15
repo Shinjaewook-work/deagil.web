@@ -541,5 +541,17 @@ void main() {
     );
     expect(config.isProductionReady, isTrue);
     expect(config.appDisplayName, '대길');
+    expect(config.shouldInitializeSupabase, isFalse);
+  });
+
+  test('development config enables staging Supabase only by explicit flag', () {
+    const config = AppConfig(
+      environment: AppEnvironment.dev,
+      supabaseUrl: 'https://nbdgwssdikmzitebqwdkq.supabase.co',
+      supabasePublishableKey: 'sb_publishable_test',
+      admobRewardedUnitId: '',
+      enableSupabaseAuth: true,
+    );
+    expect(config.shouldInitializeSupabase, isTrue);
   });
 }

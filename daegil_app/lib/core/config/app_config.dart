@@ -35,6 +35,7 @@ class AppConfig {
     this.accountDeletionUrl = '',
     this.aiProviderRegistryStatus = '',
     this.authRedirectUrl = 'com.example.daegil_app://login-callback/',
+    this.enableSupabaseAuth = false,
   });
 
   factory AppConfig.fromEnvironment() {
@@ -73,6 +74,10 @@ class AppConfig {
         'AUTH_REDIRECT_URL',
         defaultValue: 'com.example.daegil_app://login-callback/',
       ),
+      enableSupabaseAuth: const bool.fromEnvironment(
+        'ENABLE_SUPABASE_AUTH',
+        defaultValue: false,
+      ),
     );
   }
 
@@ -93,6 +98,7 @@ class AppConfig {
   final String accountDeletionUrl;
   final String aiProviderRegistryStatus;
   final String authRedirectUrl;
+  final bool enableSupabaseAuth;
 
   bool get isDevelopment => environment == AppEnvironment.dev;
   String get appDisplayName => isDevelopment
@@ -146,6 +152,13 @@ class AppConfig {
   }
 
   bool get isProductionReady => productionConfigurationErrors.isEmpty;
+
+  bool get shouldInitializeSupabase =>
+      isProductionReady ||
+      (isDevelopment && enableSupabaseAuth && _hasValidSupabaseClientConfig);
+
+  bool get _hasValidSupabaseClientConfig =>
+      _isHttpsSupabaseUrl(supabaseUrl) && supabasePublishableKey.isNotEmpty;
 
   static bool _isHttpsSupabaseUrl(String value) =>
       _isHttpsUrl(value) && !value.contains('example');

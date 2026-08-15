@@ -11,7 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final config = AppConfig.fromEnvironment();
   SupabaseAuthRepository? productionAuthRepository;
-  if (!config.isDevelopment && config.isProductionReady) {
+  if (config.shouldInitializeSupabase) {
     await Supabase.initialize(
       url: config.supabaseUrl,
       publishableKey: config.supabasePublishableKey,

@@ -162,6 +162,26 @@ flutter test → PASS
 **Manual Actions**
 - `MANUAL_ACTION_REQUIRED`: physical/cloud-device callback test remains pending.
 
+### PROG-20260815-033 — Explicit development Supabase Auth mode
+
+**Status:** DONE
+**Goal:** cloud/physical Google OAuth QA가 Mock 인증과 섞이지 않도록 명시적 development Auth mode를 추가한다.
+
+**Changed**
+- `ENABLE_SUPABASE_AUTH=true`와 valid Supabase URL/publishable key가 함께 주어진 development build에서만 Supabase를 초기화한다.
+- 기본 development build는 계속 Mock/Fake 인증을 사용한다.
+- production fail-closed 조건은 변경하지 않았다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: cloud device reservation and Google callback QA.
+
 ### PROG-20260815-032 — Supabase session callback wiring
 
 **Status:** DONE
