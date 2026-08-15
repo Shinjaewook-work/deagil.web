@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import 'app.dart';
 import '../core/config/app_config.dart';
+import '../features/auth/presentation/auth_screen.dart';
 
 GoRouter buildLunaRouter(AppConfig config) {
   return GoRouter(
@@ -10,9 +11,7 @@ GoRouter buildLunaRouter(AppConfig config) {
     routes: [
       GoRoute(
         path: '/auth',
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Luna에 오신 걸 환영한다냥!',
-        ),
+        builder: (context, state) => const AuthScreen(),
       ),
       GoRoute(
         path: '/today',

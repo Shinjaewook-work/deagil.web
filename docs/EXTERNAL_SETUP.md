@@ -55,9 +55,9 @@ ACCOUNT_DELETION_URL = TBD
 |---|---|---|
 | Supabase Dev | Auth/DB/Edge | MANUAL_ACTION_REQUIRED |
 | Supabase Prod | Production backend | NOT_STARTED |
-| Google OAuth | Login | NOT_STARTED |
-| Apple Developer / Sign in with Apple | Login/deletion | NOT_STARTED |
-| Kakao Developers | Login | NOT_STARTED |
+| Google OAuth | Login | CODE_READY / MANUAL_ACTION_REQUIRED for production IDs |
+| Apple Developer / Sign in with Apple | Login/deletion | CODE_READY / MANUAL_ACTION_REQUIRED for production IDs |
+| Kakao Developers | Login | CODE_READY / MANUAL_ACTION_REQUIRED for production IDs |
 | Firebase Dev | Analytics/Crash | NOT_STARTED |
 | Firebase Prod | Analytics/Crash | NOT_STARTED |
 | AdMob Android | Rewarded | NOT_STARTED |

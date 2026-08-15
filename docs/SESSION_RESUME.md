@@ -19,7 +19,8 @@ Phase 0 scaffold and native verification are complete.
 Flutter 3.41.9 / Dart 3.11.5 are installed at C:\tools\flutter; this shell prepends that path for commands.
 Phase 1 app foundation/design is complete.
 Phase 2 migration/RPC/RLS skeleton is present; live Supabase reset verification is pending Dev project/CLI setup.
-Continue with Phase 3 — mock-first auth/legal foundation while the external backend gate remains pending.
+Phase 3 mock-first auth/legal foundation is present; production OAuth console setup remains manual.
+Continue with Phase 4 — Cat Home and birth profile foundation.
 ```
 
 Phase 0 changed:

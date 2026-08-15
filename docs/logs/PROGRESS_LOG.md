@@ -96,6 +96,38 @@ Supabase db reset/RLS execution → BLOCKED: Supabase CLI and Dev project are no
 
 **Follow-up**
 - Phase 3 mock-first auth/legal UI를 구현하고, Supabase 연결 전까지 실제 OAuth credential 없이 테스트한다.
+
+### PROG-20260815-004 — Phase 3 / Mock-first auth and legal gate
+
+**Status:** PARTIAL
+**Goal:** Server-driven legal requirement model, age gate, social provider abstraction, and login UI를 구현한다.
+
+**Changed**
+- FakeAuthRepository로 terms/AI 필수와 analytics 선택 requirement를 모델링했다.
+- Riverpod AuthController가 age/legal state와 sign-in idempotent boundary를 관리한다.
+- `/auth`에 카카오/Google/Apple mock buttons와 필수 동의 전 disabled gate를 추가했다.
+- auth success 후 `/today`로 이동하는 router 연결을 추가했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 4 tests
+python scripts/harness_lint.py → PASS
+python scripts/master_contract_audit.py → PASS
+python scripts/repo_guard.py → PASS
+```
+
+**Security / Privacy Check**
+- 실제 OAuth token/credential를 저장하거나 로그하지 않는다.
+- 필수 age/legal action 없이는 provider action이 호출되지 않는다.
+- legal requirement는 client 고정 목록이 아니라 repository response로 공급되는 구조다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Google/Apple/Kakao production app IDs, redirect allowlist, provider console configuration.
+
+**Follow-up**
+- Phase 4에서 Cat Home, missing video fallback, birth form, server RPC repository boundary를 구현한다.
 - Chocolatey 자동 설치는 비관리자 셸 확인 프롬프트에서 중단되었고 미완료 산출물은 남기지 않았다.
 
 ## Entry Template
