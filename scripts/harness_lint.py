@@ -25,11 +25,21 @@ EXPECTED = {
     'docs/logs/DECISION_LOG.md',
     'scripts/harness_lint.py',
     'scripts/repo_guard.py',
+    'scripts/master_contract_audit.py',
+    'scripts/harness_hashes.py',
 }
 
-actual={str(p.relative_to(ROOT)).replace('\\','/') for p in ROOT.rglob('*') if p.is_file()}
+actual={
+    str(p.relative_to(ROOT)).replace('\\','/')
+    for p in ROOT.rglob('*')
+    if p.is_file() and '.git' not in p.relative_to(ROOT).parts
+}
 missing=sorted(EXPECTED-actual)
-extra=sorted(actual-EXPECTED)
+allowed_project_prefixes=('lib/','test/','config/','assets/','pubspec.yaml','analysis_options.yaml','.gitignore')
+extra=sorted(
+    path for path in (actual-EXPECTED)
+    if not path.startswith(allowed_project_prefixes)
+)
 for x in missing: errors.append(f'missing expected file: {x}')
 for x in extra: errors.append(f'unexpected harness file: {x}')
 
@@ -93,7 +103,7 @@ for stale in ['docs/product-specs/','docs/design-docs/','docs/engineering/','doc
     if stale in master:
         errors.append(f'Master references removed hierarchy: {stale}')
 
-print(f'Files: {len(actual)} (expected 18)')
+print(f'Files: {len(actual)} (contract files: {len(EXPECTED)})')
 print(f'Markdown: {len(list(ROOT.rglob("*.md")))}')
 for w in warnings: print('WARN:',w)
 for e in errors: print('ERROR:',e)

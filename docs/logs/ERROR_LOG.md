@@ -2,6 +2,60 @@
 
 오류 수정 전에 이 파일을 검색한다.
 
+### ERR-20260815-001 — Flutter toolchain unavailable
+
+**Status:** OPEN
+**Task/Phase:** Phase 0 / Repository bootstrap
+**Area:** Flutter
+
+#### Fingerprint
+
+```text
+ERROR_CODE: TOOLCHAIN_NOT_FOUND
+EXCEPTION_TYPE: CommandNotFound
+CORE_MESSAGE: flutter and dart commands are not available on PATH
+COMPONENT: local verification
+ENVIRONMENT/VERSION: Windows, Python 3.13.9, 2026-08-15
+```
+
+#### Symptom
+
+The scaffold is present, but `flutter pub get`, `dart format`, `flutter analyze`, and `flutter test` cannot start.
+
+#### Reproduction
+
+```text
+flutter --version
+dart --version
+```
+
+#### Root Cause
+
+Flutter SDK is not installed or is not exposed through the current PATH.
+
+#### DO_NOT_REPEAT
+
+```text
+- failed approach: report Phase 0 as fully verified without running the Flutter commands
+- why it failed: the local toolchain is a required verification dependency
+```
+
+#### Permanent Fix
+
+Install/configure the Flutter SDK in the development environment, then rerun the Phase 0 verification commands.
+
+#### Verification
+
+Pending toolchain availability; static harness and repository guard pass.
+
+#### Regression Guard
+
+Phase 0 progress log records the blocked commands and must be cleared only after native verification passes.
+
+#### Prevention Rule
+
+Record actual toolchain availability before claiming Flutter verification.
+
 ## Entry Template
 
 ### ERR-YYYYMMDD-NNN — <short title>

@@ -13,6 +13,19 @@ VERIFIED
 BLOCKED
 ```
 
+## Phase 0 Toolchain Record
+
+| Tool | Detected value | Status |
+|---|---|---|
+| Flutter | command not found on PATH (2026-08-15) | BLOCKED |
+| Dart | command not found on PATH (2026-08-15) | BLOCKED |
+| Python | 3.13.9 | VERIFIED |
+| Git | repository initialized | VERIFIED |
+| Supabase CLI | not required in Phase 0 | NOT_STARTED |
+| Deno/Node | not required in Phase 0 | NOT_STARTED |
+| FlutterFire CLI | not required in Phase 0 | NOT_STARTED |
+| Firebase CLI | not required in Phase 0 | NOT_STARTED |
+
 ## Project Identity
 
 Development placeholder 사용 가능:

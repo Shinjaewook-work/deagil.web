@@ -32,7 +32,7 @@ scripts/
 └── repo_guard.py
 ```
 
-총 18개 파일만 사용한다.
+Harness 문서와 Flutter 프로젝트 소스를 함께 관리한다. 생성된 플랫폼 파일과 로컬 비밀값은 저장소에 넣지 않는다.
 
 ## Principle
 

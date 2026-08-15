@@ -15,9 +15,23 @@ LUNA_IMPLEMENTATION_MASTER.md
 Current status:
 
 ```text
-Application code is not assumed to exist.
-If no Flutter scaffold exists → Phase 0.
-If code exists → audit against Master and continue from the earliest incomplete phase.
+Phase 0 scaffold is present.
+Flutter/Dart CLI are not installed or available on PATH, so native analyze/test verification is pending.
+Continue from Phase 0 verification, then Phase 1 after toolchain is available.
+```
+
+Phase 0 changed:
+
+```text
+pubspec.yaml
+analysis_options.yaml
+lib/main.dart
+lib/bootstrap.dart
+lib/app/app.dart
+lib/core/config/app_config.dart
+test/smoke_test.dart
+config/dev.env.example
+config/prod.env.example
 ```
 
 Critical current rules:
