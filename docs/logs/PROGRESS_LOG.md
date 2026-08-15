@@ -225,6 +225,37 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-015 — Phase 13 / security and concurrency hardening
+
+**Status:** PARTIAL
+**Goal:** RLS/security invariants, concurrency boundaries, provider input/output checks, and client secret scan을 자동 검증한다.
+
+**Changed**
+- `repo_guard.py`가 실제 `daegil_app` Flutter public tree도 secret/direct-SDK scan하도록 확장했다.
+- `security_hardening_audit.py`를 추가해 migration RLS, SECURITY DEFINER search_path, authenticated RPC grants, direct-write revoke를 자동 검사한다.
+- `unlock_status`, client secret/private key, direct AI provider URL, UI direct SDK 호출을 검사한다.
+- provider schema/output validation, SSV replay boundary, pass cap, generation fence의 존재를 hardening guard로 확인한다.
+
+**Verified**
+```text
+python scripts/security_hardening_audit.py → PASS
+python scripts/repo_guard.py → PASS
+python scripts/harness_lint.py → PASS
+python scripts/master_contract_audit.py → PASS
+git diff --check → PASS
+```
+
+**Security / Privacy Check**
+- 실제 secret/credential을 추가하지 않았다.
+- RLS와 server-owned mutation revoke invariant를 정적 guard로 고정했다.
+- 기존 generation fence, provider budget, pass cap, SSV replay 테스트를 유지한다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Supabase Dev reset/RLS adversarial execution, production secret scanning in CI, physical device security/network verification.
+
+**Follow-up**
+- Phase 14에서 실제 Supabase/AdMob/OAuth/approved AI provider production integration을 owner credential 범위 내에서 연결한다.
+
 ### PROG-20260815-014 — Phase 12 / analytics and crash opt-in
 
 **Status:** PARTIAL

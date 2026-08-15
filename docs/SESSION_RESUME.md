@@ -29,7 +29,8 @@ Phase 9 typed Fortune Result model and result screen are present with AI disclos
 Phase 10 local notification permission/schedule, safe tap route, and logout cancellation contracts are present; native SDK integration remains.
 Phase 11 settings/privacy/account routes and consent withdrawal contracts are present; Supabase deletion and OAuth revocation remain production gates.
 Phase 12 analytics/crash opt-in and normalized safe event contracts are present; native provider configuration remains a production gate.
-Continue with Phase 13 — RLS/concurrency/security hardening and secret scan.
+Phase 13 security hardening audit and client secret scan are present; live Supabase adversarial execution remains blocked on Dev project/CLI credentials.
+Continue with Phase 14 — production integration when owner credentials and console approvals are available.
 ```
 
 Phase 0 changed:

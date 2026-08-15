@@ -5,7 +5,7 @@ import re, sys
 ROOT=Path(__file__).resolve().parents[1]
 errors=[]
 
-public_roots=['lib','android','ios','web']
+public_roots=['lib','android','ios','web','daegil_app/lib','daegil_app/android','daegil_app/ios','daegil_app/web']
 secret_patterns=[
     (r'\bsb_secret_[A-Za-z0-9._-]+','Supabase secret key'),
     (r'SUPABASE_SERVICE_ROLE','legacy service role'),

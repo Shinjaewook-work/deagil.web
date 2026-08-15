@@ -27,6 +27,7 @@ EXPECTED = {
     'scripts/repo_guard.py',
     'scripts/master_contract_audit.py',
     'scripts/harness_hashes.py',
+    'scripts/security_hardening_audit.py',
 }
 
 actual={
