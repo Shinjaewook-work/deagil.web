@@ -12,7 +12,7 @@ class LunaBootstrap extends StatelessWidget {
     final config = AppConfig.fromEnvironment();
     if (!config.isDevelopment && !config.isProductionReady) {
       return MaterialApp(
-        title: 'Luna',
+        title: '대길',
         home: const PlaceholderScreen(
           title: '서비스 설정을 확인할 수 없다냥.',
           detail: '운영 환경 설정이 완료되지 않았어요.',

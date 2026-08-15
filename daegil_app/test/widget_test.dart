@@ -539,6 +539,6 @@ void main() {
       admobRewardedUnitId: '',
     );
     expect(config.isProductionReady, isTrue);
-    expect(config.appDisplayName, 'Luna Dev');
+    expect(config.appDisplayName, '대길');
   });
 }

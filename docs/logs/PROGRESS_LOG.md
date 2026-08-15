@@ -621,3 +621,16 @@ Google development OAuth → CONNECTED / user-confirmed
 
 **Follow-up**
 - Apple OAuth와 Web OAuth client/domain은 계속 보류한다.
+
+### PROG-20260815-021 — Flutter display title aligned
+
+**Status:** DONE
+**Goal:** 네이티브 표시 이름 변경 이후 Flutter 런타임 제목도 앱 이름 `대길`로 일치시킨다.
+
+**Changed**
+- 개발 환경 `AppConfig.appDisplayName`을 `대길`로 변경했다.
+- fail-closed 설정 화면의 Material title도 `대길`로 변경했다.
+- 기존 widget expectation을 갱신했다.
+
+**Manual Actions**
+- NONE

@@ -90,7 +90,7 @@ class AppConfig {
 
   bool get isDevelopment => environment == AppEnvironment.dev;
   String get appDisplayName => isDevelopment
-      ? 'Luna Dev'
+      ? '대길'
       : appDisplayNameOverride.isEmpty
       ? 'Luna'
       : appDisplayNameOverride;
