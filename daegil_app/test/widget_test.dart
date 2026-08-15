@@ -15,6 +15,8 @@ import 'package:daegil_app/features/fortune/presentation/fortune_result_screen.d
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
 import 'package:daegil_app/features/passes/domain/fortune_pass_ledger.dart';
 import 'package:daegil_app/features/notifications/domain/local_notification_service.dart';
+import 'package:daegil_app/features/settings/data/account_service.dart';
+import 'package:daegil_app/features/settings/presentation/settings_screens.dart';
 
 void main() {
   testWidgets('auth route renders the legal gate', (tester) async {
@@ -436,5 +438,35 @@ void main() {
       isFalse,
     );
     expect(service.scheduledRequest, isNull);
+  });
+
+  test(
+    'consent withdrawal disables analytics and AI personalization',
+    () async {
+      final service = FakeAccountService();
+      await service.setAnalyticsEnabled(true);
+      await service.withdrawAiConsent();
+
+      expect(service.privacyState.aiPersonalizationAllowed, isFalse);
+      expect(service.privacyState.analyticsEnabled, isFalse);
+      expect(service.events, ['analytics:enabled', 'ai_consent_withdrawn']);
+    },
+  );
+
+  test('account deletion logs out and creates no provider payload', () async {
+    final service = FakeAccountService();
+    await service.deleteAccount();
+
+    expect(service.isDeleted, isTrue);
+    expect(service.isLoggedOut, isTrue);
+    expect(service.events, ['delete_account']);
+  });
+
+  testWidgets('settings exposes privacy and account routes', (tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: SettingsScreen())),
+    );
+    expect(find.text('개인정보 및 동의'), findsOneWidget);
+    expect(find.text('계정'), findsOneWidget);
   });
 }

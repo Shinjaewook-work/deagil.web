@@ -27,7 +27,8 @@ Phase 7 SSV webhook contract is present with injected signature verification, re
 Phase 8 pass ledger rules are present with active cap, reserve/redeem, restore, expiry, and goodwill boundaries; Supabase transaction/UI binding remains.
 Phase 9 typed Fortune Result model and result screen are present with AI disclosure and rewarded completion routing; backend result binding remains.
 Phase 10 local notification permission/schedule, safe tap route, and logout cancellation contracts are present; native SDK integration remains.
-Continue with Phase 11 — settings/privacy/account and consent withdrawal.
+Phase 11 settings/privacy/account routes and consent withdrawal contracts are present; Supabase deletion and OAuth revocation remain production gates.
+Continue with Phase 12 — analytics/crash opt-in and normalized events.
 ```
 
 Phase 0 changed:

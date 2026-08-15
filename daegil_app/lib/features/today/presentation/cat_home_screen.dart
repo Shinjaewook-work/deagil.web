@@ -30,7 +30,7 @@ class CatHomeScreen extends ConsumerWidget {
         title: const Text('오늘의 운세'),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => context.go('/settings'),
             icon: const Icon(Icons.settings_outlined),
             tooltip: '설정',
           ),

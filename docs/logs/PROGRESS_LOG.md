@@ -225,6 +225,37 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-013 — Phase 11 / settings, privacy, and account
+
+**Status:** PARTIAL
+**Goal:** Settings routes, privacy preference, consent withdrawal, logout, and account deletion contract를 구현한다.
+
+**Changed**
+- `/settings`, `/settings/profile`, `/settings/notification`, `/settings/privacy`, `/settings/account`, `/settings/account/delete` routes를 추가했다.
+- analytics preference는 기본 OFF이며 사용자가 명시적으로 켤 수 있다.
+- AI personalization consent withdrawal 시 AI personalization과 analytics를 함께 비활성화한다.
+- logout과 account deletion Fake service 경계를 추가했다.
+- Cat Home 설정 버튼을 `/settings`로 연결했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 23 tests
+```
+
+**Security / Privacy Check**
+- consent withdrawal은 append-only server event/RPC 경계로 연결할 수 있는 service interface를 사용한다.
+- client direct birth/account table write를 추가하지 않았다.
+- account deletion 화면은 provider secret이나 arbitrary callback URL을 다루지 않는다.
+- analytics default OFF 상태를 유지한다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: production Supabase delete-account Edge Function, OAuth provider revocation, final legal deletion copy, and physical deletion verification.
+
+**Follow-up**
+- Phase 12에서 analytics/crash provider abstraction과 opt-in event normalization을 구현한다.
+
 ### PROG-20260815-012 — Phase 10 / local notification contract
 
 **Status:** PARTIAL

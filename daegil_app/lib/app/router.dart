@@ -5,6 +5,7 @@ import '../core/config/app_config.dart';
 import '../features/auth/presentation/auth_screen.dart';
 import '../features/fortune/presentation/fortune_result_screen.dart';
 import '../features/profile/presentation/birth_profile_screen.dart';
+import '../features/settings/presentation/settings_screens.dart';
 import '../features/today/presentation/cat_home_screen.dart';
 
 GoRouter buildLunaRouter(AppConfig config) {
@@ -24,6 +25,31 @@ GoRouter buildLunaRouter(AppConfig config) {
       GoRoute(
         path: '/fortune/result',
         builder: (context, state) => FortuneResultScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/profile',
+        builder: (context, state) => const BirthProfileScreen(),
+      ),
+      GoRoute(
+        path: '/settings/notification',
+        builder: (context, state) =>
+            const SettingsPlaceholderScreen(title: '알림'),
+      ),
+      GoRoute(
+        path: '/settings/privacy',
+        builder: (context, state) => const PrivacySettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/account',
+        builder: (context, state) => const AccountSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/account/delete',
+        builder: (context, state) => const AccountDeletionScreen(),
       ),
     ],
     errorBuilder: (context, state) => PlaceholderScreen(
