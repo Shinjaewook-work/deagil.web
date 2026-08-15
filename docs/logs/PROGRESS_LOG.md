@@ -61,6 +61,25 @@ python scripts/repo_guard.py → PASS
 **Manual Actions**
 - NONE
 
+### PROG-20260815-027 — Release gate refresh after OAuth work
+
+**Status:** PARTIAL
+**Goal:** Google development OAuth, mobile redirect, and current emulator limitation을 반영해 release gate를 재검증한다.
+
+**Verified**
+```text
+python scripts/release_gate_audit.py → PASS automated checks
+python scripts/security_hardening_audit.py → PASS
+client secret scan → PASS
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: final package IDs, production credentials/console setup, physical or cloud-device QA, signing/store/legal approval.
+- `MANUAL_ACTION_REQUIRED`: Supabase CLI access token and live migration/RLS reset verification.
+
+**Follow-up**
+- Android emulator is blocked on this Snapdragon ARM workstation; continue mock/contract work until a physical or cloud Android device is available.
+
 ### PROG-20260815-026 — Production OAuth redirect fail-closed gate
 
 **Status:** DONE
