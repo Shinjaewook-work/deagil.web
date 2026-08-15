@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../profile/presentation/birth_profile_controller.dart';
+import '../../../shared/widgets/cat_video.dart';
 
 class CatHomeScreen extends ConsumerWidget {
   const CatHomeScreen({super.key});
@@ -29,21 +30,10 @@ class CatHomeScreen extends ConsumerWidget {
                   avatar: Icon(Icons.confirmation_num_outlined),
                   label: Text('광고 패스권 0 / 3'))),
           const SizedBox(height: 16),
-          Card(
+          const Card(
             child: SizedBox(
               height: 280,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.pets_outlined,
-                      size: 80, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(height: 16),
-                  const Text('고양이 영상을 준비하고 있다냥.'),
-                  const SizedBox(height: 4),
-                  Text('영상이 없어도 운세 이용에는 문제가 없다냥.',
-                      style: Theme.of(context).textTheme.bodyMedium),
-                ],
-              ),
+              child: CatVideo(),
             ),
           ),
           const SizedBox(height: 24),

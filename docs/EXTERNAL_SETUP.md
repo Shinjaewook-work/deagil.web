@@ -21,10 +21,12 @@ BLOCKED
 | Dart | 3.11.5 (`C:\tools\flutter\bin\cache\dart-sdk`) | VERIFIED |
 | Python | 3.13.9 | VERIFIED |
 | Git | repository initialized | VERIFIED |
-| Supabase CLI | not required in Phase 0 | NOT_STARTED |
+| Supabase CLI | npx Supabase CLI 2.114.0 | CODE_READY / BLOCKED by Docker engine |
 | Deno/Node | not required in Phase 0 | NOT_STARTED |
 | FlutterFire CLI | not required in Phase 0 | NOT_STARTED |
 | Firebase CLI | not required in Phase 0 | NOT_STARTED |
+
+Phase 2/4 environment note (2026-08-15): `npx supabase 2.114.0` is available, but local `supabase db lint --local` is blocked because Docker Desktop's Linux engine cannot start. No `SUPABASE_ACCESS_TOKEN` or project ref is present in the current environment.
 
 ## Project Identity
 

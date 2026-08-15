@@ -163,6 +163,29 @@ python scripts/repo_guard.py → PASS
 **Follow-up**
 - Phase 5에서 RewardedAdService interface/fake, test ad configuration, prepare/impression/reward/dismiss flow를 구현한다.
 
+### PROG-20260815-006 — Phase 4 / Cat video asset connection
+
+**Status:** DONE
+**Goal:** Owner-provided cat video를 Master asset path에 연결한다.
+
+**Changed**
+- `Cat_shaking_Omikuji_container_202608142253.mp4`를 `assets/videos/fortune_cat.mp4`로 배치했다.
+- `video_player`를 추가하고 muted/autoplay/loop, lifecycle pause/resume, reduce-motion/static fallback을 연결했다.
+
+**Verified**
+```text
+asset exists → PASS: 2,713,875 bytes
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 5 tests
+```
+
+**Manual Actions**
+- NONE for current file connection. Release 전 asset license/codec 검토는 owner release gate다.
+
+**Follow-up**
+- Phase 5 Rewarded Ad flow로 진행한다.
+
 ### PROG-YYYYMMDD-NNN — <Phase/Task>
 
 **Status:** DONE | PARTIAL | BLOCKED  
