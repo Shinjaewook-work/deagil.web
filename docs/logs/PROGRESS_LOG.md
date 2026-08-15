@@ -162,6 +162,27 @@ flutter test → PASS
 **Manual Actions**
 - `MANUAL_ACTION_REQUIRED`: physical/cloud-device callback test remains pending.
 
+### PROG-20260815-032 — Supabase session callback wiring
+
+**Status:** DONE
+**Goal:** Google OAuth callback 이후 실제 Supabase session을 Auth controller에 반영한다.
+
+**Changed**
+- AuthRepository에 authentication change stream 계약을 추가했다.
+- Supabase repository가 `onAuthStateChange`를 구독해 session 존재 여부를 전달한다.
+- Auth controller가 callback session 수신 시 pending을 해제하고 authenticated 상태로 전환한다.
+- subscription은 provider dispose 시 취소한다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: physical/cloud-device callback test remains pending.
+
 ### PROG-20260815-026 — Production OAuth redirect fail-closed gate
 
 **Status:** DONE

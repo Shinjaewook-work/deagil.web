@@ -5,6 +5,7 @@ enum SocialProvider { google }
 
 abstract interface class AuthRepository {
   Future<List<RegistrationRequirement>> getRegistrationRequirements();
+  Stream<bool> get authenticationChanges;
   Future<AuthSignInResult> signIn({
     required SocialProvider provider,
     required bool age14PlusAttested,
@@ -53,6 +54,9 @@ class FakeAuthRepository implements AuthRepository {
   ];
 
   @override
+  Stream<bool> get authenticationChanges => const Stream<bool>.empty();
+
+  @override
   Future<List<RegistrationRequirement>> getRegistrationRequirements() async {
     return requirements;
   }
@@ -80,6 +84,10 @@ class SupabaseAuthRepository implements AuthRepository {
 
   final SupabaseClient _client;
   final String redirectTo;
+
+  @override
+  Stream<bool> get authenticationChanges =>
+      _client.auth.onAuthStateChange.map((event) => event.session != null);
 
   @override
   Future<List<RegistrationRequirement>> getRegistrationRequirements() async {

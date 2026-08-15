@@ -62,6 +62,16 @@ class AuthState {
 class AuthController extends Notifier<AuthState> {
   @override
   AuthState build() {
+    final authSubscription = ref
+        .read(authRepositoryProvider)
+        .authenticationChanges
+        .listen((isAuthenticated) {
+          state = state.copyWith(
+            isAuthenticated: isAuthenticated,
+            isAuthPending: false,
+          );
+        });
+    ref.onDispose(authSubscription.cancel);
     _loadRequirements();
     return const AuthState(isLoading: true);
   }
