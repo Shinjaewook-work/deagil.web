@@ -131,6 +131,9 @@ class AppConfig {
       errors.add('ANDROID_APPLICATION_ID_INVALID');
     }
     if (_isPlaceholderPackage(iosBundleId)) errors.add('IOS_BUNDLE_ID_INVALID');
+    if (!_isValidMobileRedirectUrl(authRedirectUrl)) {
+      errors.add('AUTH_REDIRECT_URL_INVALID');
+    }
     if (!_isHttpsUrl(privacyUrl)) errors.add('PRIVACY_URL_INVALID');
     if (!_isHttpsUrl(termsUrl)) errors.add('TERMS_URL_INVALID');
     if (!_isHttpsUrl(accountDeletionUrl)) {
@@ -148,6 +151,15 @@ class AppConfig {
       _isHttpsUrl(value) && !value.contains('example');
 
   static bool _isHttpsUrl(String value) => value.startsWith('https://');
+
+  static bool _isValidMobileRedirectUrl(String value) {
+    final uri = Uri.tryParse(value);
+    return uri != null &&
+        uri.scheme.isNotEmpty &&
+        uri.scheme != 'http' &&
+        uri.scheme != 'https' &&
+        uri.host == 'login-callback';
+  }
 
   static bool _isPlaceholderPackage(String value) =>
       value.isEmpty || value.startsWith('com.example') || value == 'TBD';

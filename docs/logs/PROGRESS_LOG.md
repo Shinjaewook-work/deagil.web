@@ -61,6 +61,26 @@ python scripts/repo_guard.py → PASS
 **Manual Actions**
 - NONE
 
+### PROG-20260815-026 — Production OAuth redirect fail-closed gate
+
+**Status:** DONE
+**Goal:** production build에서 mobile OAuth callback URL 누락을 배포 전에 차단한다.
+
+**Changed**
+- custom-scheme mobile redirect URL 형식을 검증한다.
+- 누락·HTTP(S)·잘못된 callback host는 `AUTH_REDIRECT_URL_INVALID`로 fail-closed 처리한다.
+- production configuration regression test에 해당 gate를 추가했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS
+```
+
+**Manual Actions**
+- NONE
+
 ### PROG-20260815-022 — Supabase Flutter Google OAuth adapter
 
 **Status:** PARTIAL

@@ -524,6 +524,7 @@ void main() {
         containsAll([
           'APP_DISPLAY_NAME_MISSING',
           'SUPABASE_URL_INVALID',
+          'AUTH_REDIRECT_URL_INVALID',
           'ADMOB_PRODUCTION_UNIT_MISSING',
           'AI_PROVIDER_NOT_PROD_APPROVED',
         ]),
