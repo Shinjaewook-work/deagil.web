@@ -106,6 +106,26 @@ Initial APK build → BLOCKED by non-ASCII project path check
 **Manual Actions**
 - `MANUAL_ACTION_REQUIRED`: Android physical device or emulator connection for OAuth callback QA.
 
+### PROG-20260815-024 — Android Emulator recovery attempt
+
+**Status:** PARTIAL
+**Goal:** 휴대폰 없이 Android OAuth QA를 위해 Emulator/AVD 환경을 복구한다.
+
+**Changed**
+- Google 공식 Windows Emulator archive를 다운로드하고 SHA-1을 검증했다.
+- SDK `emulator` 실행 파일을 설치했다.
+- Android Studio SDK Manager의 `emulator` dependency metadata 문제를 확인했다.
+
+**Verified**
+```text
+emulator.exe → installed
+archive SHA-1 → f514c42b51add4015d8c4dd17a79794929ce09b1
+flutter emulators → no AVD available
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: system image download/AVD creation remains pending because SDK Manager dependency resolution is still unavailable.
+
 **Follow-up**
 - Phase 2에서 authoritative DB schema, Fortune Day functions, RLS, validated RPC 계약을 구현한다.
 
