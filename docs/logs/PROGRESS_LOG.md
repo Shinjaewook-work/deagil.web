@@ -548,3 +548,28 @@ command → exit/result
 
 **Follow-up**
 - ...
+
+### PROG-20260815-018 — App identity and OAuth preparation
+
+**Status:** PARTIAL
+**Goal:** 앱 표시 이름을 `대길`로 통일하고 Android OAuth 개발 입력값을 준비한다.
+
+**Changed**
+- Android, iOS, Windows 표시 이름을 `대길`로 변경했다. Apple OAuth 설정은 수행하지 않았다.
+- 기존 Android 개발 applicationId `com.example.daegil_app`는 유지했다.
+- 로컬 debug keystore에서 Android 개발 SHA-1을 확인했다.
+- 사용자가 제공한 anon JWT의 `ref`에서 Supabase project ref를 확인할 수 있는 상태로 정리했다. credential 자체는 저장하지 않았다.
+
+**Verified**
+```text
+Android debug SHA-1 → F4:04:9C:D4:E0:6E:57:EA:43:13:D7:96:60:26:F5:1E:11:C1:08:22
+Supabase project ref → nbdgwssdikmzitebqwdkq (user-provided JWT payload derived)
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Google OAuth client creation is a persistent access-key creation and requires action-time confirmation before submission.
+- `MANUAL_ACTION_REQUIRED`: Supabase dashboard confirmation of project URL/credential and production OAuth console setup remain pending.
+
+**Follow-up**
+- Chrome URL detection failed in the Windows Computer Use helper, so no console form was submitted.
+- Google Android OAuth form can use package `com.example.daegil_app` and the SHA-1 above for local development.
