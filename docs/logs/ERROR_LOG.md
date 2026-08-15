@@ -391,3 +391,31 @@ authenticated public REST endpoints for `legal_documents` and `birth_profiles`.
 For this Windows CLI behavior, do not treat the status/list process exit alone
 as proof that a migration failed. Confirm the push result and verify one or
 more expected remote schema endpoints without printing credentials or data.
+
+### ERR-20260816-004 — OpenRouter API key exposed in chat
+
+**Status:** OPEN / MANUAL_ACTION_REQUIRED
+**Task/Phase:** Phase 6 / provider credential setup
+**Area:** External AI provider credential handling
+
+#### Fingerprint
+
+```text
+ERROR_CODE: PROVIDER_SECRET_EXPOSED_OUTSIDE_SECRET_STORE
+EXCEPTION_TYPE: Credential exposure
+CORE_MESSAGE: OpenRouter API key was pasted into the conversation
+COMPONENT: OpenRouter provider setup
+ENVIRONMENT/VERSION: OpenRouter API key / user-provided
+```
+
+#### Required Fix
+
+Revoke the exposed key in OpenRouter, create a replacement, and enter the
+replacement directly into the Supabase server secret store. The key must not
+be committed, placed in Flutter config, or pasted into chat again.
+
+#### Regression Guard
+
+Provider adapters read only server environment secrets. Repository scans must
+reject provider key prefixes and client code must contain no provider endpoint,
+model-selection, or credential input path.

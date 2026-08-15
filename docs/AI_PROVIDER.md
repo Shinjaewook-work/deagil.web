@@ -396,3 +396,34 @@ quota/breaker test
 schema/content test
 rollback config
 ```
+
+## OpenRouter / NVIDIA Nemotron 3 Ultra (development)
+
+```text
+provider_id = openrouter-nemotron-3-ultra-free
+vendor = OpenRouter → NVIDIA
+status = DEV_APPROVED
+model = nvidia/nemotron-3-ultra-550b-a55b:free
+endpoint = https://openrouter.ai/api/v1/chat/completions
+credential = server-only OPENROUTER_API_KEY
+```
+
+The adapter is in `supabase/functions/_shared/openrouter_provider.ts`.
+It uses non-streaming chat completions, a fixed endpoint/model, no tools, a
+45-second timeout, a 128 KiB response cap, and JSON Schema structured output.
+The response still must pass the local Fortune schema/content validator before
+it can become canonical content.
+
+The free NVIDIA endpoint has provider-specific data processing and logging
+terms. Therefore it is not `PROD_APPROVED`; production activation requires a
+separate security/privacy/legal review and explicit provider registry approval.
+
+Required secret setup is intentionally manual and never committed:
+
+```powershell
+npx supabase secrets set OPENROUTER_API_KEY=<rotated-key>
+npx supabase secrets set OPENROUTER_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free
+```
+
+The key supplied in chat must be revoked and replaced before any server secret
+is configured.

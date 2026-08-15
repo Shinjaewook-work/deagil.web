@@ -1053,3 +1053,25 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - Android callback QA remains deferred to the next workday.
 - Production Kakao/Apple/AdMob/Firebase/provider/signing/legal work remains outside the Dev Google-only scope.
+
+### PROG-20260816-042 — OpenRouter Nemotron Dev provider adapter
+
+**Status:** CODE_READY / MANUAL_ACTION_REQUIRED
+**Goal:** OpenRouter의 NVIDIA Nemotron 3 Ultra free 모델을 Master의 backend-only ProviderAdapter 경계에 연결한다.
+
+**Changed**
+- 고정 endpoint `https://openrouter.ai/api/v1/chat/completions`와 고정 model slug를 사용하는 Deno server adapter를 추가했다.
+- `OPENROUTER_API_KEY`는 Supabase server secret에서만 읽도록 했다.
+- JSON Schema structured output, 45초 timeout, 128 KiB response cap, no-tools 요청을 적용했다.
+- provider HTTP 오류를 Master taxonomy로 정규화하고, 원문 응답/credential을 로그에 남기지 않도록 했다.
+- provider registry 상태는 `DEV_APPROVED`로 기록했다. 무료 endpoint의 데이터 처리/로깅 조건 때문에 production provider로 승인하지 않았다.
+
+**Validation**
+- OpenRouter 공식 API/model/structured-output 문서 확인
+- repository secret scan: supplied OpenRouter key not present
+- Flutter/client tree에는 OpenRouter URL·API key·provider credential을 추가하지 않음
+
+**Manual Actions**
+- 채팅에 노출된 기존 OpenRouter key를 OpenRouter Dashboard에서 즉시 revoke하고 새 key를 발급한다.
+- 새 key는 채팅으로 보내지 말고 로컬 PowerShell에서 `npx supabase secrets set OPENROUTER_API_KEY=<rotated-key>`로 직접 입력한다.
+- Dev provider registry/실제 generation worker 활성화 전 OpenRouter 무료 endpoint의 보안·개인정보·약관 검토가 필요하다.
