@@ -88,6 +88,24 @@ flutter test → PASS: 28 tests
 - 개발 환경은 계속 FakeAuthRepository를 사용한다.
 - Supabase schema/session persistence와 birth profile DB binding은 별도 DB integration gate에서 진행한다.
 
+### PROG-20260815-023 — Supabase redirect confirmation and Android build gate
+
+**Status:** PARTIAL
+**Goal:** 사용자의 mobile redirect 등록을 기록하고 Android debug build를 검증한다.
+
+**Changed**
+- 사용자가 Supabase URL Configuration에 mobile redirect URL을 추가했다.
+- Windows 한글 workspace 경로에서 Android Gradle이 차단되는 환경 문제를 `android.overridePathCheck=true`로 완화했다.
+
+**Verified**
+```text
+flutter devices → Windows, Chrome, Edge detected; Android device not connected
+Initial APK build → BLOCKED by non-ASCII project path check
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Android physical device or emulator connection for OAuth callback QA.
+
 **Follow-up**
 - Phase 2에서 authoritative DB schema, Fortune Day functions, RLS, validated RPC 계약을 구현한다.
 
