@@ -903,3 +903,20 @@ Google development OAuth → CONNECTED / user-confirmed
 
 **Manual Actions**
 - Google 로그인 버튼을 누르고 Google 테스트 계정으로 로그인하여 callback 완료를 확인해야 한다.
+
+### PROG-20260815-035 — 자동 릴리스·보안 검증 재실행
+
+**Status:** DONE
+**Goal:** Device Streaming 중단 이후에도 코드와 릴리스 계약을 자동 검증한다.
+
+**Validation**
+- `python scripts/master_contract_audit.py`: PASS
+- `python scripts/release_gate_audit.py`: PASS
+- `python scripts/security_hardening_audit.py`: PASS
+- `dart format --set-exit-if-changed .`: PASS
+- `flutter analyze`: PASS
+- `flutter test`: 28 tests PASS
+
+**Manual Actions**
+- Firebase Device Streaming 무료 사용량 소진으로 추가 원격 QA는 중단한다.
+- 실제 서비스 credential/console 승인, 실기기 callback·알림·시간 경계 QA, signing/store/legal 승인은 출시 시점까지 유지한다.
