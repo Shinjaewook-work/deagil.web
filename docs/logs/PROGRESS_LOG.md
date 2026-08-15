@@ -182,6 +182,9 @@ flutter test → PASS
 **Manual Actions**
 - `MANUAL_ACTION_REQUIRED`: cloud device reservation and Google callback QA.
 
+**Correction**
+- Development `isProductionReady` semantics are intentionally ignored for Supabase initialization; default dev remains Mock unless the explicit flag and client config are both present.
+
 ### PROG-20260815-032 — Supabase session callback wiring
 
 **Status:** DONE

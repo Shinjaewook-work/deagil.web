@@ -154,7 +154,7 @@ class AppConfig {
   bool get isProductionReady => productionConfigurationErrors.isEmpty;
 
   bool get shouldInitializeSupabase =>
-      isProductionReady ||
+      (!isDevelopment && isProductionReady) ||
       (isDevelopment && enableSupabaseAuth && _hasValidSupabaseClientConfig);
 
   bool get _hasValidSupabaseClientConfig =>
