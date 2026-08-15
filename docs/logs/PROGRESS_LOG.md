@@ -225,6 +225,36 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-012 — Phase 10 / local notification contract
+
+**Status:** PARTIAL
+**Goal:** Local notification permission/schedule, result tap route, logout cancellation, and timezone-safe Fortune Day boundary를 구현한다.
+
+**Changed**
+- `LocalNotificationService`와 development Fake를 추가했다.
+- permission denied 상태에서는 schedule을 생성하지 않는다.
+- 예약 payload는 `/fortune/result`만 허용하고 unknown payload는 `/today`로 fallback한다.
+- notification tap route와 logout `cancelAll` controller 경계를 추가했다.
+- schedule에는 Fortune date와 local scheduled time을 함께 보존한다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 20 tests
+```
+
+**Security / Privacy Check**
+- notification payload에 PII, fortune content, token을 넣지 않는다.
+- arbitrary deep link/open redirect를 허용하지 않는다.
+- permission 거부를 재시도 무한 루프로 만들지 않는다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: iOS/Android native notification permission/channel configuration and physical reboot/timezone verification.
+
+**Follow-up**
+- Phase 11에서 settings/privacy/account 화면, consent withdrawal, logout/account deletion을 구현한다.
+
 ### PROG-20260815-011 — Phase 9 / typed Fortune Result and screen
 
 **Status:** PARTIAL

@@ -14,6 +14,7 @@ import 'package:daegil_app/features/fortune/domain/fortune_generation.dart';
 import 'package:daegil_app/features/fortune/presentation/fortune_result_screen.dart';
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
 import 'package:daegil_app/features/passes/domain/fortune_pass_ledger.dart';
+import 'package:daegil_app/features/notifications/domain/local_notification_service.dart';
 
 void main() {
   testWidgets('auth route renders the legal gate', (tester) async {
@@ -391,5 +392,49 @@ void main() {
     expect(find.textContaining('AI 생성 콘텐츠'), findsOneWidget);
     expect(find.text('행운 숫자/색상/시간/키워드'), findsNothing);
     expect(find.textContaining('숫자 7'), findsOneWidget);
+  });
+
+  test(
+    'notification fake schedules, routes taps, and cancels on logout',
+    () async {
+      final service = FakeLocalNotificationService();
+      final tomorrow = DateTime(2026, 8, 16, 9);
+
+      expect(
+        await service.scheduleFortuneReminder(
+          fortuneDate: tomorrow,
+          scheduledAt: tomorrow,
+        ),
+        isTrue,
+      );
+      expect(service.scheduledRequest?.route, notificationResultRoute);
+      expect(
+        service.routeForTap(payloadRoute: notificationResultRoute),
+        notificationResultRoute,
+      );
+      expect(service.routeForTap(payloadRoute: '/unsafe'), '/today');
+      await service.cancelAll();
+      expect(service.scheduledRequest, isNull);
+      expect(service.events, [
+        'schedule:fortune-2026-8-16',
+        'tap:/fortune/result',
+        'tap:/unsafe',
+        'cancel_all',
+      ]);
+    },
+  );
+
+  test('denied notification permission does not schedule', () async {
+    final service = FakeLocalNotificationService(
+      permissionStatus: NotificationPermissionStatus.denied,
+    );
+    expect(
+      await service.scheduleFortuneReminder(
+        fortuneDate: DateTime(2026, 8, 16),
+        scheduledAt: DateTime(2026, 8, 16, 9),
+      ),
+      isFalse,
+    );
+    expect(service.scheduledRequest, isNull);
   });
 }
