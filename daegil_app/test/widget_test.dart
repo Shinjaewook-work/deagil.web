@@ -507,4 +507,38 @@ void main() {
       throwsStateError,
     );
   });
+
+  test(
+    'production config fails closed for placeholders and missing approvals',
+    () {
+      const config = AppConfig(
+        environment: AppEnvironment.prod,
+        supabaseUrl: 'https://example.supabase.co',
+        supabasePublishableKey: '',
+        admobRewardedUnitId: 'ca-app-pub-3940256099942544/5224354917',
+      );
+
+      expect(config.isProductionReady, isFalse);
+      expect(
+        config.productionConfigurationErrors,
+        containsAll([
+          'APP_DISPLAY_NAME_MISSING',
+          'SUPABASE_URL_INVALID',
+          'ADMOB_PRODUCTION_UNIT_MISSING',
+          'AI_PROVIDER_NOT_PROD_APPROVED',
+        ]),
+      );
+    },
+  );
+
+  test('development config keeps Mock/Fake path available', () {
+    const config = AppConfig(
+      environment: AppEnvironment.dev,
+      supabaseUrl: '',
+      supabasePublishableKey: '',
+      admobRewardedUnitId: '',
+    );
+    expect(config.isProductionReady, isTrue);
+    expect(config.appDisplayName, 'Luna Dev');
+  });
 }

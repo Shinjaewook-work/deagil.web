@@ -25,6 +25,15 @@ class AppConfig {
     required this.supabasePublishableKey,
     required this.admobRewardedUnitId,
     this.adSecurityMode = AdSecurityMode.fast,
+    this.adSecurityModeExplicit = false,
+    this.appDisplayNameOverride = '',
+    this.androidApplicationId = '',
+    this.iosBundleId = '',
+    this.publicWebDomain = '',
+    this.privacyUrl = '',
+    this.termsUrl = '',
+    this.accountDeletionUrl = '',
+    this.aiProviderRegistryStatus = '',
   });
 
   factory AppConfig.fromEnvironment() {
@@ -45,20 +54,46 @@ class AppConfig {
       admobRewardedUnitId: const String.fromEnvironment(
         'ADMOB_REWARDED_UNIT_ID',
       ),
-      adSecurityMode: parseAdSecurityMode(
-        const String.fromEnvironment('AD_SECURITY_MODE', defaultValue: 'fast'),
+      adSecurityMode: parseAdSecurityMode(rawSecurityMode),
+      adSecurityModeExplicit: rawSecurityMode.isNotEmpty,
+      appDisplayNameOverride: const String.fromEnvironment('APP_DISPLAY_NAME'),
+      androidApplicationId: const String.fromEnvironment(
+        'ANDROID_APPLICATION_ID',
+      ),
+      iosBundleId: const String.fromEnvironment('IOS_BUNDLE_ID'),
+      publicWebDomain: const String.fromEnvironment('PUBLIC_WEB_DOMAIN'),
+      privacyUrl: const String.fromEnvironment('PRIVACY_URL'),
+      termsUrl: const String.fromEnvironment('TERMS_URL'),
+      accountDeletionUrl: const String.fromEnvironment('ACCOUNT_DELETION_URL'),
+      aiProviderRegistryStatus: const String.fromEnvironment(
+        'AI_PROVIDER_REGISTRY_STATUS',
       ),
     );
   }
+
+  static const rawSecurityMode = String.fromEnvironment('AD_SECURITY_MODE');
 
   final AppEnvironment environment;
   final String supabaseUrl;
   final String supabasePublishableKey;
   final String admobRewardedUnitId;
   final AdSecurityMode adSecurityMode;
+  final bool adSecurityModeExplicit;
+  final String appDisplayNameOverride;
+  final String androidApplicationId;
+  final String iosBundleId;
+  final String publicWebDomain;
+  final String privacyUrl;
+  final String termsUrl;
+  final String accountDeletionUrl;
+  final String aiProviderRegistryStatus;
 
   bool get isDevelopment => environment == AppEnvironment.dev;
-  String get appDisplayName => isDevelopment ? 'Luna Dev' : 'Luna';
+  String get appDisplayName => isDevelopment
+      ? 'Luna Dev'
+      : appDisplayNameOverride.isEmpty
+      ? 'Luna'
+      : appDisplayNameOverride;
 
   @visibleForTesting
   bool get hasClientConfiguration =>
@@ -68,4 +103,46 @@ class AppConfig {
 
   bool get hasValidAdSecurityMode =>
       AdSecurityMode.values.contains(adSecurityMode);
+
+  List<String> get productionConfigurationErrors {
+    if (isDevelopment) return const [];
+    final errors = <String>[];
+    if (appDisplayNameOverride.trim().isEmpty) {
+      errors.add('APP_DISPLAY_NAME_MISSING');
+    }
+    if (!_isHttpsSupabaseUrl(supabaseUrl)) errors.add('SUPABASE_URL_INVALID');
+    if (supabasePublishableKey.isEmpty) {
+      errors.add('SUPABASE_PUBLISHABLE_KEY_MISSING');
+    }
+    if (admobRewardedUnitId.isEmpty ||
+        admobRewardedUnitId.contains('3940256099942544')) {
+      errors.add('ADMOB_PRODUCTION_UNIT_MISSING');
+    }
+    if (!adSecurityModeExplicit || !hasValidAdSecurityMode) {
+      errors.add('AD_SECURITY_MODE_INVALID_OR_MISSING');
+    }
+    if (_isPlaceholderPackage(androidApplicationId)) {
+      errors.add('ANDROID_APPLICATION_ID_INVALID');
+    }
+    if (_isPlaceholderPackage(iosBundleId)) errors.add('IOS_BUNDLE_ID_INVALID');
+    if (!_isHttpsUrl(privacyUrl)) errors.add('PRIVACY_URL_INVALID');
+    if (!_isHttpsUrl(termsUrl)) errors.add('TERMS_URL_INVALID');
+    if (!_isHttpsUrl(accountDeletionUrl)) {
+      errors.add('ACCOUNT_DELETION_URL_INVALID');
+    }
+    if (aiProviderRegistryStatus != 'PROD_APPROVED') {
+      errors.add('AI_PROVIDER_NOT_PROD_APPROVED');
+    }
+    return List.unmodifiable(errors);
+  }
+
+  bool get isProductionReady => productionConfigurationErrors.isEmpty;
+
+  static bool _isHttpsSupabaseUrl(String value) =>
+      _isHttpsUrl(value) && !value.contains('example');
+
+  static bool _isHttpsUrl(String value) => value.startsWith('https://');
+
+  static bool _isPlaceholderPackage(String value) =>
+      value.isEmpty || value.startsWith('com.example') || value == 'TBD';
 }

@@ -225,6 +225,40 @@ flutter test → PASS: 6 tests
 **Changed**
 - ...
 
+### PROG-20260815-016 — Phase 14 / production fail-closed integration boundary
+
+**Status:** PARTIAL
+**Goal:** Production configuration validation and external integration fail-closed boundary를 구현한다.
+
+**Changed**
+- `AppConfig`에 production identity, legal URL, AdMob, provider registry, AD_SECURITY_MODE explicit 검증을 추가했다.
+- production에서 missing/placeholder Supabase, test Ad ID, placeholder package/bundle, missing policy URL, non-`PROD_APPROVED` provider를 거부한다.
+- invalid production config는 bootstrap에서 안전한 설정 오류 화면으로 차단한다.
+- dev environment는 credential 없이 Mock/Fake 경로를 유지한다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS: No issues found
+flutter test → PASS: 27 tests
+flutter build windows → PASS
+python scripts/security_hardening_audit.py → PASS
+python scripts/repo_guard.py → PASS
+python scripts/harness_lint.py → PASS
+python scripts/master_contract_audit.py → PASS
+```
+
+**Security / Privacy Check**
+- production fail-open default를 만들지 않았다.
+- 실제 credential/secret을 코드·로그·문서에 기록하지 않았다.
+- production Mock provider와 test Ad ID 사용을 차단한다.
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Supabase Dev/Prod project and keys, Google/Apple/Kakao production OAuth, AdMob production units/SSV, Firebase native config, approved AI provider credentials/registry approval, final package IDs and legal URLs.
+
+**Follow-up**
+- Phase 15 release gate는 위 manual actions가 구성된 뒤 physical Android/iOS, store/legal, signed build 검증으로 진행한다.
+
 ### PROG-20260815-015 — Phase 13 / security and concurrency hardening
 
 **Status:** PARTIAL

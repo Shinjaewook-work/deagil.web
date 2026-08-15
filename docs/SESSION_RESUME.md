@@ -30,7 +30,8 @@ Phase 10 local notification permission/schedule, safe tap route, and logout canc
 Phase 11 settings/privacy/account routes and consent withdrawal contracts are present; Supabase deletion and OAuth revocation remain production gates.
 Phase 12 analytics/crash opt-in and normalized safe event contracts are present; native provider configuration remains a production gate.
 Phase 13 security hardening audit and client secret scan are present; live Supabase adversarial execution remains blocked on Dev project/CLI credentials.
-Continue with Phase 14 — production integration when owner credentials and console approvals are available.
+Phase 14 production fail-closed config boundary is present; actual service credentials and console approvals remain manual gates.
+Continue with Phase 15 — release gates after production credentials and approvals are supplied.
 ```
 
 Phase 0 changed:
