@@ -939,3 +939,24 @@ Google development OAuth → CONNECTED / user-confirmed
 **Manual Actions**
 - Docker Desktop WSL Linux engine 복구가 필요하다. 복구되면 `npx supabase start` 후 `npx supabase db lint --local`과 `npx supabase db reset`을 실행한다.
 - 원격 Dev project link/push에는 Supabase personal access token이 필요하며, 토큰은 채팅으로 보내지 않는다.
+
+### PROG-20260816-037 — Docker WSL 복구 및 Supabase migration 검증
+
+**Status:** DONE
+**Goal:** Docker Desktop WSL 오류를 복구하고 Phase 2 migration/RLS 로컬 검증을 수행한다.
+
+**Changed**
+- 누락된 `docker-desktop-data` WSL 등록을 확인하고, 해당 깨진 등록만 해제했다.
+- stale Docker backend 프로세스를 종료하고 WSL/Docker Desktop을 재기동했다.
+- Docker가 `docker-desktop-data` VHDX를 재생성하도록 복구했다.
+
+**Validation**
+- Docker WSL distros: `docker-desktop` / `docker-desktop-data` Running
+- Docker Engine `29.7.2` / Linux `aarch64`
+- `npx supabase db lint --local`: PASS, no schema errors
+- `npx supabase db reset --local`: PASS, migration applied
+- 핵심 DB/Auth/REST 컨테이너: Running
+
+**Manual Actions**
+- 부가 Supabase 컨테이너의 ARM health-check 문제는 현재 DB/RLS 검증 범위 밖이므로 제외했다.
+- Dev project 원격 link/push에는 Supabase personal access token이 필요하다. 토큰은 채팅으로 보내지 않는다.

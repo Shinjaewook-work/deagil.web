@@ -265,3 +265,50 @@ The result screen widget test constructs the default mock result and verifies th
 5. 사용자 birth data는 UI validation만 믿지 않고 server RPC에서 다시 검증한다.
 6. SSV delayed callback과 04:00 Fortune content expiry를 같은 retention으로 묶지 않는다.
 7. Supabase admin/secret client를 일반 user-data path의 기본값으로 사용하지 않는다.
+
+### ERR-20260816-001 — Docker Desktop WSL data distro missing
+
+**Status:** RESOLVED
+**Task/Phase:** Phase 2 / Supabase local migration verification
+**Area:** Docker Desktop / WSL2
+
+#### Fingerprint
+
+```text
+ERROR_CODE: DOCKER_WSL_DATA_DISTRO_MISSING
+EXCEPTION_TYPE: Docker Desktop startup failure
+CORE_MESSAGE: wsl-keepalive failed to start; docker-desktop-data ext4.vhdx path not found
+COMPONENT: Docker Desktop 4.86.0 / WSL 2.7.11.0
+ENVIRONMENT/VERSION: Windows 10.0.26200.9168 / ARM64
+```
+
+#### Root Cause
+
+The registered `docker-desktop-data` WSL distribution pointed to
+`%LOCALAPPDATA%\Docker\wsl\data\ext4.vhdx`, but that VHDX was absent. Docker
+backend remained in a stale engine-wait loop and later failed to open its
+backend named pipe because old backend processes were still alive.
+
+#### Permanent Fix
+
+Confirmed the VHDX was absent, unregistered only the broken
+`docker-desktop-data` distribution, fully terminated stale Docker processes,
+ran `wsl --shutdown`, and restarted Docker Desktop. Docker recreated the data
+distribution and its VHDX without touching the Ubuntu distribution.
+
+#### Verification
+
+```text
+docker-desktop WSL distro: Running
+docker-desktop-data WSL distro: Running
+Docker Engine: 29.7.2 / linux / aarch64
+npx supabase db lint --local: PASS, no schema errors
+npx supabase db reset --local: PASS
+```
+
+#### Regression Guard
+
+Before running Supabase local commands, verify `docker version` succeeds and
+both Docker WSL distributions are Running. If `docker-desktop-data` points to
+a missing VHDX, do not delete arbitrary Docker files; inspect the registered
+path and confirm the target is absent before unregistering that broken distro.
