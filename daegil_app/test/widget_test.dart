@@ -48,7 +48,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final button = find.ancestor(
-      of: find.text('카카오로 계속하기'),
+      of: find.text('Google로 계속하기'),
       matching: find.byType(ElevatedButton),
     );
     expect(tester.widget<ElevatedButton>(button).onPressed, isNull);

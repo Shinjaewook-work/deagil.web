@@ -58,8 +58,8 @@ ACCOUNT_DELETION_URL = TBD
 | Supabase Dev | Auth/DB/Edge | MANUAL_ACTION_REQUIRED |
 | Supabase Prod | Production backend | NOT_STARTED |
 | Google OAuth | Login | DEV_CONNECTED / MANUAL_ACTION_REQUIRED for release IDs and physical QA |
-| Apple Developer / Sign in with Apple | Login/deletion | CODE_READY / MANUAL_ACTION_REQUIRED for production IDs |
-| Kakao Developers | Login | CODE_READY / MANUAL_ACTION_REQUIRED for production IDs |
+| Apple Developer / Sign in with Apple | Login/deletion | DEFERRED by owner request |
+| Kakao Developers | Login | OUT_OF_SCOPE for current implementation |
 | Firebase Dev | Analytics/Crash | NOT_STARTED |
 | Firebase Prod | Analytics/Crash | NOT_STARTED |
 | AdMob Android | Rewarded | NOT_STARTED |
@@ -214,7 +214,7 @@ Apple: not configured
 Web OAuth client/domain: not configured
 ```
 
-Kakao adapter는 Flutter에 준비되어 있으나, Kakao Developers 앱 키/redirect 설정과 Supabase Kakao Provider 활성화 전까지는 production provider로 간주하지 않는다. Apple은 아직 adapter/console 설정을 보류한다.
+현재 구현은 Google 로그인만 지원한다. Kakao와 Apple 로그인은 UI·adapter·console 설정 대상에서 제외한다.
 
 Supabase `Authentication → URL Configuration → Redirect URLs`에도 mobile redirect URL을 추가해야 실제 앱 callback이 허용된다. 이는 공개 웹사이트를 만드는 설정이 아니다.
 

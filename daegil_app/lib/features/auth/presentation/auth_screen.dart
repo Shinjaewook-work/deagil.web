@@ -84,8 +84,6 @@ class AuthScreen extends ConsumerWidget {
   }
 
   String _providerName(SocialProvider provider) => switch (provider) {
-    SocialProvider.kakao => '카카오',
     SocialProvider.google => 'Google',
-    SocialProvider.apple => 'Apple',
   };
 }

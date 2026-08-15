@@ -101,6 +101,27 @@ flutter test → PASS
 - `MANUAL_ACTION_REQUIRED`: Kakao Developers app key, redirect configuration, and Supabase Kakao Provider setup.
 - `MANUAL_ACTION_REQUIRED`: Apple OAuth remains deferred by owner request.
 
+### PROG-20260815-029 — Google-only authentication scope
+
+**Status:** DONE
+**Goal:** owner 지시에 따라 실제 로그인 구현 범위를 Google 하나로 제한한다.
+
+**Changed**
+- `SocialProvider`를 Google 단일 provider로 축소했다.
+- Supabase adapter가 Google OAuth만 호출하도록 고정했다.
+- 로그인 화면에서 Kakao/Apple 버튼을 제거했다.
+- Kakao는 현재 범위 밖, Apple은 owner 요청에 따라 보류로 문서화했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Google physical/cloud-device callback QA only.
+
 ### PROG-20260815-026 — Production OAuth redirect fail-closed gate
 
 **Status:** DONE

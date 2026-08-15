@@ -1,7 +1,7 @@
 import '../models/registration_requirement.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-enum SocialProvider { kakao, google, apple }
+enum SocialProvider { google }
 
 abstract interface class AuthRepository {
   Future<List<RegistrationRequirement>> getRegistrationRequirements();
@@ -80,16 +80,8 @@ class SupabaseAuthRepository implements AuthRepository {
         !acceptedDocumentIds.contains('ai-processing-v1')) {
       throw StateError('REGISTRATION_REQUIREMENTS_INCOMPLETE');
     }
-    final oauthProvider = switch (provider) {
-      SocialProvider.google => OAuthProvider.google,
-      SocialProvider.kakao => OAuthProvider('kakao'),
-      SocialProvider.apple => throw StateError(
-        'SOCIAL_PROVIDER_NOT_CONFIGURED',
-      ),
-    };
-
     final response = await _client.auth.signInWithOAuth(
-      oauthProvider,
+      OAuthProvider.google,
       redirectTo: redirectTo,
     );
     if (!response) throw StateError('OAUTH_FLOW_NOT_STARTED');
