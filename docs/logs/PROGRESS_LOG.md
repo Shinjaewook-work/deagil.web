@@ -126,6 +126,25 @@ flutter emulators → no AVD available
 **Manual Actions**
 - `MANUAL_ACTION_REQUIRED`: system image download/AVD creation remains pending because SDK Manager dependency resolution is still unavailable.
 
+### PROG-20260815-025 — OAuth provider error containment
+
+**Status:** DONE
+**Goal:** 실제 Supabase Auth provider 오류가 UI 컨트롤러 밖으로 누출되지 않도록 안전한 앱 오류 코드로 변환한다.
+
+**Changed**
+- `AuthException`을 `AUTH_PROVIDER_FAILED`로 정규화해 UI 상태에 저장한다.
+- provider의 원문 오류, 토큰, credential은 앱 상태나 로그에 저장하지 않는다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS
+```
+
+**Manual Actions**
+- NONE
+
 **Follow-up**
 - Phase 2에서 authoritative DB schema, Fortune Day functions, RLS, validated RPC 계약을 구현한다.
 

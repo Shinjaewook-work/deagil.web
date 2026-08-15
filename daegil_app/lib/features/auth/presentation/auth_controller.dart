@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../data/auth_repository.dart';
 import '../models/registration_requirement.dart';
@@ -96,6 +97,11 @@ class AuthController extends Notifier<AuthState> {
       state = state.copyWith(isLoading: false, isAuthenticated: true);
     } on StateError catch (error) {
       state = state.copyWith(isLoading: false, errorMessage: error.message);
+    } on AuthException {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'AUTH_PROVIDER_FAILED',
+      );
     }
   }
 }
