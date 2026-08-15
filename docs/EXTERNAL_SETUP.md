@@ -209,9 +209,12 @@ Supabase Auth Google Provider 상태:
 Enabled: yes (user-confirmed)
 Client ID/Secret: entered in Supabase Dashboard (user-confirmed)
 Callback URL: https://nbdgwssdikmzitebqwdkq.supabase.co/auth/v1/callback
+Mobile redirect URL: com.example.daegil_app://login-callback/
 Apple: not configured
 Web OAuth client/domain: not configured
 ```
+
+Supabase `Authentication → URL Configuration → Redirect URLs`에도 mobile redirect URL을 추가해야 실제 앱 callback이 허용된다. 이는 공개 웹사이트를 만드는 설정이 아니다.
 
 ## Apple Operations
 

@@ -61,6 +61,33 @@ python scripts/repo_guard.py → PASS
 **Manual Actions**
 - NONE
 
+### PROG-20260815-022 — Supabase Flutter Google OAuth adapter
+
+**Status:** PARTIAL
+**Goal:** production configuration에서만 Supabase Auth Google OAuth를 사용하고, 개발 환경은 Mock 경로를 유지한다.
+
+**Changed**
+- `supabase_flutter` 의존성을 추가했다.
+- production-ready configuration에서만 Supabase를 초기화하도록 `main.dart`를 연결했다.
+- Google OAuth `SupabaseAuthRepository`를 추가했다. Apple/Kakao는 아직 연결하지 않는다.
+- Android/iOS custom deep-link callback scheme을 등록했다.
+- mobile redirect URL을 외부 설정 문서에 기록했다.
+
+**Verified**
+```text
+dart format --set-exit-if-changed . → PASS
+flutter analyze → PASS
+flutter test → PASS: 28 tests
+```
+
+**Manual Actions**
+- `MANUAL_ACTION_REQUIRED`: Supabase URL Configuration에 `com.example.daegil_app://login-callback/`를 Redirect URL로 추가한다.
+- `MANUAL_ACTION_REQUIRED`: production build values, release signing identity, and physical Android callback test remain pending.
+
+**Follow-up**
+- 개발 환경은 계속 FakeAuthRepository를 사용한다.
+- Supabase schema/session persistence와 birth profile DB binding은 별도 DB integration gate에서 진행한다.
+
 **Follow-up**
 - Phase 2에서 authoritative DB schema, Fortune Day functions, RLS, validated RPC 계약을 구현한다.
 

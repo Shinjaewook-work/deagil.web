@@ -34,6 +34,7 @@ class AppConfig {
     this.termsUrl = '',
     this.accountDeletionUrl = '',
     this.aiProviderRegistryStatus = '',
+    this.authRedirectUrl = 'com.example.daegil_app://login-callback/',
   });
 
   factory AppConfig.fromEnvironment() {
@@ -68,6 +69,10 @@ class AppConfig {
       aiProviderRegistryStatus: const String.fromEnvironment(
         'AI_PROVIDER_REGISTRY_STATUS',
       ),
+      authRedirectUrl: const String.fromEnvironment(
+        'AUTH_REDIRECT_URL',
+        defaultValue: 'com.example.daegil_app://login-callback/',
+      ),
     );
   }
 
@@ -87,6 +92,7 @@ class AppConfig {
   final String termsUrl;
   final String accountDeletionUrl;
   final String aiProviderRegistryStatus;
+  final String authRedirectUrl;
 
   bool get isDevelopment => environment == AppEnvironment.dev;
   String get appDisplayName => isDevelopment

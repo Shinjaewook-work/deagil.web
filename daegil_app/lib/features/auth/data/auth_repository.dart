@@ -1,4 +1,5 @@
 import '../models/registration_requirement.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum SocialProvider { kakao, google, apple }
 
@@ -51,5 +52,42 @@ class FakeAuthRepository implements AuthRepository {
         !acceptedDocumentIds.contains('ai-processing-v1')) {
       throw StateError('REGISTRATION_REQUIREMENTS_INCOMPLETE');
     }
+  }
+}
+
+class SupabaseAuthRepository implements AuthRepository {
+  SupabaseAuthRepository({
+    required SupabaseClient client,
+    required this.redirectTo,
+  }) : _client = client;
+
+  final SupabaseClient _client;
+  final String redirectTo;
+
+  @override
+  Future<List<RegistrationRequirement>> getRegistrationRequirements() async {
+    return FakeAuthRepository.requirements;
+  }
+
+  @override
+  Future<void> signIn({
+    required SocialProvider provider,
+    required bool age14PlusAttested,
+    required Set<String> acceptedDocumentIds,
+  }) async {
+    if (!age14PlusAttested ||
+        !acceptedDocumentIds.contains('terms-v1') ||
+        !acceptedDocumentIds.contains('ai-processing-v1')) {
+      throw StateError('REGISTRATION_REQUIREMENTS_INCOMPLETE');
+    }
+    if (provider != SocialProvider.google) {
+      throw StateError('SOCIAL_PROVIDER_NOT_CONFIGURED');
+    }
+
+    final response = await _client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: redirectTo,
+    );
+    if (!response) throw StateError('OAUTH_FLOW_NOT_STARTED');
   }
 }
