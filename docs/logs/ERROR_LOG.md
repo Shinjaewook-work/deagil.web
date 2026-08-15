@@ -4,7 +4,7 @@
 
 ### ERR-20260815-001 — Flutter toolchain unavailable
 
-**Status:** OPEN
+**Status:** RESOLVED
 **Task/Phase:** Phase 0 / Repository bootstrap
 **Area:** Flutter
 
@@ -46,7 +46,7 @@ Install/configure the Flutter SDK in the development environment, then rerun the
 
 #### Verification
 
-Pending toolchain availability; static harness and repository guard pass.
+Flutter 3.41.9 / Dart 3.11.5 installed. `flutter pub get`, `dart format --set-exit-if-changed .`, `flutter analyze`, and `flutter test` pass.
 
 #### Regression Guard
 

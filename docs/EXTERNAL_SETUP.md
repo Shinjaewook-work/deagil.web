@@ -17,8 +17,8 @@ BLOCKED
 
 | Tool | Detected value | Status |
 |---|---|---|
-| Flutter | command not found on PATH (2026-08-15) | BLOCKED |
-| Dart | command not found on PATH (2026-08-15) | BLOCKED |
+| Flutter | 3.41.9 stable (`C:\tools\flutter`) | VERIFIED |
+| Dart | 3.11.5 (`C:\tools\flutter\bin\cache\dart-sdk`) | VERIFIED |
 | Python | 3.13.9 | VERIFIED |
 | Git | repository initialized | VERIFIED |
 | Supabase CLI | not required in Phase 0 | NOT_STARTED |

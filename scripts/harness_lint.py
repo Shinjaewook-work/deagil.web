@@ -35,6 +35,9 @@ actual={
     if p.is_file()
     and '.git' not in p.relative_to(ROOT).parts
     and '__pycache__' not in p.relative_to(ROOT).parts
+    and '.dart_tool' not in p.relative_to(ROOT).parts
+    and 'build' not in p.relative_to(ROOT).parts
+    and p.name != 'pubspec.lock'
 }
 missing=sorted(EXPECTED-actual)
 allowed_project_prefixes=('lib/','test/','config/','assets/','pubspec.yaml','analysis_options.yaml','.gitignore')

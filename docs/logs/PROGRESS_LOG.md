@@ -2,7 +2,7 @@
 
 ### PROG-20260815-001 — Phase 0 / Repository bootstrap
 
-**Status:** PARTIAL
+**Status:** DONE
 **Goal:** 기존 harness를 보존하면서 최소 Flutter scaffold와 dev/prod client config skeleton을 추가한다.
 
 **Changed**
@@ -26,10 +26,11 @@ flutter test → BLOCKED: flutter command not found
 - `unlock_status`, direct AI URL, direct provider call은 추가하지 않았다.
 
 **Manual Actions**
-- NONE for code implementation. Flutter SDK 설치/PATH 등록은 로컬 환경 준비 작업이다.
+- NONE. Flutter SDK 설치 후 검증을 완료했다.
 
 **Follow-up**
-- 관리자 권한 셸에서 Flutter SDK를 준비한 뒤 Phase 0 native verification을 재실행하고 Phase 1로 진행한다.
+- Chocolatey로 Flutter 3.41.9를 설치했고, `C:\tools\flutter`를 검증 셸 PATH에 반영했다.
+- const lint 1건을 수정한 뒤 native 검증을 모두 통과했다.
 - Chocolatey 자동 설치는 비관리자 셸 확인 프롬프트에서 중단되었고 미완료 산출물은 남기지 않았다.
 
 ## Entry Template

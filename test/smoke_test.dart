@@ -14,7 +14,7 @@ void main() {
       admobRewardedUnitId: '',
     );
 
-    await tester.pumpWidget(LunaApp(config: config));
+    await tester.pumpWidget(const LunaApp(config: config));
 
     expect(find.text('오늘도 알려주겠다냥!'), findsOneWidget);
     expect(config.isDevelopment, isTrue);

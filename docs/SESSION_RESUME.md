@@ -15,9 +15,9 @@ LUNA_IMPLEMENTATION_MASTER.md
 Current status:
 
 ```text
-Phase 0 scaffold is present.
-Flutter/Dart CLI are not installed or available on PATH, so native analyze/test verification is pending.
-Continue from Phase 0 verification, then Phase 1 after toolchain is available.
+Phase 0 scaffold and native verification are complete.
+Flutter 3.41.9 / Dart 3.11.5 are installed at C:\tools\flutter; this shell prepends that path for commands.
+Continue with Phase 1 — app foundation/design.
 ```
 
 Phase 0 changed:
