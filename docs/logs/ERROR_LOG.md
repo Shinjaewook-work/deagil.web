@@ -475,7 +475,8 @@ COMPONENT: Flutter Windows build / daegil_app
 
 - `daegil_app` is the current implementation project; its analyze, test, and web release build pass.
 - Windows build reaches the platform toolchain but stops before compilation because Flutter cannot create plugin symlinks.
-- The current-user registry developer flag was set and the Windows Developer settings page opened, but Flutter still reports Developer Mode disabled.
+- The Windows Settings UI toggle was switched from Off to On through UI automation, but a direct symbolic-link probe still returns `WinError 1314`.
+- The current user therefore still lacks `SeCreateSymbolicLinkPrivilege`; an elevated terminal or organization policy change is required before Flutter can create plugin links.
 
 #### Required Fix
 
