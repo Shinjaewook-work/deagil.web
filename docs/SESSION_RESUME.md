@@ -65,7 +65,13 @@ no unlock_status
 no current FULFILLMENT_MISSED UI state
 pass active cap = available + reserved <= 3
 pass stays reserved through recovery
+
 birth write is server validated
 consent events are append-only and re-consentable
 earned entitlement is never re-monetized
 ```
+
+Current local runtime note:
+
+- The current implementation is `daegil_app`; root-level Windows files generated during diagnosis were removed.
+- `daegil_app` analyze/test/web release pass. Windows runtime remains gated by OS Developer Mode symlink support (`ERR-202608160006`).

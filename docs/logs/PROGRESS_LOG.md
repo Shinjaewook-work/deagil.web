@@ -1280,3 +1280,17 @@ Google development OAuth → CONNECTED / user-confirmed
 **Result**
 - x86_64 AVD도 호스트의 CPU virtualization extension 미지원으로 종료됐다.
 - 오류 상세와 BIOS/Windows Hypervisor Platform 수동 조치를 `ERROR_LOG.md`에 기록했다.
+
+### PROG-202608160054 — Windows runtime target correction
+
+**Status:** PARTIAL / MANUAL_ACTION_REQUIRED
+**Goal:** 최신 대길 UI를 올바른 Flutter 프로젝트에서 Windows로 실행 검증한다.
+
+**Changed**
+- 최상위 저장소가 별도 초기 Luna 스캐폴드이고 실제 최신 UI가 `daegil_app`에 있음을 실행 화면으로 확인했다.
+- 잘못 생성했던 최상위 Windows 임시 파일을 제거해 하네스를 복구했다.
+- `daegil_app` 정적 검증은 analyze PASS, 32 tests PASS, web release build PASS.
+
+**Result**
+- `daegil_app` Windows build는 코드가 아닌 Windows Developer Mode/symlink 권한 게이트에서 중단됐다.
+- 설정 페이지를 열고 현재 사용자 개발자 플래그를 설정했으나 Flutter가 계속 OS 개발자 모드 활성화를 요구한다.

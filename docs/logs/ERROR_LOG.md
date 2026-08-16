@@ -457,3 +457,26 @@ BIOS/UEFI virtualization 또는 Windows Hypervisor Platform을 owner가 활성�
 #### Regression Guard
 
 Before physical QA, `emulator -list-avds`, `adb devices`, and a cold boot of the selected x86_64 AVD must all pass before reporting Android callback or release QA as complete.
+
+### ERR-202608160006 — Windows Developer Mode required for plugin build
+
+**Status:** OPEN / MANUAL_ACTION_REQUIRED
+**Task/Phase:** Phase 15 / Windows runtime QA
+**Area:** Local Windows build
+
+#### Fingerprint
+
+```text
+CORE_MESSAGE: Building with plugins requires symlink support
+COMPONENT: Flutter Windows build / daegil_app
+```
+
+#### Investigation
+
+- `daegil_app` is the current implementation project; its analyze, test, and web release build pass.
+- Windows build reaches the platform toolchain but stops before compilation because Flutter cannot create plugin symlinks.
+- The current-user registry developer flag was set and the Windows Developer settings page opened, but Flutter still reports Developer Mode disabled.
+
+#### Required Fix
+
+Owner must enable Windows Settings > System > For developers > Developer Mode, then rerun `flutter build windows --debug` from `C:\Users\every\Documents\대길 개발\daegil_app`. No BIOS/security bypass was performed.
