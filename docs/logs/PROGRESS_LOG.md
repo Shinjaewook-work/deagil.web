@@ -1267,3 +1267,16 @@ Google development OAuth → CONNECTED / user-confirmed
 - 이미지 5종 육안 검수: PASS
 - Flutter analyze/test: PASS
 - Flutter web release build: PASS
+
+### PROG-202608160053 — Android x86 emulator recovery attempt
+
+**Status:** BLOCKED / MANUAL_ACTION_REQUIRED
+**Goal:** arm64 AVD 문제를 x86_64 AVD로 우회해 Android QA를 직접 실행한다.
+
+**Changed**
+- `Pixel_6_x86` AVD를 Android 37.1 Google APIs x86_64 system image로 생성했다.
+- 기존 arm64 AVD와 x86_64 AVD의 cold boot을 각각 확인했다.
+
+**Result**
+- x86_64 AVD도 호스트의 CPU virtualization extension 미지원으로 종료됐다.
+- 오류 상세와 BIOS/Windows Hypervisor Platform 수동 조치를 `ERROR_LOG.md`에 기록했다.

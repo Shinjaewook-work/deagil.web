@@ -428,3 +428,32 @@ be committed, placed in Flutter config, or pasted into chat again.
 Provider adapters read only server environment secrets. Repository scans must
 reject provider key prefixes and client code must contain no provider endpoint,
 model-selection, or credential input path.
+
+### ERR-202608160005 — Android emulator hardware acceleration unavailable
+
+**Status:** OPEN / MANUAL_ACTION_REQUIRED
+**Task/Phase:** Phase 15 / physical QA
+**Area:** Android emulator execution
+
+#### Fingerprint
+
+```text
+ERROR_CODE: ANDROID_EMULATOR_ACCELERATION_UNAVAILABLE
+EXCEPTION_TYPE: Emulator startup failure
+CORE_MESSAGE: x86_64 emulation requires hardware acceleration; virtualization extension is not supported
+COMPONENT: Android Emulator 37.2.4 / Pixel_6_x86
+ENVIRONMENT/VERSION: Windows host, Android API 37.1 Google APIs x86_64
+```
+
+#### Investigation
+
+- 기존 Pixel_6 AVD는 arm64 이미지라 x86_64 Windows 호스트에서 시작할 수 없었다.
+- x86_64 system image를 사용한 `Pixel_6_x86` AVD를 새로 만들었지만, 호스트에서 CPU virtualization extension이 비활성/미지원이라 QEMU2가 종료됐다.
+
+#### Required Fix
+
+BIOS/UEFI virtualization 또는 Windows Hypervisor Platform을 owner가 활성화하고 재부팅하거나, 실제 Android 기기를 연결한다. Windows 보안/BIOS 설정은 자동 변경하지 않는다.
+
+#### Regression Guard
+
+Before physical QA, `emulator -list-avds`, `adb devices`, and a cold boot of the selected x86_64 AVD must all pass before reporting Android callback or release QA as complete.
