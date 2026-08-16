@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import 'app.dart';
+import 'app_shell.dart';
 import '../core/config/app_config.dart';
 import '../features/auth/presentation/auth_screen.dart';
 import '../features/fortune/presentation/fortune_result_screen.dart';
@@ -14,41 +15,46 @@ GoRouter buildLunaRouter(AppConfig config) {
     debugLogDiagnostics: config.isDevelopment,
     routes: [
       GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
-      GoRoute(
-        path: '/today',
-        builder: (context, state) => const CatHomeScreen(),
-      ),
-      GoRoute(
-        path: '/profile/setup',
-        builder: (context, state) => const BirthProfileScreen(),
-      ),
-      GoRoute(
-        path: '/fortune/result',
-        builder: (context, state) => FortuneResultScreen(),
-      ),
-      GoRoute(
-        path: '/settings',
-        builder: (context, state) => const SettingsScreen(),
-      ),
-      GoRoute(
-        path: '/settings/profile',
-        builder: (context, state) => const BirthProfileScreen(),
-      ),
-      GoRoute(
-        path: '/settings/notification',
-        builder: (context, state) => const NotificationSettingsScreen(),
-      ),
-      GoRoute(
-        path: '/settings/privacy',
-        builder: (context, state) => const PrivacySettingsScreen(),
-      ),
-      GoRoute(
-        path: '/settings/account',
-        builder: (context, state) => const AccountSettingsScreen(),
-      ),
-      GoRoute(
-        path: '/settings/account/delete',
-        builder: (context, state) => const AccountDeletionScreen(),
+      ShellRoute(
+        builder: (context, state, child) => DaegilAppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/today',
+            builder: (context, state) => const CatHomeScreen(),
+          ),
+          GoRoute(
+            path: '/profile/setup',
+            builder: (context, state) => const BirthProfileScreen(),
+          ),
+          GoRoute(
+            path: '/fortune/result',
+            builder: (context, state) => FortuneResultScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/settings/profile',
+            builder: (context, state) => const BirthProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings/notification',
+            builder: (context, state) => const NotificationSettingsScreen(),
+          ),
+          GoRoute(
+            path: '/settings/privacy',
+            builder: (context, state) => const PrivacySettingsScreen(),
+          ),
+          GoRoute(
+            path: '/settings/account',
+            builder: (context, state) => const AccountSettingsScreen(),
+          ),
+          GoRoute(
+            path: '/settings/account/delete',
+            builder: (context, state) => const AccountDeletionScreen(),
+          ),
+        ],
       ),
     ],
     errorBuilder: (context, state) => PlaceholderScreen(

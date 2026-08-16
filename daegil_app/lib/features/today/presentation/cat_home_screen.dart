@@ -123,22 +123,6 @@ class CatHomeScreen extends ConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 0,
-        onDestinationSelected: (index) {
-          if (index == 2) context.go('/settings/notification');
-          if (index == 3) context.go('/settings');
-        },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), label: '내운'),
-          NavigationDestination(icon: Icon(Icons.pets_outlined), label: '운세'),
-          NavigationDestination(
-            icon: Icon(Icons.notifications_none),
-            label: '알림',
-          ),
-          NavigationDestination(icon: Icon(Icons.person_outline), label: '프로필'),
-        ],
-      ),
     );
   }
 
