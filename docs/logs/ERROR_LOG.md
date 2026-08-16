@@ -393,14 +393,13 @@ as proof that a migration failed. Confirm the push result and verify one or
 more expected remote schema endpoints without printing credentials or data.
 
 2026-08-16 Phase 10~14 migration retry additionally received Supabase API
-`login-role` HTTP 502 from the Cloudflare origin. Local reset/lint passed and
-the retry was not treated as an applied remote migration; deployment must be
-rechecked after the Supabase control plane recovers.
+`login-role` HTTP 502 from the Cloudflare origin. Local reset/lint passed.
+Resolved by using the official database-password flow; remote push subsequently
+reported `Remote database is up to date`.
 
 Official troubleshooting was checked: `supabase@beta link --skip-pooler`
-confirmed the alternate path, but this PC has no IPv6 support. The remaining
-supported path is `SUPABASE_DB_PASSWORD=<database-password> supabase db push`;
-the password is not available in the workspace and was not requested or logged.
+confirmed the alternate path, but this PC has no IPv6 support. The supported
+password flow was used without recording the password.
 
 ### ERR-20260816-004 — OpenRouter API key exposed in chat
 

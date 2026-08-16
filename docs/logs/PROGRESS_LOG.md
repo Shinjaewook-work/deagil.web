@@ -1175,4 +1175,4 @@ Google development OAuth → CONNECTED / user-confirmed
 - Final Android applicationId/iOS Bundle ID, signing, physical Android/iOS QA
 - production Supabase/OAuth/AdMob/Firebase/AI credentials and console approvals
 - store privacy/Data Safety/legal/asset license approvals
-- Supabase migration `202608160004` remote push after DB password or IPv6-capable network is available
+- Supabase migration `202608160004` remote push completed through the database-password flow; password was not recorded
