@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -5,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'bootstrap.dart';
 import 'core/config/app_config.dart';
 import 'features/auth/data/auth_repository.dart';
+import 'features/auth/data/windows_oauth_callback_server.dart';
 import 'features/auth/presentation/auth_controller.dart';
 import 'features/fortune/data/fortune_repository.dart';
 import 'features/settings/presentation/settings_controller.dart';
@@ -21,9 +24,15 @@ Future<void> main() async {
       url: config.supabaseUrl,
       publishableKey: config.supabasePublishableKey,
     );
+    final authRedirectUrl = Platform.isWindows
+        ? 'http://${WindowsOAuthCallbackServer.host}:${WindowsOAuthCallbackServer.port}'
+        : config.authRedirectUrl;
+    if (Platform.isWindows) {
+      await WindowsOAuthCallbackServer.start();
+    }
     productionAuthRepository = SupabaseAuthRepository(
       client: Supabase.instance.client,
-      redirectTo: config.authRedirectUrl,
+      redirectTo: authRedirectUrl,
     );
   }
   if (productionAuthRepository != null) {

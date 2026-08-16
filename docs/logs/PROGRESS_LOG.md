@@ -1315,3 +1315,16 @@ Google development OAuth → CONNECTED / user-confirmed
 - Supabase-authenticated Windows release app reached the Google account screen.
 - Google returned `redirect_uri_mismatch`; exact callback and owner action recorded in `ERROR_LOG.md`.
 - Removed Supabase client-side validation of Mock fixture legal IDs; server-driven legal requirements remain authoritative.
+
+### PROG-202608160057 — Google OAuth final login verified
+
+**Status:** VERIFIED
+**Goal:** Complete the Windows Google OAuth flow through authenticated app state.
+
+**Validation**
+- Added explicit Google email userinfo scope for Supabase callback identity creation.
+- Added a Windows-only loopback callback server at `http://localhost:3000` that exchanges the PKCE code with Supabase in-process.
+- `flutter analyze --no-pub`: passed.
+- `flutter test --no-pub`: 32 tests passed.
+- Windows Release build succeeded.
+- Live Google login completed and the app displayed the authenticated fortune home screen.

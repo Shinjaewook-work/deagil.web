@@ -490,7 +490,7 @@ Owner must enable Windows Settings > System > For developers > Developer Mode, t
 
 ### ERR-202608160007 — Google OAuth redirect URI mismatch
 
-**Status:** OPEN / MANUAL_ACTION_REQUIRED
+**Status:** RESOLVED / VERIFIED
 **Task/Phase:** Phase 15 / Google OAuth verification
 **Area:** Google Cloud OAuth client configuration
 
@@ -515,3 +515,9 @@ In Google Cloud Console, open the Web OAuth client configured in Supabase Authen
 `https://nbdgwssdikmzitebqwkq.supabase.co/auth/v1/callback`
 
 Save it, wait for propagation, then repeat Google sign-in. The custom app scheme remains the Supabase `redirect_to`; it must not replace the Supabase callback in Google Cloud.
+
+#### Resolution
+
+- The Google web client callback was registered and the Supabase Google provider was synchronized with that client.
+- Windows OAuth now uses a loopback callback server on `http://localhost:3000` and exchanges the PKCE code in the same app process.
+- Live verification completed: Google account selection returned to the local callback page and the app transitioned to the authenticated fortune home screen.
