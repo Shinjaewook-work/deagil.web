@@ -1,9 +1,26 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
+import '../data/mobile_rewarded_ad_service.dart';
 import '../domain/rewarded_ad_service.dart';
 
 final rewardedAdServiceProvider = Provider<RewardedAdService>((ref) {
+  final config = AppConfig.fromEnvironment();
+  final isMobile =
+      !const bool.fromEnvironment('dart.library.html') &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+  if (isMobile) {
+    return MobileRewardedAdService(
+      rewardedUnitId: config.admobRewardedUnitId.isEmpty
+          ? (defaultTargetPlatform == TargetPlatform.android
+                ? 'ca-app-pub-3940256099942544/5224354917'
+                : 'ca-app-pub-3940256099942544/1712485313')
+          : config.admobRewardedUnitId,
+      securityMode: config.adSecurityMode,
+    );
+  }
   return FakeRewardedAdService(
     rewardedUnitId: 'ca-app-pub-3940256099942544/5224354917',
     securityMode: AdSecurityMode.fast,

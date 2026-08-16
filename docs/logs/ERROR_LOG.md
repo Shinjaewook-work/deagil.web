@@ -529,3 +529,11 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 **Resolution:** Updated the test to scroll the `ListView` and call `ensureVisible` for each consent row and the sign-in button. The production widget behavior was unchanged.
 
 **Validation:** Targeted test and full `flutter test --no-pub` both pass.
+
+#### 2026-08-16 — Native ad dependency initially failed analysis
+
+**Symptom:** The first native Rewarded implementation used `const StateError` and triggered analyzer errors because `StateError` is not const in this SDK/runtime.
+
+**Resolution:** Removed the invalid const constructors, added override annotations, and replaced the unused callback underscores with named callback parameters.
+
+**Validation:** `flutter analyze --no-pub`, full Flutter tests, and debug APK build pass.

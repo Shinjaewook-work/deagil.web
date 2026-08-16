@@ -18,7 +18,8 @@ class CatHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(rewardedAdControllerProvider, (previous, next) {
       if (next.status == RewardedAdFlowStatus.showing &&
-          previous?.status != RewardedAdFlowStatus.showing) {
+          previous?.status != RewardedAdFlowStatus.showing &&
+          !ref.read(rewardedAdServiceProvider).usesNativeSdk) {
         _showFakeRewardedAd(context);
       }
       if (next.status == RewardedAdFlowStatus.completed &&

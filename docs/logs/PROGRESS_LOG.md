@@ -1343,3 +1343,19 @@ Google development OAuth → CONNECTED / user-confirmed
 - `flutter analyze --no-pub`: passed.
 - `flutter test --no-pub`: 32 tests passed.
 - `harness_lint.py`, `repo_guard.py`, and `git diff --check`: passed.
+
+### PROG-202608161300 — Mobile Rewarded Ad SDK integration
+
+**Status:** PARTIAL / MANUAL_ACTION_REQUIRED
+**Goal:** Connect Google Mobile Ads Rewarded SDK while preserving Fake ads on Windows/web.
+
+**Validation**
+- Added `google_mobile_ads` and a native Android/iOS Rewarded implementation with preload, show, impression, reward, dismiss, and SSV custom-data hooks.
+- Android uses the official Google test App ID and rewarded unit ID; iOS uses the corresponding official test IDs.
+- Windows/web continue using the deterministic Fake service and visible development ad dialog.
+- `flutter analyze --no-pub`: passed.
+- `flutter test --no-pub`: 32 tests passed.
+- Debug APK build succeeded at `daegil_app/build/app/outputs/flutter-apk/app-debug.apk`.
+
+**Remaining gate**
+- Replace test App IDs/unit IDs with the owner's production AdMob IDs and complete the server-side prepare/claim function deployment before a production release.

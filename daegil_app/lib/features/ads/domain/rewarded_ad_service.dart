@@ -39,6 +39,8 @@ class RewardedAdShowResult {
 abstract interface class RewardedAdService {
   String get rewardedUnitId;
 
+  bool get usesNativeSdk;
+
   AdSecurityMode get securityMode;
 
   Future<void> preload();
@@ -67,6 +69,9 @@ class FakeRewardedAdService implements RewardedAdService {
 
   @override
   final String rewardedUnitId;
+
+  @override
+  bool get usesNativeSdk => false;
 
   @override
   final AdSecurityMode securityMode;
