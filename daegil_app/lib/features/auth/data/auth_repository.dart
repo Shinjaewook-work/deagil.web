@@ -140,6 +140,10 @@ class SupabaseAuthRepository implements AuthRepository {
     final response = await _client.auth.signInWithOAuth(
       OAuthProvider.google,
       redirectTo: redirectTo,
+      // Google Workspace/consumer accounts may not return an email claim
+      // unless the email userinfo scope is explicitly requested. Supabase
+      // uses that claim to create the auth identity during callback.
+      scopes: 'https://www.googleapis.com/auth/userinfo.email',
     );
     if (!response) throw StateError('OAUTH_FLOW_NOT_STARTED');
     return const AuthSignInResult.pending();
