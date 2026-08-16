@@ -131,9 +131,10 @@ class SupabaseAuthRepository implements AuthRepository {
     required bool age14PlusAttested,
     required Set<String> acceptedDocumentIds,
   }) async {
-    if (!age14PlusAttested ||
-        !acceptedDocumentIds.contains('terms-v1') ||
-        !acceptedDocumentIds.contains('ai-processing-v1')) {
+    // Legal requirements are server-driven. Supabase returns active document
+    // UUIDs, so the client must not enforce Mock fixture IDs here. The
+    // completion RPC performs the authoritative active-document check.
+    if (!age14PlusAttested) {
       throw StateError('REGISTRATION_REQUIREMENTS_INCOMPLETE');
     }
     final response = await _client.auth.signInWithOAuth(

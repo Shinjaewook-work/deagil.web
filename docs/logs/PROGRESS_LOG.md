@@ -1305,3 +1305,13 @@ Google development OAuth → CONNECTED / user-confirmed
 - Debug and release Windows builds both succeeded.
 - Release executable launched successfully as `대길`.
 - Runtime screenshot verified the Korean consent screen, hanbok male cat asset, required consent rows, and Google sign-in entry point.
+
+### PROG-202608160056 — Google OAuth live verification
+
+**Status:** PARTIAL / MANUAL_ACTION_REQUIRED
+
+**Validation**
+- Corrected Supabase project URL: RPC HTTP 200 and Google authorize HTTP 302.
+- Supabase-authenticated Windows release app reached the Google account screen.
+- Google returned `redirect_uri_mismatch`; exact callback and owner action recorded in `ERROR_LOG.md`.
+- Removed Supabase client-side validation of Mock fixture legal IDs; server-driven legal requirements remain authoritative.

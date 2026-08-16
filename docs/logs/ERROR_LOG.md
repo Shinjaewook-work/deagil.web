@@ -487,3 +487,31 @@ Owner must enable Windows Settings > System > For developers > Developer Mode, t
 - Owner completed the required elevated build step.
 - `flutter build windows --debug --no-pub` and `flutter build windows --release --no-pub` both completed successfully.
 - Release executable launched and displayed the `대길` consent screen with the hanbok cat asset and Google sign-in entry point.
+
+### ERR-202608160007 — Google OAuth redirect URI mismatch
+
+**Status:** OPEN / MANUAL_ACTION_REQUIRED
+**Task/Phase:** Phase 15 / Google OAuth verification
+**Area:** Google Cloud OAuth client configuration
+
+#### Fingerprint
+
+```text
+HTTP_STATUS: 400
+ERROR: redirect_uri_mismatch
+CALLBACK: https://nbdgwssdikmzitebqwkq.supabase.co/auth/v1/callback
+```
+
+#### Investigation
+
+- The corrected Supabase project URL resolves and registration RPC returns HTTP 200.
+- The authorize endpoint returns HTTP 302 to Google.
+- The Windows release app reaches the Google account page, which then rejects the request because the Supabase callback is not registered on the Google OAuth client used by Supabase.
+
+#### Required Fix
+
+In Google Cloud Console, open the Web OAuth client configured in Supabase Authentication > Sign In / Providers > Google and add this exact Authorized redirect URI:
+
+`https://nbdgwssdikmzitebqwkq.supabase.co/auth/v1/callback`
+
+Save it, wait for propagation, then repeat Google sign-in. The custom app scheme remains the Supabase `redirect_to`; it must not replace the Supabase callback in Google Cloud.
