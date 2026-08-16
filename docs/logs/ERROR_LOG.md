@@ -530,17 +530,29 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 
 **Validation:** Targeted test and full `flutter test --no-pub` both pass.
 
-#### 2026-08-16 — Android OAuth relay was not allowlisted
+#### 2026-08-16 — Android OAuth relay allowlist diagnosis (superseded)
 
 **Symptom:** The newly installed APK showed `not_found` / `requested function was not found`, and Google OAuth did not return to the app.
 
 **Evidence:** The deployed function list contains `oauth-mobile-redirect` as ACTIVE, and a live request to its exact URL returns `HTTP 302` to `com.example.daegil_app://login-callback/`. The Supabase URL Configuration screenshot contains only the custom scheme and localhost; it does not contain the HTTPS relay URL.
 
-**Root cause:** The mobile HTTPS relay was not in Supabase Additional Redirect URLs, so the requested redirect was not accepted and authentication fell back to the configured Site URL. The fallback target was being treated as a function route, producing the function-not-found page.
+**Initial diagnosis:** The mobile HTTPS relay was not in the supplied screenshot's Additional Redirect URLs. Adding it corrected the allowlist, but the same failure persisted; this was not the final root cause.
 
 **Required fix:** Add the exact HTTPS relay URL to Additional Redirect URLs and save it before reinstalling/testing the APK. Keep the Google provider callback at `/auth/v1/callback`.
 
 **Regression guard:** `npx supabase functions list` confirms the relay is ACTIVE; live smoke test confirms the exact endpoint returns the expected 302 deep-link location.
+
+#### 2026-08-16 — Android OAuth deep-link scheme was not a valid URI scheme
+
+**Symptom:** Google and Supabase Auth both completed with HTTP 302, but the browser ended on `requested function was not found` instead of reopening the app.
+
+**Evidence:** Supabase unified logs show the Android app requested the configured OAuth redirect and Google returned successfully to `/auth/v1/callback`. The relay was ACTIVE and its post-deploy invocations had no errors. The next-hop URI was `com.example.daegil_app://login-callback/`; independent URL parsers reject it because URI schemes may not contain `_`.
+
+**Root cause:** The Android application ID was reused verbatim as a URI scheme even though it contains an underscore. Android package identifiers and URI schemes have different syntax constraints. The browser could not dispatch the invalid scheme back to `MainActivity`, leaving the OAuth flow outside the app.
+
+**Resolution:** Changed the mobile OAuth scheme to `com.example.daegilapp`, updated the Android intent filter and Flutter default, changed Supabase Site URL and Additional Redirect URLs to the valid direct deep link, removed the obsolete invalid/relay entries, and redeployed the relay with the corrected fallback scheme.
+
+**Regression guard:** Production config rejects the underscored scheme, a focused test asserts the valid default deep link, and the live Supabase authorize endpoint accepts the corrected direct redirect.
 
 #### 2026-08-16 — Native ad dependency initially failed analysis
 

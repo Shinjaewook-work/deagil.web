@@ -1,4 +1,4 @@
-const mobileCallback = 'com.example.daegil_app://login-callback/';
+const mobileCallback = 'com.example.daegilapp://login-callback/';
 
 Deno.serve((request) => {
   if (request.method !== 'GET') {

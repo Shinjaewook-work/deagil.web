@@ -37,6 +37,8 @@ Continue by resolving `MANUAL_ACTION_REQUIRED` release gates; then run the physi
 Android QA follow-up: a `Pixel_6_x86` AVD was created from the x86_64 system image, but cold boot still fails because the Windows host does not expose CPU virtualization acceleration. BIOS/UEFI or Windows Hypervisor Platform changes remain owner-only; no security setting was changed automatically.
 
 Latest UI follow-up: phone-width clipping was fixed with a shared `LunaPageFrame`, the Auth brand is `대길`, and all Fortune sentence/action output is now required to end in natural 냥체. The supplied cat-oracle concept was applied with warm cream/peach tokens, generated cat mascot artwork, paw accents, and a Cat Home navigation bar. `generate-fortune` was redeployed to Dev; Flutter analyze/test and web preview capture pass.
+
+Android OAuth follow-up: the prior callback scheme reused the underscored application ID and was not a valid URI scheme. Mobile Auth now uses `com.example.daegilapp://login-callback/` directly; the Android manifest, Supabase Site URL/allowlist, and relay fallback are aligned. Install the APK built after this change before physical verification.
 ```
 
 Phase 0 changed:

@@ -1396,3 +1396,24 @@ Google development OAuth → CONNECTED / user-confirmed
 **Verified:** `oauth-mobile-redirect` is ACTIVE in the linked Supabase project and its exact HTTPS endpoint returns the expected 302 deep-link response. The supplied dashboard screenshot has not yet added that HTTPS relay URL to Additional Redirect URLs.
 
 **Next:** Add the exact relay URL, save, then reinstall the latest debug APK and repeat Google login.
+
+### PROG-202608162240 — Android OAuth URI scheme corrected
+
+**Status:** IMPLEMENTED / DEVICE_VERIFICATION_REQUIRED
+
+**Root cause:** `com.example.daegil_app` is a valid Android application ID but not a valid URI scheme because schemes cannot contain underscores.
+
+**Changed**
+- Mobile OAuth now redirects directly to `com.example.daegilapp://login-callback/`.
+- Android intent filter and the deployed relay fallback use the same valid scheme.
+- Supabase Site URL and redirect allowlist were updated directly; obsolete invalid and relay URLs were removed from Auth configuration.
+- Added regression tests for invalid underscored schemes and the valid mobile default.
+
+**Verified**
+- Supabase authorize accepts the corrected direct redirect and returns Google OAuth HTTP 302.
+- Redeployed relay returns HTTP 302 to the corrected deep link.
+- Merged debug manifest contains `android:scheme="com.example.daegilapp"` and `android:host="login-callback"`.
+- `flutter analyze --no-pub`: passed.
+- `flutter test --no-pub`: 33 tests passed.
+- Harness lint and repository guard: passed.
+- Debug APK rebuilt successfully with the corrected direct OAuth redirect.

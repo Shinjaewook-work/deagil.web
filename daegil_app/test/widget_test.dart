@@ -593,6 +593,44 @@ void main() {
     },
   );
 
+  test('production config rejects an underscored OAuth URI scheme', () {
+    const config = AppConfig(
+      environment: AppEnvironment.prod,
+      supabaseUrl: 'https://project.supabase.co',
+      supabasePublishableKey: 'sb_publishable_test',
+      admobRewardedUnitId: 'ca-app-pub-1234567890123456/1234567890',
+      adSecurityMode: AdSecurityMode.ssvStrict,
+      adSecurityModeExplicit: true,
+      appDisplayNameOverride: '대길',
+      androidApplicationId: 'com.daegil.app',
+      iosBundleId: 'com.daegil.app',
+      privacyUrl: 'https://daegil.example/privacy',
+      termsUrl: 'https://daegil.example/terms',
+      accountDeletionUrl: 'https://daegil.example/delete-account',
+      aiProviderRegistryStatus: 'PROD_APPROVED',
+      firebaseProjectId: 'daegil',
+      firebaseAndroidAppId: 'android-app-id',
+      firebaseIosAppId: 'ios-app-id',
+      authRedirectUrl: 'com.example.daegil_app://login-callback/',
+    );
+
+    expect(
+      config.productionConfigurationErrors,
+      contains('AUTH_REDIRECT_URL_INVALID'),
+    );
+  });
+
+  test('mobile OAuth defaults to the valid app deep-link scheme', () {
+    const config = AppConfig(
+      environment: AppEnvironment.dev,
+      supabaseUrl: '',
+      supabasePublishableKey: '',
+      admobRewardedUnitId: '',
+    );
+
+    expect(config.authRedirectUrl, 'com.example.daegilapp://login-callback/');
+  });
+
   test('development config keeps Mock/Fake path available', () {
     const config = AppConfig(
       environment: AppEnvironment.dev,
