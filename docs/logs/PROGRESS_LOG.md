@@ -1388,3 +1388,11 @@ Google development OAuth → CONNECTED / user-confirmed
 
 **Manual gate**
 - Add the relay URL to Supabase Authentication URL Configuration Additional Redirect URLs before installing the rebuilt APK.
+
+### PROG-202608162200 — Relay deployment rechecked after Android 404
+
+**Status:** DIAGNOSED / MANUAL_ACTION_REQUIRED
+
+**Verified:** `oauth-mobile-redirect` is ACTIVE in the linked Supabase project and its exact HTTPS endpoint returns the expected 302 deep-link response. The supplied dashboard screenshot has not yet added that HTTPS relay URL to Additional Redirect URLs.
+
+**Next:** Add the exact relay URL, save, then reinstall the latest debug APK and repeat Google login.

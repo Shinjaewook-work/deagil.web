@@ -530,6 +530,18 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 
 **Validation:** Targeted test and full `flutter test --no-pub` both pass.
 
+#### 2026-08-16 — Android OAuth relay was not allowlisted
+
+**Symptom:** The newly installed APK showed `not_found` / `requested function was not found`, and Google OAuth did not return to the app.
+
+**Evidence:** The deployed function list contains `oauth-mobile-redirect` as ACTIVE, and a live request to its exact URL returns `HTTP 302` to `com.example.daegil_app://login-callback/`. The Supabase URL Configuration screenshot contains only the custom scheme and localhost; it does not contain the HTTPS relay URL.
+
+**Root cause:** The mobile HTTPS relay was not in Supabase Additional Redirect URLs, so the requested redirect was not accepted and authentication fell back to the configured Site URL. The fallback target was being treated as a function route, producing the function-not-found page.
+
+**Required fix:** Add the exact HTTPS relay URL to Additional Redirect URLs and save it before reinstalling/testing the APK. Keep the Google provider callback at `/auth/v1/callback`.
+
+**Regression guard:** `npx supabase functions list` confirms the relay is ACTIVE; live smoke test confirms the exact endpoint returns the expected 302 deep-link location.
+
 #### 2026-08-16 — Native ad dependency initially failed analysis
 
 **Symptom:** The first native Rewarded implementation used `const StateError` and triggered analyzer errors because `StateError` is not const in this SDK/runtime.
