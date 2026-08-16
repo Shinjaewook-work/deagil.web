@@ -537,3 +537,11 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 **Resolution:** Removed the invalid const constructors, added override annotations, and replaced the unused callback underscores with named callback parameters.
 
 **Validation:** `flutter analyze --no-pub`, full Flutter tests, and debug APK build pass.
+
+#### 2026-08-16 — AdMob SSV callback validation returned HTTP 400
+
+**Cause:** The deployed verifier expected a map of RSA keys, while Google's current AdMob SSV response is a rotating `keys` array containing ECDSA/P-256 public keys. The expected ad-unit/reward secrets were also not configured.
+
+**Resolution:** Updated the verifier to parse the current key-array format, convert DER ECDSA signatures for WebCrypto verification, configured the Android ad unit with reward item `fortune` and amount `1`, and redeployed `admob-ssv`.
+
+**Next check:** Repeat AdMob's callback URL validation after the console test request is regenerated.

@@ -1359,3 +1359,15 @@ Google development OAuth → CONNECTED / user-confirmed
 
 **Remaining gate**
 - Replace test App IDs/unit IDs with the owner's production AdMob IDs and complete the server-side prepare/claim function deployment before a production release.
+
+### PROG-202608161340 — Android AdMob IDs and SSV configured
+
+**Status:** VERIFIED / AWAITING CONSOLE CALLBACK CHECK
+
+**Validation**
+- Android App ID configured: owner-provided production ID.
+- Android Rewarded unit configured for `운세보기`.
+- Supabase Function secrets configured for the exact ad unit, reward item `fortune`, and reward amount `1`.
+- Corrected `admob-ssv` to parse Google's rotating key-array response and verify ECDSA/P-256 signatures.
+- Redeployed `admob-ssv` successfully.
+- iOS remains on official test IDs until an iOS App ID is provided.

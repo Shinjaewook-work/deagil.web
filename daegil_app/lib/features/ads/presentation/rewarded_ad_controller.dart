@@ -15,7 +15,7 @@ final rewardedAdServiceProvider = Provider<RewardedAdService>((ref) {
     return MobileRewardedAdService(
       rewardedUnitId: config.admobRewardedUnitId.isEmpty
           ? (defaultTargetPlatform == TargetPlatform.android
-                ? 'ca-app-pub-3940256099942544/5224354917'
+                ? 'ca-app-pub-2364733930147091/2018144858'
                 : 'ca-app-pub-3940256099942544/1712485313')
           : config.admobRewardedUnitId,
       securityMode: config.adSecurityMode,

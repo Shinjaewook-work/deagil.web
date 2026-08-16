@@ -14,8 +14,28 @@ function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 }
 function decodeBase64(value: string): Uint8Array {
-  const binary = atob(value.replace(/-/g, '+').replace(/_/g, '/'));
+  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
+  const binary = atob(padded);
   return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+}
+function derToP1363(signature: Uint8Array, componentLength = 32): Uint8Array {
+  if (signature[0] !== 0x30) return signature;
+  let offset = 2;
+  if ((signature[1] & 0x80) !== 0) offset += (signature[1] & 0x7f) - 1;
+  if (signature[offset] !== 0x02) throw new Error('SSV_SIGNATURE_FORMAT_INVALID');
+  const rLength = signature[offset + 1];
+  const rStart = offset + 2;
+  const sTag = rStart + rLength;
+  if (signature[sTag] !== 0x02) throw new Error('SSV_SIGNATURE_FORMAT_INVALID');
+  const sLength = signature[sTag + 1];
+  const sStart = sTag + 2;
+  const result = new Uint8Array(componentLength * 2);
+  const r = signature.slice(rStart, rStart + rLength);
+  const s = signature.slice(sStart, sStart + sLength);
+  result.set(r.slice(Math.max(0, r.length - componentLength)), componentLength - Math.min(componentLength, r.length));
+  result.set(s.slice(Math.max(0, s.length - componentLength)), componentLength * 2 - Math.min(componentLength, s.length));
+  return result;
 }
 async function keyFor(keyId: string): Promise<CryptoKey> {
   const cached = keyCache.get(keyId);
@@ -23,11 +43,13 @@ async function keyFor(keyId: string): Promise<CryptoKey> {
   if (!publicKeyUrl) throw new Error('SSV_PUBLIC_KEY_URL_MISSING');
   const response = await fetch(publicKeyUrl);
   if (!response.ok) throw new Error('SSV_KEY_FETCH_FAILED');
-  const keys = await response.json() as Record<string, string>;
-  const pem = keys[keyId];
-  if (!pem) throw new Error('SSV_KEY_ID_UNKNOWN');
-  const der = decodeBase64(pem.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\s/g, ''));
-  const key = await crypto.subtle.importKey('spki', der, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+  const payload = await response.json() as { keys?: Array<{ keyId?: number; base64?: string; pem?: string }> };
+  const entry = payload.keys?.find((item) => String(item.keyId) === keyId);
+  if (!entry) throw new Error('SSV_KEY_ID_UNKNOWN');
+  const encoded = entry.base64 ?? entry.pem?.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\s/g, '');
+  if (!encoded) throw new Error('SSV_KEY_MATERIAL_MISSING');
+  const der = decodeBase64(encoded);
+  const key = await crypto.subtle.importKey('spki', der, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
   keyCache.set(keyId, key);
   return key;
 }
@@ -44,7 +66,7 @@ Deno.serve(async (request) => {
   const signedQuery = marker >= 0 ? rawQuery.slice(0, marker).replace(/&$/, '') : rawQuery;
   try {
     const verified = await crypto.subtle.verify(
-      { name: 'RSASSA-PKCS1-v1_5' }, await keyFor(keyId), decodeBase64(signature),
+      { name: 'ECDSA', hash: 'SHA-256' }, await keyFor(keyId), derToP1363(decodeBase64(signature)),
       new TextEncoder().encode(signedQuery),
     );
     if (!verified) return json(400, { code: 'SIGNATURE_INVALID' });
