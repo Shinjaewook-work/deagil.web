@@ -576,6 +576,7 @@ void main() {
         supabaseUrl: 'https://example.supabase.co',
         supabasePublishableKey: '',
         admobRewardedUnitId: 'ca-app-pub-3940256099942544/5224354917',
+        authRedirectUrl: 'http://localhost:3000',
       );
 
       expect(config.isProductionReady, isFalse);
