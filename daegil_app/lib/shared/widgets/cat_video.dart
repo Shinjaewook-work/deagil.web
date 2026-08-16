@@ -88,13 +88,25 @@ class _CatFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.pets_outlined, size: 80),
-          SizedBox(height: 16),
-          Text('고양이가 운세를 읽을 준비를 하고 있다냥.'),
+          SizedBox(
+            height: 190,
+            child: Image.asset(
+              'assets/images/daegil_cat_stretch.png',
+              fit: BoxFit.contain,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              '고양이가 운세를 읽을 준비를 하고 있다냥.',
+              textAlign: TextAlign.center,
+              softWrap: true,
+            ),
+          ),
         ],
       ),
     );

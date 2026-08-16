@@ -1176,3 +1176,94 @@ Google development OAuth → CONNECTED / user-confirmed
 - production Supabase/OAuth/AdMob/Firebase/AI credentials and console approvals
 - store privacy/Data Safety/legal/asset license approvals
 - Supabase migration `202608160004` remote push completed through the database-password flow; password was not recorded
+
+### PROG-202608160047 — responsive screen preview and full cat voice
+
+**Status:** DONE / DEV FUNCTION DEPLOYED
+**Goal:** phone-width preview에서 발생한 화면 잘림을 제거하고, Fortune 문장과 행동 제안을 냥체로 통일한다.
+
+**Changed**
+- 공통 `LunaPageFrame`을 적용해 모든 화면 콘텐츠를 안전한 phone column 안에 배치했다.
+- 인증 화면 브랜드명을 `대길`로 수정하고, 고양이 fallback 문장·설정 안내·결과 텍스트에 줄바꿈을 보장했다.
+- Mock fortune과 OpenRouter prompt를 모든 Fortune sentence/action item이 자연스러운 냥체로 끝나도록 갱신했다.
+- generation worker validator가 headline·fortune/action 배열 각 항목의 냥체 종결을 서버에서 재검증하도록 강화했다.
+- `generate-fortune` Edge Function을 Dev project에 재배포했다.
+
+**Validation**
+- `flutter analyze`: PASS
+- `flutter test`: 30 tests PASS
+- `flutter build web --release`: PASS
+- 9개 route 로컬 phone preview 재캡처: PASS / clipping 없음
+
+### PROG-202608160048 — concept board visual refresh
+
+**Status:** IMPLEMENTED / LOCAL VERIFIED
+**Goal:** 사용자가 제공한 고양이 운세 앱 컨셉 시안의 따뜻한 일러스트 톤을 현재 Flutter 화면에 반영한다.
+
+**Changed**
+- 시안 기반 고양이 mascot raster asset을 `assets/images/daegil_cat_mascot.png`로 추가하고 인증·홈·결과·계정 삭제 화면에서 재사용했다.
+- 크림/복숭아 배경, 갈색 잉크 텍스트, 오렌지 CTA, 둥근 입력/카드 테두리, 발바닥 아이콘을 design token에 반영했다.
+- Cat Home에 시안의 하단 탭 네비게이션을 추가했다. 이 변경은 사용자가 최신 시안 반영을 명시한 디자인 override다.
+
+**Validation**
+- Flutter analyze/test: PASS
+- web release build: PASS
+- 9개 route phone preview capture: PASS
+
+### PROG-202608160049 — mascot pose variants
+
+**Status:** IMPLEMENTED / LOCAL VERIFIED
+**Goal:** 같은 대길 고양이를 유지하면서 화면별 자세와 표정을 달리해 반복감을 줄인다.
+
+**Changed**
+- 인증 화면에는 한 손을 들고 인사하는 고양이를 적용했다.
+- 홈의 동영상 미지원 fallback에는 기지개를 켜는 고양이를 적용했다.
+- 운세 결과 요약 카드에는 하품하는 고양이를 적용했다.
+- 계정 삭제 화면은 반복 mascot 대신 발바닥 아이콘을 사용하도록 정리했다.
+- 세 변형 자산을 Flutter asset manifest에 등록했다.
+
+**Validation**
+- Flutter analyze: PASS
+- Flutter test: 32 tests PASS
+
+### PROG-202608160050 — butterfly curiosity mascot
+
+**Status:** IMPLEMENTED / LOCAL VERIFIED
+**Goal:** 출생정보 입력 화면에 새로운 감정·상호작용 포즈를 추가해 mascot 반복을 줄인다.
+
+**Changed**
+- 위에서 날아오는 나비를 한 손으로 잡으려는 앉은 고양이와 호기심 가득한 표정을 새 변형 자산으로 추가했다.
+- 출생정보 입력 화면 상단에 새 변형을 배치했다.
+- Flutter asset manifest에 `daegil_cat_butterfly.png`를 등록했다.
+
+**Validation**
+- Flutter analyze: PASS
+- Flutter test: 32 tests PASS
+
+### PROG-202608160051 — cat protection donation slogan
+
+**Status:** IMPLEMENTED / LOCAL VERIFIED
+**Goal:** 광고 시청과 고양이 보호 활동의 연결을 홈 화면에서 명확히 알린다.
+
+**Changed**
+- Cat Home의 동영상과 운세 CTA 사이에 `광고 수익 일부를 고양이 보호 활동에 보탠다냥.` 안내 카드를 추가했다.
+- 긴 문구도 작은 화면에서 줄바꿈되도록 `Expanded`와 `softWrap`을 적용했다.
+
+**Validation**
+- Flutter analyze: PASS
+- Flutter test: 32 tests PASS
+
+### PROG-202608160052 — male hanbok mascot set
+
+**Status:** IMPLEMENTED / LOCAL VERIFIED
+**Goal:** 모든 고양이 mascot 변형을 동일한 남자 한복 콘셉트로 통일한다.
+
+**Changed**
+- 기본·인사·기지개·하품·나비 변형 5종을 남자 한복 형태인 저고리+바지로 교체했다.
+- 민트색 바탕, 분홍·노랑·청색 띠, 꽃 자수와 노리개 포인트를 공통 적용했다.
+- 기존 포즈·표정·나비 요소는 유지했다.
+
+**Validation**
+- 이미지 5종 육안 검수: PASS
+- Flutter analyze/test: PASS
+- Flutter web release build: PASS

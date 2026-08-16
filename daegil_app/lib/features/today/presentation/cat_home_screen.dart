@@ -7,6 +7,7 @@ import '../../ads/presentation/rewarded_ad_controller.dart';
 import '../../fortune/data/fortune_repository.dart';
 import '../../profile/presentation/birth_profile_controller.dart';
 import '../../../shared/widgets/cat_video.dart';
+import '../../../shared/widgets/luna_page_frame.dart';
 
 class CatHomeScreen extends ConsumerWidget {
   const CatHomeScreen({super.key});
@@ -42,56 +43,100 @@ class CatHomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-        children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: Chip(
-              avatar: Icon(Icons.confirmation_num_outlined),
-              label: Text(
-                appState.maybeWhen(
-                  data: (value) => '광고 패스권 ${value.activePassCount} / 3',
-                  orElse: () => '광고 패스권 확인 중',
+      body: LunaPageFrame(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Chip(
+                avatar: Icon(Icons.confirmation_num_outlined),
+                label: Text(
+                  appState.maybeWhen(
+                    data: (value) => '광고 패스권 ${value.activePassCount} / 3',
+                    orElse: () => '광고 패스권 확인 중',
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          const Card(child: SizedBox(height: 280, child: CatVideo())),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: isBusy
-                ? null
-                : () async {
-                    if (!hasBirthProfile) {
-                      context.go('/profile/setup');
-                    } else if (currentAppState?.canUsePass == true) {
-                      await ref
-                          .read(fortuneRepositoryProvider)
-                          .useFortunePass();
-                      ref.invalidate(fortuneAppStateProvider);
-                      if (context.mounted) context.go('/fortune/result');
-                    } else {
-                      await ref
-                          .read(rewardedAdControllerProvider.notifier)
-                          .start(fortuneDate: _todayFortuneDate());
-                    }
-                  },
-            child: Text(
-              currentAppState?.canUsePass == true
-                  ? '패스권으로 열기냥!'
-                  : _ctaLabel(adState.status),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: const Card(
+                child: SizedBox(height: 280, child: CatVideo()),
+              ),
             ),
-          ),
-          if (adState.status == RewardedAdFlowStatus.failed) ...[
-            const SizedBox(height: 12),
-            Text(
-              '광고를 준비하지 못했어요. 잠시 후 다시 시도해달라냥.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
+            const SizedBox(height: 24),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.volunteer_activism_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text('광고 수익 일부를 고양이 보호 활동에 보탠다냥.', softWrap: true),
+                    ),
+                  ],
+                ),
+              ),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: isBusy
+                  ? null
+                  : () async {
+                      if (!hasBirthProfile) {
+                        context.go('/profile/setup');
+                      } else if (currentAppState?.canUsePass == true) {
+                        await ref
+                            .read(fortuneRepositoryProvider)
+                            .useFortunePass();
+                        ref.invalidate(fortuneAppStateProvider);
+                        if (context.mounted) context.go('/fortune/result');
+                      } else {
+                        await ref
+                            .read(rewardedAdControllerProvider.notifier)
+                            .start(fortuneDate: _todayFortuneDate());
+                      }
+                    },
+              child: Text(
+                currentAppState?.canUsePass == true
+                    ? '패스권으로 열기냥!'
+                    : _ctaLabel(adState.status),
+              ),
+            ),
+            if (adState.status == RewardedAdFlowStatus.failed) ...[
+              const SizedBox(height: 12),
+              Text(
+                '광고를 준비하지 못했어요. 잠시 후 다시 시도해달라냥.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
           ],
+        ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        onDestinationSelected: (index) {
+          if (index == 2) context.go('/settings/notification');
+          if (index == 3) context.go('/settings');
+        },
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home_outlined), label: '내운'),
+          NavigationDestination(icon: Icon(Icons.pets_outlined), label: '운세'),
+          NavigationDestination(
+            icon: Icon(Icons.notifications_none),
+            label: '알림',
+          ),
+          NavigationDestination(icon: Icon(Icons.person_outline), label: '프로필'),
         ],
       ),
     );

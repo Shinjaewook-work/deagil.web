@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/auth_repository.dart';
+import '../../../shared/widgets/luna_page_frame.dart';
 import 'auth_controller.dart';
 
 class AuthScreen extends ConsumerWidget {
@@ -22,69 +23,80 @@ class AuthScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Luna')),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text(
-            '오늘의 흐름을 읽어볼까냥?',
-            style: Theme.of(context).textTheme.displaySmall,
-          ),
-          const SizedBox(height: 12),
-          const Text('안전한 이용을 위해 아래 내용을 확인해달라냥.'),
-          const SizedBox(height: 24),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            value: state.age14PlusAttested,
-            onChanged: state.isLoading
-                ? null
-                : (value) => ref
-                      .read(authControllerProvider.notifier)
-                      .setAgeAttestation(value ?? false),
-            title: const Text('만 14세 이상입니다.'),
-          ),
-          for (final requirement in state.requirements)
+      appBar: AppBar(title: const Text('대길')),
+      body: LunaPageFrame(
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Text(
+              '오늘의 흐름을 읽어볼까냥?',
+              style: Theme.of(context).textTheme.displaySmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 130,
+              child: Image.asset('assets/images/daegil_cat_wave.png'),
+            ),
+            const SizedBox(height: 12),
+            const Text('안전한 이용을 위해 아래 내용을 확인해달라냥.'),
+            const SizedBox(height: 24),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
-              value: state.acceptedDocumentIds.contains(requirement.id),
+              value: state.age14PlusAttested,
               onChanged: state.isLoading
                   ? null
                   : (value) => ref
                         .read(authControllerProvider.notifier)
-                        .toggleRequirement(requirement.id, value ?? false),
-              title: Text(requirement.title),
-              subtitle: requirement.required
-                  ? const Text('필수')
-                  : const Text('선택'),
+                        .setAgeAttestation(value ?? false),
+              title: const Text('만 14세 이상입니다.'),
             ),
-          if (state.errorMessage != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                state.errorMessage!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
-          if (state.isAuthPending)
-            const Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Text('Google 인증을 완료하면 앱으로 돌아온다냥.'),
-            ),
-          const SizedBox(height: 24),
-          for (final provider in SocialProvider.values)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: ElevatedButton(
-                onPressed:
-                    state.canSignIn && !state.isLoading && !state.isAuthPending
-                    ? () => ref
+            for (final requirement in state.requirements)
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.pets_outlined),
+                value: state.acceptedDocumentIds.contains(requirement.id),
+                onChanged: state.isLoading
+                    ? null
+                    : (value) => ref
                           .read(authControllerProvider.notifier)
-                          .signIn(provider)
-                    : null,
-                child: Text('${_providerName(provider)}로 계속하기'),
+                          .toggleRequirement(requirement.id, value ?? false),
+                title: Text(requirement.title),
+                subtitle: requirement.required
+                    ? const Text('필수')
+                    : const Text('선택'),
               ),
-            ),
-        ],
+            if (state.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  state.errorMessage!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            if (state.isAuthPending)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Google 인증을 완료하면 앱으로 돌아온다냥.'),
+              ),
+            const SizedBox(height: 24),
+            for (final provider in SocialProvider.values)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: ElevatedButton(
+                  onPressed:
+                      state.canSignIn &&
+                          !state.isLoading &&
+                          !state.isAuthPending
+                      ? () => ref
+                            .read(authControllerProvider.notifier)
+                            .signIn(provider)
+                      : null,
+                  child: Text('${_providerName(provider)}로 계속하기'),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

@@ -33,6 +33,8 @@ Phase 13 security hardening audit and client secret scan pass; live adversarial/
 Phase 14 production config now fails closed unless Firebase project/app IDs and existing production approvals are present; actual credentials/console approvals remain manual.
 Phase 15 release audit is complete: automated artifact/security checks pass, a Dev release APK was built, and remote migration `202608160004` is applied; production identities, credentials, physical QA, signing, store, and legal gates remain open.
 Continue by resolving `MANUAL_ACTION_REQUIRED` release gates; then run the physical P0 matrix.
+
+Latest UI follow-up: phone-width clipping was fixed with a shared `LunaPageFrame`, the Auth brand is `대길`, and all Fortune sentence/action output is now required to end in natural 냥체. The supplied cat-oracle concept was applied with warm cream/peach tokens, generated cat mascot artwork, paw accents, and a Cat Home navigation bar. `generate-fortune` was redeployed to Dev; Flutter analyze/test and web preview capture pass.
 ```
 
 Phase 0 changed:

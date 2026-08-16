@@ -12,6 +12,7 @@ import 'package:daegil_app/features/ads/domain/ssv_verification.dart';
 import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
 import 'package:daegil_app/features/auth/models/registration_requirement.dart';
 import 'package:daegil_app/features/fortune/domain/fortune_generation.dart';
+import 'package:daegil_app/features/fortune/domain/fortune_result.dart';
 import 'package:daegil_app/features/fortune/presentation/fortune_result_screen.dart';
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
 import 'package:daegil_app/features/passes/domain/fortune_pass_ledger.dart';
@@ -65,12 +66,14 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(child: MaterialApp(home: AuthScreen())),
     );
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump();
     await tester.pumpAndSettle();
 
-    final button = find.ancestor(
-      of: find.text('Google로 계속하기'),
-      matching: find.byType(ElevatedButton),
-    );
+    final button = find.byType(ElevatedButton, skipOffstage: false).first;
     expect(tester.widget<ElevatedButton>(button).onPressed, isNull);
 
     await tester.tap(find.text('만 14세 이상입니다.'));
@@ -160,6 +163,18 @@ void main() {
     expect(first, second);
     final payload = FortunePayload.fromJsonString(first);
     expect(payload.headline, contains('순서를'));
+  });
+
+  test('mock fortune user-facing sentences all end in natural cat voice', () {
+    final result = MockFortuneResult();
+    final lines = <String>[
+      result.headline,
+      result.overall,
+      ...result.sections.expand((section) => section.lines),
+      ...result.goodToDo,
+      ...result.avoid,
+    ];
+    expect(lines, everyElement(matches(RegExp(r'냥[.!?]?$'))));
   });
 
   test('stale generation worker cannot commit after a newer claim', () {

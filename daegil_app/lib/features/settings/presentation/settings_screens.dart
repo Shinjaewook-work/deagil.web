@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'settings_controller.dart';
 import '../../notifications/presentation/notification_controller.dart';
+import '../../../shared/widgets/luna_page_frame.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -12,29 +13,31 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('설정')),
-      body: ListView(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.person_outline),
-            title: const Text('프로필'),
-            onTap: () => context.go('/settings/profile'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.notifications_none),
-            title: const Text('알림'),
-            onTap: () => context.go('/settings/notification'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.lock_outline),
-            title: const Text('개인정보 및 동의'),
-            onTap: () => context.go('/settings/privacy'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.manage_accounts_outlined),
-            title: const Text('계정'),
-            onTap: () => context.go('/settings/account'),
-          ),
-        ],
+      body: LunaPageFrame(
+        child: ListView(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('프로필'),
+              onTap: () => context.go('/settings/profile'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications_none),
+              title: const Text('알림'),
+              onTap: () => context.go('/settings/notification'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('개인정보 및 동의'),
+              onTap: () => context.go('/settings/privacy'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.manage_accounts_outlined),
+              title: const Text('계정'),
+              onTap: () => context.go('/settings/account'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -48,26 +51,31 @@ class PrivacySettingsScreen extends ConsumerWidget {
     final state = ref.watch(settingsControllerProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('개인정보 및 동의')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const Text('동의 상태는 서버 기준으로 관리되며, 철회하면 새 AI 운세·광고·패스를 사용할 수 없다냥.'),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('앱 개선과 오류 분석 허용'),
-            value: state.analyticsEnabled,
-            onChanged: (value) => ref
-                .read(settingsControllerProvider.notifier)
-                .setAnalyticsEnabled(value),
-          ),
-          const SizedBox(height: 20),
-          OutlinedButton(
-            onPressed: state.aiPersonalizationAllowed
-                ? () => _withdraw(context, ref)
-                : null,
-            child: const Text('AI 개인화 동의 철회'),
-          ),
-        ],
+      body: LunaPageFrame(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            const Text(
+              '동의 상태는 서버 기준으로 관리되며, 철회하면 새 AI 운세·광고·패스를 사용할 수 없다냥.',
+              softWrap: true,
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('앱 개선과 오류 분석 허용'),
+              value: state.analyticsEnabled,
+              onChanged: (value) => ref
+                  .read(settingsControllerProvider.notifier)
+                  .setAnalyticsEnabled(value),
+            ),
+            const SizedBox(height: 20),
+            OutlinedButton(
+              onPressed: state.aiPersonalizationAllowed
+                  ? () => _withdraw(context, ref)
+                  : null,
+              child: const Text('AI 개인화 동의 철회'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -89,22 +97,24 @@ class AccountSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text('계정')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          ElevatedButton(
-            onPressed: () async {
-              await ref.read(settingsControllerProvider.notifier).logout();
-              if (context.mounted) context.go('/auth');
-            },
-            child: const Text('로그아웃'),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => context.go('/settings/account/delete'),
-            child: const Text('계정 삭제'),
-          ),
-        ],
+      body: LunaPageFrame(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                await ref.read(settingsControllerProvider.notifier).logout();
+                if (context.mounted) context.go('/auth');
+              },
+              child: const Text('로그아웃'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: () => context.go('/settings/account/delete'),
+              child: const Text('계정 삭제'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -117,23 +127,27 @@ class AccountDeletionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text('계정 삭제')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('계정을 삭제하면 프로필과 관련 데이터가 복구되지 않는다냥.'),
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: () async {
-                await ref
-                    .read(settingsControllerProvider.notifier)
-                    .deleteAccount();
-                if (context.mounted) context.go('/auth');
-              },
-              child: const Text('계정 삭제 확정'),
-            ),
-          ],
+      body: LunaPageFrame(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('계정을 삭제하면 프로필과 관련 데이터가 복구되지 않는다냥.', softWrap: true),
+              const SizedBox(height: 20),
+              const Icon(Icons.pets_outlined, size: 72),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: () async {
+                  await ref
+                      .read(settingsControllerProvider.notifier)
+                      .deleteAccount();
+                  if (context.mounted) context.go('/auth');
+                },
+                child: const Text('계정 삭제 확정'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -169,24 +183,26 @@ class _NotificationSettingsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('알림')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const Text('오늘의 운세 알림은 기기 알림 권한과 서버 설정을 함께 사용한다냥.'),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('매일 운세 알림'),
-            value: enabled,
-            onChanged: (value) => _save(value, time),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            enabled: enabled,
-            title: const Text('알림 시간'),
-            trailing: Text(time.format(context)),
-            onTap: enabled ? _pickTime : null,
-          ),
-        ],
+      body: LunaPageFrame(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            const Text('오늘의 운세 알림은 기기 알림 권한과 서버 설정을 함께 사용한다냥.', softWrap: true),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('매일 운세 알림'),
+              value: enabled,
+              onChanged: (value) => _save(value, time),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              enabled: enabled,
+              title: const Text('알림 시간'),
+              trailing: Text(time.format(context)),
+              onTap: enabled ? _pickTime : null,
+            ),
+          ],
+        ),
       ),
     );
   }

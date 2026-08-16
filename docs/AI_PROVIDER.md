@@ -366,13 +366,13 @@ Native structured output가 없는 Provider도 local validator 필수.
 목표:
 
 ```text
-전체 Fortune 문장의 약 20~40%만 냥체
+전체 Fortune 문장과 행동 제안 문장은 모두 자연스러운 냥체로 끝냄
 ```
 
 Reject/repair 후보:
 
 ```text
-모든 문장 냥체
+요/세요/습니다/합니다 등 일반 존댓말 어미 혼용
 냥냥/냐옹 meme
 과도한 emoji
 반복문장

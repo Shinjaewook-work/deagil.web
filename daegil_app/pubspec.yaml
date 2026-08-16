@@ -63,6 +63,11 @@ flutter:
 
   assets:
     - assets/videos/fortune_cat.mp4
+    - assets/images/daegil_cat_mascot.png
+    - assets/images/daegil_cat_wave.png
+    - assets/images/daegil_cat_stretch.png
+    - assets/images/daegil_cat_yawn.png
+    - assets/images/daegil_cat_butterfly.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

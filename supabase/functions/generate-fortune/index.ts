@@ -31,6 +31,10 @@ function isText(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0 && value.length <= 500;
 }
 
+function isCatStyleSentence(value: string): boolean {
+  return /냥[.!?]?$/u.test(value.trim());
+}
+
 function validateFortunePayload(raw: string): Record<string, unknown> {
   if (new TextEncoder().encode(raw).byteLength > 32 * 1024) throw new OpenRouterProviderError('invalid_response');
   let value: unknown;
@@ -45,7 +49,9 @@ function validateFortunePayload(raw: string): Record<string, unknown> {
   const payload = value as Record<string, unknown>;
   const textFields = ['headline'];
   for (const field of textFields) {
-    if (!isText(payload[field])) throw new OpenRouterProviderError('schema_invalid');
+    if (!isText(payload[field]) || !isCatStyleSentence(payload[field])) {
+      throw new OpenRouterProviderError('schema_invalid');
+    }
   }
   const ratings = payload.ratings;
   if (typeof ratings !== 'object' || ratings === null || Array.isArray(ratings)) {
@@ -60,7 +66,7 @@ function validateFortunePayload(raw: string): Record<string, unknown> {
   for (const field of ['overall', 'money', 'love', 'career', 'relationship', 'condition', 'recommended_actions', 'avoid_actions']) {
     const items = payload[field];
     const expectedLength = field === 'overall' ? 5 : 3;
-    if (!Array.isArray(items) || items.length !== expectedLength || !items.every(isText)) {
+    if (!Array.isArray(items) || items.length !== expectedLength || !items.every((item) => isText(item) && isCatStyleSentence(item))) {
       throw new OpenRouterProviderError('schema_invalid');
     }
   }

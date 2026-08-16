@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../models/birth_profile.dart';
 import 'birth_profile_controller.dart';
+import '../../../shared/widgets/luna_page_frame.dart';
 
 class BirthProfileScreen extends ConsumerStatefulWidget {
   const BirthProfileScreen({super.key});
@@ -46,64 +47,77 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('출생정보')),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text(
-            '운세를 읽을 준비를 하자냥.',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 24),
-          TextField(
-            controller: _dateController,
-            decoration: const InputDecoration(labelText: '생년월일 (YYYY-MM-DD)'),
-          ),
-          DropdownButtonFormField<CalendarType>(
-            initialValue: _calendarType,
-            decoration: const InputDecoration(labelText: '달력'),
-            items: const [
-              DropdownMenuItem(value: CalendarType.solar, child: Text('양력')),
-              DropdownMenuItem(value: CalendarType.lunar, child: Text('음력')),
-            ],
-            onChanged: (value) =>
-                setState(() => _calendarType = value ?? CalendarType.solar),
-          ),
-          DropdownButtonFormField<BirthTimePrecision>(
-            initialValue: _precision,
-            decoration: const InputDecoration(labelText: '출생시간'),
-            items: const [
-              DropdownMenuItem(
-                value: BirthTimePrecision.unknown,
-                child: Text('모름'),
-              ),
-              DropdownMenuItem(
-                value: BirthTimePrecision.exact,
-                child: Text('정확히'),
-              ),
-              DropdownMenuItem(
-                value: BirthTimePrecision.approximate,
-                child: Text('대략'),
-              ),
-            ],
-            onChanged: (value) => setState(
-              () => _precision = value ?? BirthTimePrecision.unknown,
+      body: LunaPageFrame(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+          children: [
+            Text(
+              '운세를 읽을 준비를 하자냥.',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-          ),
-          TextField(
-            controller: _cityController,
-            decoration: const InputDecoration(labelText: '출생도시'),
-          ),
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(
-                _error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 150,
+              child: Image.asset(
+                'assets/images/daegil_cat_butterfly.png',
+                fit: BoxFit.contain,
               ),
             ),
-          const SizedBox(height: 24),
-          ElevatedButton(onPressed: _save, child: const Text('저장하고 알려달라냥!')),
-        ],
+            const SizedBox(height: 24),
+            TextField(
+              controller: _dateController,
+              decoration: const InputDecoration(labelText: '생년월일 (YYYY-MM-DD)'),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<CalendarType>(
+              initialValue: _calendarType,
+              decoration: const InputDecoration(labelText: '달력'),
+              items: const [
+                DropdownMenuItem(value: CalendarType.solar, child: Text('양력')),
+                DropdownMenuItem(value: CalendarType.lunar, child: Text('음력')),
+              ],
+              onChanged: (value) =>
+                  setState(() => _calendarType = value ?? CalendarType.solar),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<BirthTimePrecision>(
+              initialValue: _precision,
+              decoration: const InputDecoration(labelText: '출생시간'),
+              items: const [
+                DropdownMenuItem(
+                  value: BirthTimePrecision.unknown,
+                  child: Text('모름'),
+                ),
+                DropdownMenuItem(
+                  value: BirthTimePrecision.exact,
+                  child: Text('정확히'),
+                ),
+                DropdownMenuItem(
+                  value: BirthTimePrecision.approximate,
+                  child: Text('대략'),
+                ),
+              ],
+              onChanged: (value) => setState(
+                () => _precision = value ?? BirthTimePrecision.unknown,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _cityController,
+              decoration: const InputDecoration(labelText: '출생도시'),
+            ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  _error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            const SizedBox(height: 24),
+            ElevatedButton(onPressed: _save, child: const Text('저장하고 알려달라냥!')),
+          ],
+        ),
       ),
     );
   }

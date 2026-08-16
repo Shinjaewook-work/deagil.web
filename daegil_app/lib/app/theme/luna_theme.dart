@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
 abstract final class LunaColors {
-  static const paper = Color(0xFFF4EFE5);
-  static const paperRaised = Color(0xFFFBF8F1);
-  static const ink = Color(0xFF222622);
-  static const secondary = Color(0xFF66645E);
-  static const muted = Color(0xFF8A867D);
-  static const seal = Color(0xFFA14B3F);
-  static const gold = Color(0xFFB49A67);
-  static const jade = Color(0xFF6F8978);
-  static const plum = Color(0xFF725F6B);
-  static const subtleBorder = Color(0xFFD8D0C3);
-  static const disabled = Color(0xFFB8B3AA);
-  static const danger = Color(0xFFA6534A);
-  static const success = Color(0xFF66806F);
+  static const paper = Color(0xFFF5E6C8);
+  static const paperRaised = Color(0xFFFFF4DE);
+  static const ink = Color(0xFF4A281D);
+  static const secondary = Color(0xFF755144);
+  static const muted = Color(0xFFA48673);
+  static const seal = Color(0xFFB65B38);
+  static const gold = Color(0xFFD58A45);
+  static const jade = Color(0xFF87986C);
+  static const plum = Color(0xFF8D5C56);
+  static const subtleBorder = Color(0xFF6D4231);
+  static const disabled = Color(0xFFCDB9A1);
+  static const danger = Color(0xFFB24A30);
+  static const success = Color(0xFF66805B);
 }
 
 abstract final class LunaSpacing {
@@ -72,12 +72,37 @@ ThemeData buildLunaTheme() {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(LunaRadii.card),
-        side: const BorderSide(color: LunaColors.subtleBorder),
+        side: const BorderSide(color: LunaColors.subtleBorder, width: 1.2),
+      ),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: LunaColors.paperRaised,
+      foregroundColor: LunaColors.ink,
+      elevation: 0,
+      centerTitle: true,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: LunaColors.paperRaised,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderSide: BorderSide(color: LunaColors.subtleBorder),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderSide: BorderSide(color: LunaColors.subtleBorder),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderSide: BorderSide(color: LunaColors.seal, width: 2),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
+        backgroundColor: LunaColors.gold,
+        foregroundColor: LunaColors.ink,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(LunaRadii.button),
         ),
