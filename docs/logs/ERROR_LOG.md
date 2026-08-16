@@ -460,7 +460,7 @@ Before physical QA, `emulator -list-avds`, `adb devices`, and a cold boot of the
 
 ### ERR-202608160006 — Windows Developer Mode required for plugin build
 
-**Status:** OPEN / MANUAL_ACTION_REQUIRED
+**Status:** RESOLVED / VERIFIED
 **Task/Phase:** Phase 15 / Windows runtime QA
 **Area:** Local Windows build
 
@@ -481,3 +481,9 @@ COMPONENT: Flutter Windows build / daegil_app
 #### Required Fix
 
 Owner must enable Windows Settings > System > For developers > Developer Mode, then rerun `flutter build windows --debug` from `C:\Users\every\Documents\대길 개발\daegil_app`. No BIOS/security bypass was performed.
+
+#### Resolution
+
+- Owner completed the required elevated build step.
+- `flutter build windows --debug --no-pub` and `flutter build windows --release --no-pub` both completed successfully.
+- Release executable launched and displayed the `대길` consent screen with the hanbok cat asset and Google sign-in entry point.

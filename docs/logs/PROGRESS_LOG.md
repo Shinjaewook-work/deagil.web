@@ -1294,3 +1294,14 @@ Google development OAuth → CONNECTED / user-confirmed
 **Result**
 - `daegil_app` Windows build는 코드가 아닌 Windows Developer Mode/symlink 권한 게이트에서 중단됐다.
 - 설정 페이지를 열고 현재 사용자 개발자 플래그를 설정했으나 Flutter가 계속 OS 개발자 모드 활성화를 요구한다.
+
+### PROG-202608160055 — Windows release runtime verified
+
+**Status:** VERIFIED
+**Goal:** Windows release build and runtime smoke check.
+
+**Validation**
+- Owner-provided elevated build succeeded for `daegil_app`.
+- Debug and release Windows builds both succeeded.
+- Release executable launched successfully as `대길`.
+- Runtime screenshot verified the Korean consent screen, hanbok male cat asset, required consent rows, and Google sign-in entry point.
