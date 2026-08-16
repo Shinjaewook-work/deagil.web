@@ -1328,3 +1328,18 @@ Google development OAuth → CONNECTED / user-confirmed
 - `flutter test --no-pub`: 32 tests passed.
 - Windows Release build succeeded.
 - Live Google login completed and the app displayed the authenticated fortune home screen.
+
+### PROG-202608161230 — UI and consent flow update
+
+**Status:** VERIFIED
+**Goal:** Birth-time input, cat-themed copy/layout, persistent navigation labels, rewarded-ad presentation, and consent gate update.
+
+**Validation**
+- Exact/approximate birth-time precision now exposes AM/PM, 12-hour, and 5-minute selectors; unknown precision keeps time unset.
+- Home fallback copy and bottom navigation label updated to the requested Korean wording.
+- Cat image containers use the illustration background color; the auth cat illustration is enlarged.
+- The rewarded-ad fake flow now visibly presents the ad dialog before completion routing.
+- Age, AI-processing, and personal-information-use consent rows are required before Google sign-in.
+- `flutter analyze --no-pub`: passed.
+- `flutter test --no-pub`: 32 tests passed.
+- `harness_lint.py`, `repo_guard.py`, and `git diff --check`: passed.

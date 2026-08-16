@@ -102,7 +102,7 @@ class _CatFallback extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              '고양이가 운세를 읽을 준비를 하고 있다냥.',
+              '고양이가 오늘의 운세를 잡아올 준비를 하고 있다냥.',
               textAlign: TextAlign.center,
               softWrap: true,
             ),

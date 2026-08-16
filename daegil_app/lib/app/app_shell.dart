@@ -26,7 +26,10 @@ class DaegilAppShell extends StatelessWidget {
           }
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), label: '내운'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            label: '운세 잡기',
+          ),
           NavigationDestination(icon: Icon(Icons.pets_outlined), label: '운세'),
           NavigationDestination(
             icon: Icon(Icons.notifications_none),

@@ -12,9 +12,15 @@ import '../../../shared/widgets/luna_page_frame.dart';
 class CatHomeScreen extends ConsumerWidget {
   const CatHomeScreen({super.key});
 
+  static const _catBackground = Color(0xFFFFF3DC);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(rewardedAdControllerProvider, (previous, next) {
+      if (next.status == RewardedAdFlowStatus.showing &&
+          previous?.status != RewardedAdFlowStatus.showing) {
+        _showFakeRewardedAd(context);
+      }
       if (next.status == RewardedAdFlowStatus.completed &&
           previous?.status != RewardedAdFlowStatus.completed) {
         context.go('/fortune/result');
@@ -62,8 +68,10 @@ class CatHomeScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              child: const Card(
-                child: SizedBox(height: 280, child: CatVideo()),
+              child: Card(
+                color: _catBackground,
+                clipBehavior: Clip.antiAlias,
+                child: const SizedBox(height: 280, child: CatVideo()),
               ),
             ),
             const SizedBox(height: 24),
@@ -131,8 +139,27 @@ class CatHomeScreen extends ConsumerWidget {
     RewardedAdFlowStatus.showing => '광고가 진행 중이다냥…',
     RewardedAdFlowStatus.rewardVerifying => '보상을 확인하는 중이다냥…',
     RewardedAdFlowStatus.completed => '오늘의 운세를 준비했다냥!',
-    _ => '알려주겠다냥! 🐾',
+    _ => '오늘의 운세를 준비했다냥! 🐾',
   };
+
+  void _showFakeRewardedAd(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        title: Text('광고를 보는 중이다냥'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 12),
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('광고 수익 일부가 고양이 보호 활동에 보탬이 된다냥.'),
+          ],
+        ),
+      ),
+    );
+  }
 
   String _todayFortuneDate() {
     final now = DateTime.now();

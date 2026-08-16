@@ -18,6 +18,9 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
   final _cityController = TextEditingController();
   CalendarType _calendarType = CalendarType.solar;
   BirthTimePrecision _precision = BirthTimePrecision.unknown;
+  String _period = '오전';
+  int _hour = 12;
+  int _minute = 0;
   String? _error;
 
   @override
@@ -32,6 +35,9 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
       birthDate: _dateController.text,
       calendarType: _calendarType,
       birthTimePrecision: _precision,
+      birthTime: _precision == BirthTimePrecision.unknown
+          ? null
+          : '$_period ${_hour.toString().padLeft(2, '0')}:${_minute.toString().padLeft(2, '0')}',
       birthCountryCode: 'KR',
       birthCity: _cityController.text,
     );
@@ -101,6 +107,55 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
                 () => _precision = value ?? BirthTimePrecision.unknown,
               ),
             ),
+            if (_precision != BirthTimePrecision.unknown) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _period,
+                      decoration: const InputDecoration(labelText: '오전/오후'),
+                      items: const [
+                        DropdownMenuItem(value: '오전', child: Text('오전')),
+                        DropdownMenuItem(value: '오후', child: Text('오후')),
+                      ],
+                      onChanged: (value) =>
+                          setState(() => _period = value ?? '오전'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _hour,
+                      decoration: const InputDecoration(labelText: '시'),
+                      items: [
+                        for (var hour = 1; hour <= 12; hour++)
+                          DropdownMenuItem(value: hour, child: Text('$hour시')),
+                      ],
+                      onChanged: (value) => setState(() => _hour = value ?? 12),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _minute,
+                      decoration: const InputDecoration(labelText: '분'),
+                      items: [
+                        for (var minute = 0; minute < 60; minute += 5)
+                          DropdownMenuItem(
+                            value: minute,
+                            child: Text(
+                              '${minute.toString().padLeft(2, '0')}분',
+                            ),
+                          ),
+                      ],
+                      onChanged: (value) =>
+                          setState(() => _minute = value ?? 0),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             TextField(
               controller: _cityController,

@@ -521,3 +521,11 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 - The Google web client callback was registered and the Supabase Google provider was synchronized with that client.
 - Windows OAuth now uses a loopback callback server on `http://localhost:3000` and exchanges the PKCE code in the same app process.
 - Live verification completed: Google account selection returned to the local callback page and the app transitioned to the authenticated fortune home screen.
+
+#### 2026-08-16 — Auth widget test could not find sign-in button
+
+**Symptom:** The expanded cat illustration pushed the sign-in button below the initial viewport, so the widget test's first finder saw zero mounted `ElevatedButton` widgets.
+
+**Resolution:** Updated the test to scroll the `ListView` and call `ensureVisible` for each consent row and the sign-in button. The production widget behavior was unchanged.
+
+**Validation:** Targeted test and full `flutter test --no-pub` both pass.

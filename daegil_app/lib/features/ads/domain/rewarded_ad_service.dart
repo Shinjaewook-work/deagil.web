@@ -97,6 +97,7 @@ class FakeRewardedAdService implements RewardedAdService {
   @override
   Future<RewardedAdShowResult> show(AdAttempt attempt) async {
     events.add('show:${attempt.id}');
+    await Future<void>.delayed(const Duration(milliseconds: 1200));
     return nextResult;
   }
 

@@ -18,6 +18,8 @@ class AuthState {
     this.requirements = const [],
     this.acceptedDocumentIds = const {},
     this.age14PlusAttested = false,
+    this.aiProcessingConsent = false,
+    this.privacyUsageConsent = false,
     this.isLoading = false,
     this.isAuthenticated = false,
     this.isAuthPending = false,
@@ -27,6 +29,8 @@ class AuthState {
   final List<RegistrationRequirement> requirements;
   final Set<String> acceptedDocumentIds;
   final bool age14PlusAttested;
+  final bool aiProcessingConsent;
+  final bool privacyUsageConsent;
   final bool isLoading;
   final bool isAuthenticated;
   final bool isAuthPending;
@@ -34,6 +38,8 @@ class AuthState {
 
   bool get canSignIn =>
       age14PlusAttested &&
+      aiProcessingConsent &&
+      privacyUsageConsent &&
       requirements
           .where((item) => item.required)
           .every((item) => acceptedDocumentIds.contains(item.id));
@@ -42,6 +48,8 @@ class AuthState {
     List<RegistrationRequirement>? requirements,
     Set<String>? acceptedDocumentIds,
     bool? age14PlusAttested,
+    bool? aiProcessingConsent,
+    bool? privacyUsageConsent,
     bool? isLoading,
     bool? isAuthenticated,
     bool? isAuthPending,
@@ -52,6 +60,8 @@ class AuthState {
       requirements: requirements ?? this.requirements,
       acceptedDocumentIds: acceptedDocumentIds ?? this.acceptedDocumentIds,
       age14PlusAttested: age14PlusAttested ?? this.age14PlusAttested,
+      aiProcessingConsent: aiProcessingConsent ?? this.aiProcessingConsent,
+      privacyUsageConsent: privacyUsageConsent ?? this.privacyUsageConsent,
       isLoading: isLoading ?? this.isLoading,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isAuthPending: isAuthPending ?? this.isAuthPending,
@@ -87,6 +97,28 @@ class AuthController extends Notifier<AuthState> {
 
   void setAgeAttestation(bool value) {
     state = state.copyWith(age14PlusAttested: value, clearError: true);
+  }
+
+  void setAiProcessingConsent(bool value) {
+    final accepted = {...state.acceptedDocumentIds};
+    for (final requirement in state.requirements.where(
+      (item) => item.title.contains('AI'),
+    )) {
+      if (value) {
+        accepted.add(requirement.id);
+      } else {
+        accepted.remove(requirement.id);
+      }
+    }
+    state = state.copyWith(
+      aiProcessingConsent: value,
+      acceptedDocumentIds: accepted,
+      clearError: true,
+    );
+  }
+
+  void setPrivacyUsageConsent(bool value) {
+    state = state.copyWith(privacyUsageConsent: value, clearError: true);
   }
 
   void toggleRequirement(String id, bool value) {
