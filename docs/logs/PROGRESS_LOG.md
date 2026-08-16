@@ -1371,3 +1371,20 @@ Google development OAuth → CONNECTED / user-confirmed
 - Corrected `admob-ssv` to parse Google's rotating key-array response and verify ECDSA/P-256 signatures.
 - Redeployed `admob-ssv` successfully.
 - iOS remains on official test IDs until an iOS App ID is provided.
+
+### PROG-202608161430 — HTTPS OAuth callback relay
+
+**Status:** IMPLEMENTED / MANUAL_ACTION_REQUIRED
+**Goal:** Remove Android OAuth dependence on localhost or the Supabase API root.
+
+**Validation**
+- Added and deployed public `oauth-mobile-redirect` Edge Function.
+- Relay returns `302` to the fixed Android deep link while forwarding only OAuth `code`, `state`, and error fields.
+- Verified the deployed relay with a synthetic code/state request; response was `HTTP 302` with the expected custom-scheme Location.
+- Flutter default/mobile redirect now targets the HTTPS relay; Windows continues to override it with the local callback server.
+- `flutter analyze --no-pub`: passed.
+- `flutter test --no-pub`: 32 tests passed.
+- Debug APK rebuilt with Supabase auth and the relay redirect.
+
+**Manual gate**
+- Add the relay URL to Supabase Authentication URL Configuration Additional Redirect URLs before installing the rebuilt APK.

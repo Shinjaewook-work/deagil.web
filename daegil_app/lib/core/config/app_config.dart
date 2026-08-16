@@ -37,7 +37,8 @@ class AppConfig {
     this.firebaseProjectId = '',
     this.firebaseAndroidAppId = '',
     this.firebaseIosAppId = '',
-    this.authRedirectUrl = 'com.example.daegil_app://login-callback/',
+    this.authRedirectUrl =
+        'https://nbdgwssdikmzitebqwkq.supabase.co/functions/v1/oauth-mobile-redirect',
     this.enableSupabaseAuth = false,
   });
 
@@ -80,7 +81,8 @@ class AppConfig {
       firebaseIosAppId: const String.fromEnvironment('FIREBASE_IOS_APP_ID'),
       authRedirectUrl: const String.fromEnvironment(
         'AUTH_REDIRECT_URL',
-        defaultValue: 'com.example.daegil_app://login-callback/',
+        defaultValue:
+            'https://nbdgwssdikmzitebqwkq.supabase.co/functions/v1/oauth-mobile-redirect',
       ),
       enableSupabaseAuth: const bool.fromEnvironment(
         'ENABLE_SUPABASE_AUTH',
@@ -189,9 +191,12 @@ class AppConfig {
     final uri = Uri.tryParse(value);
     return uri != null &&
         uri.scheme.isNotEmpty &&
-        uri.scheme != 'http' &&
-        uri.scheme != 'https' &&
-        uri.host == 'login-callback';
+        ((uri.scheme != 'http' &&
+                uri.scheme != 'https' &&
+                uri.host == 'login-callback') ||
+            (uri.scheme == 'https' &&
+                uri.host.endsWith('.supabase.co') &&
+                uri.path == '/functions/v1/oauth-mobile-redirect'));
   }
 
   static bool _isPlaceholderPackage(String value) =>

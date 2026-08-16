@@ -545,3 +545,11 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 **Resolution:** Updated the verifier to parse the current key-array format, convert DER ECDSA signatures for WebCrypto verification, configured the Android ad unit with reward item `fortune` and amount `1`, and redeployed `admob-ssv`.
 
 **Next check:** Repeat AdMob's callback URL validation after the console test request is regenerated.
+
+#### 2026-08-16 — Android OAuth fallback and relay correction
+
+**Symptom:** Android OAuth returned to localhost or the Supabase API root, producing connection-refused or `requested path is invalid` pages.
+
+**Cause:** The Windows-only localhost callback and the hosted Supabase API root were being used as fallback targets for a mobile flow that needs an app deep link.
+
+**Resolution:** Added a public Supabase Edge Function relay at `/functions/v1/oauth-mobile-redirect`. It forwards the OAuth code/state to `com.example.daegil_app://login-callback/`; no open redirect is accepted. The first relay deployment returned Edge Runtime 500 because a null 302 body was used; changing it to an empty body produced the verified HTTP 302 response.
