@@ -57,7 +57,10 @@ async function keyFor(keyId: string): Promise<CryptoKey> {
 Deno.serve(async (request) => {
   if (request.method !== 'GET') return json(405, { code: 'METHOD_NOT_ALLOWED' });
   const rawQuery = new URL(request.url).search.slice(0, 8193);
-  if (rawQuery.length === 0 || rawQuery.length > 8192) return json(400, { code: 'INVALID_QUERY' });
+  // AdMob's console performs a reachability probe before sending a signed
+  // callback. This health check must never grant a reward.
+  if (rawQuery.length === 0) return json(200, { status: 'ready' });
+  if (rawQuery.length > 8192) return json(400, { code: 'INVALID_QUERY' });
   const params = new URLSearchParams(rawQuery);
   const signature = params.get('signature');
   const keyId = params.get('key_id');
