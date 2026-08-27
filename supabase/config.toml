@@ -18,5 +18,20 @@ verify_jwt = false
 [functions.admob-ssv]
 verify_jwt = false
 
+[functions.prepare-ad-session]
+verify_jwt = false
+
+[functions.report-ad-impression]
+verify_jwt = false
+
+[functions.claim-ad-reward]
+verify_jwt = false
+
+[functions.report-ad-dismissed]
+verify_jwt = false
+
+[functions.legal-documents]
+verify_jwt = false
+
 [functions.delete-account]
 verify_jwt = false

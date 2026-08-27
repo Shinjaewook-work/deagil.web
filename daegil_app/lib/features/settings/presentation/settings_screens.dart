@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'settings_controller.dart';
 import '../../notifications/presentation/notification_controller.dart';
 import '../../../shared/widgets/luna_page_frame.dart';
+import '../../../shared/widgets/cat_page_banner.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -15,25 +16,36 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('설정')),
       body: LunaPageFrame(
         child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           children: [
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: const Text('프로필'),
+            const CatPageBanner(
+              assetName: 'assets/images/daegil_cat_stretch.png',
+              title: '편안하게 정리해보자냥',
+              message: '프로필과 알림, 동의 상태를 여기서 돌볼 수 있다냥.',
+            ),
+            const SizedBox(height: 16),
+            _SettingsTile(
+              icon: Icons.person_outline,
+              title: '프로필',
+              subtitle: '출생정보를 확인하고 고친다냥',
               onTap: () => context.go('/settings/profile'),
             ),
-            ListTile(
-              leading: const Icon(Icons.notifications_none),
-              title: const Text('알림'),
+            _SettingsTile(
+              icon: Icons.notifications_none,
+              title: '알림',
+              subtitle: '운세를 잡아올 시간을 정한다냥',
               onTap: () => context.go('/settings/notification'),
             ),
-            ListTile(
-              leading: const Icon(Icons.lock_outline),
-              title: const Text('개인정보 및 동의'),
+            _SettingsTile(
+              icon: Icons.lock_outline,
+              title: '개인정보 및 동의',
+              subtitle: '내 동의 상태를 안전하게 관리한다냥',
               onTap: () => context.go('/settings/privacy'),
             ),
-            ListTile(
-              leading: const Icon(Icons.manage_accounts_outlined),
-              title: const Text('계정'),
+            _SettingsTile(
+              icon: Icons.manage_accounts_outlined,
+              title: '계정',
+              subtitle: '로그아웃과 계정 관리를 한다냥',
               onTap: () => context.go('/settings/account'),
             ),
           ],
@@ -55,17 +67,21 @@ class PrivacySettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            const Text(
-              '동의 상태는 서버 기준으로 관리되며, 철회하면 새 AI 운세·광고·패스를 사용할 수 없다냥.',
-              softWrap: true,
+            const CatPageBanner(
+              assetName: 'assets/images/daegil_cat_butterfly.png',
+              title: '내 정보는 소중하다냥',
+              message: '동의 상태는 서버에서 안전하게 관리한다냥.',
             ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('앱 개선과 오류 분석 허용'),
-              value: state.analyticsEnabled,
-              onChanged: (value) => ref
-                  .read(settingsControllerProvider.notifier)
-                  .setAnalyticsEnabled(value),
+            const SizedBox(height: 16),
+            Card(
+              child: SwitchListTile(
+                title: const Text('앱 개선과 오류 분석 허용'),
+                subtitle: const Text('선택 동의이며 언제든 바꿀 수 있다냥.'),
+                value: state.analyticsEnabled,
+                onChanged: (value) => ref
+                    .read(settingsControllerProvider.notifier)
+                    .setAnalyticsEnabled(value),
+              ),
             ),
             const SizedBox(height: 20),
             OutlinedButton(
@@ -101,6 +117,12 @@ class AccountSettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
+            const CatPageBanner(
+              assetName: 'assets/images/daegil_cat_yawn.png',
+              title: '잠깐 쉬어가도 괜찮다냥',
+              message: '로그아웃해도 저장된 정보는 그대로 남아 있다냥.',
+            ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 await ref.read(settingsControllerProvider.notifier).logout();
@@ -133,9 +155,12 @@ class AccountDeletionScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('계정을 삭제하면 프로필과 관련 데이터가 복구되지 않는다냥.', softWrap: true),
-              const SizedBox(height: 20),
-              const Icon(Icons.pets_outlined, size: 72),
+              const CatPageBanner(
+                assetName: 'assets/images/daegil_cat_mascot.png',
+                title: '정말 떠나려는 거냥?',
+                message: '계정을 삭제하면 프로필과 관련 데이터는 복구되지 않는다냥.',
+                imageHeight: 180,
+              ),
               const SizedBox(height: 20),
               FilledButton(
                 onPressed: () async {
@@ -187,19 +212,29 @@ class _NotificationSettingsScreenState
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            const Text('오늘의 운세 알림은 기기 알림 권한과 서버 설정을 함께 사용한다냥.', softWrap: true),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('매일 운세 알림'),
-              value: enabled,
-              onChanged: (value) => _save(value, time),
+            const CatPageBanner(
+              assetName: 'assets/images/daegil_cat_wave.png',
+              title: '시간 맞춰 깨워주겠다냥',
+              message: '오늘의 운세 알림은 기기 권한과 서버 설정을 함께 사용한다냥.',
             ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              enabled: enabled,
-              title: const Text('알림 시간'),
-              trailing: Text(time.format(context)),
-              onTap: enabled ? _pickTime : null,
+            const SizedBox(height: 16),
+            Card(
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: const Text('매일 운세 알림'),
+                    value: enabled,
+                    onChanged: (value) => _save(value, time),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    enabled: enabled,
+                    title: const Text('알림 시간'),
+                    trailing: Text(time.format(context)),
+                    onTap: enabled ? _pickTime : null,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -231,5 +266,34 @@ class _NotificationSettingsScreenState
       enabled = nextEnabled;
       time = nextTime;
     });
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: ListTile(
+        minTileHeight: 72,
+        leading: CircleAvatar(child: Icon(icon)),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: onTap,
+      ),
+    );
   }
 }

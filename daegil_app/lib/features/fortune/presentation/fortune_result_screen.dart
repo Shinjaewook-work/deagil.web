@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/fortune_repository.dart';
 import '../domain/fortune_result.dart';
 import '../../../shared/widgets/luna_page_frame.dart';
+import '../../../shared/widgets/cat_page_banner.dart';
 
 class FortuneResultScreen extends ConsumerWidget {
   const FortuneResultScreen({this.result, super.key});
@@ -52,15 +53,11 @@ class _ResultBody extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
-            Text(
-              displayedResult.formattedDate,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              displayedResult.headline,
-              softWrap: true,
-              style: Theme.of(context).textTheme.displaySmall,
+            CatPageBanner(
+              assetName: 'assets/images/daegil_cat_yawn.png',
+              title: displayedResult.headline,
+              message: '${displayedResult.formattedDate}\n오늘의 운세를 잡아왔다냥.',
+              imageHeight: 170,
             ),
             const SizedBox(height: 20),
             _RatingCard(result: displayedResult),
@@ -101,18 +98,30 @@ class _RatingCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Row(
           children: [
-            const Icon(Icons.wb_sunny_outlined, size: 36),
-            const SizedBox(width: 16),
-            Text(
-              '${result.overallRating} / 5',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(width: 8),
-            const Expanded(child: Text('오늘의 흐름')),
             SizedBox(
-              width: 44,
-              height: 44,
+              width: 82,
+              height: 82,
               child: Image.asset('assets/images/daegil_cat_yawn.png'),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.wb_sunny_outlined, size: 24),
+                      SizedBox(width: 8),
+                      Expanded(child: Text('오늘의 흐름')),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${result.overallRating} / 5',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

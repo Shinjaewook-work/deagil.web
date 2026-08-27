@@ -1417,3 +1417,66 @@ Google development OAuth → CONNECTED / user-confirmed
 - `flutter test --no-pub`: 33 tests passed.
 - Harness lint and repository guard: passed.
 - Debug APK rebuilt successfully with the corrected direct OAuth redirect.
+
+### PROG-202608272345 — APK intent audit, server wiring, and cat-theme completion
+
+**Status:** IMPLEMENTED / REMOTE VERIFIED / PHYSICAL DEVICE QA REQUIRED
+
+**Authentication**
+- Google session and registration completion are separate states; home navigation occurs only after `complete_my_registration` succeeds.
+- Supabase Auth configuration was read back: Site URL and allowlist use `com.example.daegilapp://login-callback/`, Google is enabled, and client ID/secret are present.
+- Live authorize endpoint returns Google OAuth HTTP 302.
+- Added active development terms, privacy, and AI-processing documents and verified registration RPC in a rolled-back remote transaction.
+
+**Database**
+- Birth profile now calls `upsert_my_birth_profile`; Korean 12-hour input is converted to PostgreSQL time.
+- Home restores `birth_profile_exists` from `get_my_app_state` after restart.
+- Remote rolled-back smoke test verified birth-profile persistence without leaving test data.
+
+**Rewarded ad**
+- Added and deployed `prepare-ad-session`, `report-ad-impression`, `claim-ad-reward`, and `report-ad-dismissed`.
+- Added server attempt lease, opaque challenge hash, frozen security/reward specification, entitlement transition, and generation-worker start.
+- Updated and redeployed `admob-ssv`; public health probe is HTTP 200.
+- Remote DB smoke completed prepare → impression → claim → dismiss and rolled back.
+
+**Design and layout**
+- Added reusable hanbok-cat banner cards and applied them to fortune result, settings, notification, privacy, account, and deletion screens.
+- Enlarged the result cat and aligned image containers to the illustration background.
+- Added responsive birth-time controls and fixed the 320px result-card overflow.
+- Current 390×844 previews were captured under `.codex/visualizations/2026/08/27/daegil-apk-audit-after`.
+
+**Validation**
+- `flutter analyze --no-pub`: PASS.
+- `flutter test --no-pub`: PASS (functional suite; visual capture test is opt-in).
+- 320px major-page and birth-time layout tests: PASS.
+- `harness_lint.py`, `repo_guard.py`, `security_hardening_audit.py`, `release_gate_audit.py`, and `git diff --check`: PASS.
+- Debug APK rebuilt with real Supabase Auth, valid direct callback, production Android AdMob IDs, and `AD_SECURITY_MODE=fast`.
+
+**Remaining manual gates**
+- Physical Android install: complete Google account return-to-app, save real birth data, view a live rewarded ad, confirm generated fortune, and verify rows through normal user APIs.
+- Replace development legal copy after owner/legal approval; complete store signing, Data Safety/privacy labels, and final application ID decision.
+
+### PROG-202608280015 — Final Android APK rebuild and resilience review
+
+**Status:** AUTOMATED VERIFIED / PHYSICAL DEVICE QA REQUIRED
+
+**Review fixes**
+- Legal consent selection now uses stable server `document_type` values rather than Korean title text.
+- Auth requirements failures leave a safe, retryable gate instead of an indefinite loading state.
+- Existing completed registrations restore from the server gate without asking for consent again.
+- SSV verification polling tolerates transient Supabase errors.
+- Failed internal generation dispatches are fenced by session/epoch and persisted as `failed` or `recovery_pending`.
+
+**Remote validation**
+- Applied `202608280001_generation_dispatch_recovery.sql` to the linked Supabase project.
+- Redeployed prepare, impression, reward, dismiss, and SSV Edge Functions.
+- Authenticated ad endpoints return HTTP 401 without a JWT; SSV reachability returns HTTP 200.
+- `supabase db push --linked --dry-run`: remote database is up to date.
+
+**Build and checks**
+- `flutter analyze --no-pub`: PASS.
+- `flutter test --no-pub`: PASS, 45 functional tests; visual capture test remains opt-in.
+- Harness, repository, security, release, and whitespace guards: PASS.
+- Debug APK rebuilt with real Supabase Auth, direct Android callback, production Android AdMob IDs, and `AD_SECURITY_MODE=fast`.
+- APK SHA-256: `D7B58BEE1C8AAD778D83294BD3781F281187EF4CC5B8DE09C047DECB077656BA`.
+- Current mobile captures: `C:/Users/every/.codex/visualizations/2026/08/28/daegil-apk-final`.

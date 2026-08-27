@@ -4,6 +4,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../../core/config/app_config.dart';
 import '../domain/rewarded_ad_service.dart';
+import 'rewarded_ad_gateway.dart';
 
 /// Real Rewarded Ad implementation for Android and iOS.
 ///
@@ -13,15 +14,16 @@ class MobileRewardedAdService implements RewardedAdService {
   MobileRewardedAdService({
     required this.rewardedUnitId,
     required this.securityMode,
-  });
+    required RewardedAdGateway gateway,
+  }) : _gateway = gateway;
 
   @override
   final String rewardedUnitId;
   @override
   final AdSecurityMode securityMode;
+  final RewardedAdGateway _gateway;
   RewardedAd? _loadedAd;
   bool _sdkInitialized = false;
-  int _attemptNumber = 0;
 
   @override
   bool get usesNativeSdk => true;
@@ -57,13 +59,12 @@ class MobileRewardedAdService implements RewardedAdService {
     if (_loadedAd == null) {
       throw StateError('ad_not_preloaded');
     }
-    final id = 'mobile-ad-attempt-${++_attemptNumber}';
-    final customData = 'mobile-opaque-token-$id';
+    final attempt = await _gateway.prepare(fortuneDate: fortuneDate);
     final ad = _loadedAd!;
     await ad.setServerSideOptions(
-      ServerSideVerificationOptions(customData: customData),
+      ServerSideVerificationOptions(customData: attempt.customData),
     );
-    return AdAttempt(id: id, fortuneDate: fortuneDate, customData: customData);
+    return attempt;
   }
 
   @override
@@ -106,11 +107,16 @@ class MobileRewardedAdService implements RewardedAdService {
   }
 
   @override
-  Future<void> reportAdImpression(AdAttempt attempt) async {}
+  Future<void> reportAdImpression(AdAttempt attempt) =>
+      _gateway.reportImpression(attempt);
 
   @override
-  Future<void> claimAdReward(AdAttempt attempt) async {}
+  Future<void> claimAdReward(AdAttempt attempt) =>
+      _gateway.claimReward(attempt);
 
   @override
-  Future<void> reportAdDismissed(AdAttempt attempt) async {}
+  Future<void> reportAdDismissed(
+    AdAttempt attempt, {
+    String terminalReason = 'dismissed',
+  }) => _gateway.reportDismissed(attempt, terminalReason: terminalReason);
 }

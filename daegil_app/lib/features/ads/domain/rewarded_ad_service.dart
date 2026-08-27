@@ -53,7 +53,10 @@ abstract interface class RewardedAdService {
 
   Future<void> claimAdReward(AdAttempt attempt);
 
-  Future<void> reportAdDismissed(AdAttempt attempt);
+  Future<void> reportAdDismissed(
+    AdAttempt attempt, {
+    String terminalReason = 'dismissed',
+  });
 }
 
 class FakeRewardedAdService implements RewardedAdService {
@@ -117,7 +120,10 @@ class FakeRewardedAdService implements RewardedAdService {
   }
 
   @override
-  Future<void> reportAdDismissed(AdAttempt attempt) async {
-    events.add('dismissed:${attempt.id}');
+  Future<void> reportAdDismissed(
+    AdAttempt attempt, {
+    String terminalReason = 'dismissed',
+  }) async {
+    events.add('$terminalReason:${attempt.id}');
   }
 }

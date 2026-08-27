@@ -577,3 +577,45 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 **Cause:** The Windows-only localhost callback and the hosted Supabase API root were being used as fallback targets for a mobile flow that needs an app deep link.
 
 **Resolution:** Added a public Supabase Edge Function relay at `/functions/v1/oauth-mobile-redirect`. It forwards the OAuth code/state to `com.example.daegil_app://login-callback/`; no open redirect is accepted. The first relay deployment returned Edge Runtime 500 because a null 302 body was used; changing it to an empty body produced the verified HTTP 302 response.
+
+#### 2026-08-27 — OAuth session navigated before registration sync
+
+**Symptom:** Google could create a Supabase session while the app entered the home screen before `complete_my_registration` finished. A failed RPC therefore looked like successful signup, and an external OAuth process restart could lose in-memory consent state.
+
+**Root cause:** `authenticationChanges` set `isAuthenticated=true` before firing an unawaited registration RPC; the auth screen navigated on that first state change.
+
+**Resolution:** Split authenticated-session state from app-entry authorization. The app now remains on the registration gate until the RPC succeeds, supports re-confirming consent after process restoration, and maps sync errors to safe Korean UI copy.
+
+**Regression guard:** Controller tests prove that navigation remains locked while registration is pending and after sync failure.
+
+#### 2026-08-27 — Native Rewarded Ad had no server attempt lifecycle
+
+**Symptom:** The SDK could show an ad, but it generated local attempt IDs/tokens and left impression, reward, and dismiss reports empty. SSV could not match a DB row and no server entitlement or generation started.
+
+**Resolution:** Added authenticated prepare/impression/claim/dismiss Edge Functions, server-owned opaque SSV challenges, frozen reward/security specifications, DB attempt transitions, generation start fencing, and client gateway wiring. SSV now starts the generation worker when verification grants the reward.
+
+**Validation:** Deployed endpoints return 401 without a user JWT, SSV health returns 200, and a rolled-back remote DB smoke test completed prepare → impression → claim → dismiss.
+
+#### 2026-08-27 — Supabase project restore and missing legal seed
+
+**Symptom:** DB push and Management API SQL calls timed out; after restore, ad preparation failed with `AI_CONSENT_REQUIRED`.
+
+**Root causes:** The free Supabase project status was `INACTIVE`, and `legal_documents` contained zero active rows, so signup created no AI consent event.
+
+**Resolution:** Restored the project through the official Management API, verified `ACTIVE_HEALTHY`, seeded development terms/privacy/AI documents with public Supabase-hosted pages, and connected the privacy checkbox to its server document ID. Final legal copy still requires owner/legal approval before release.
+
+#### 2026-08-27 — Fortune rating card overflowed on 320px phones
+
+**Symptom:** A new responsive test found a 24px right overflow on `FortuneResultScreen`.
+
+**Resolution:** Reflowed the enlarged cat illustration and rating information into a compact two-column layout. All major cat-themed pages and birth-time controls now pass 320px overflow tests.
+
+#### 2026-08-28 — Consent matching and generation dispatch recovery gaps
+
+**Symptoms:** Legal consent controls depended on Korean title fragments, a requirements RPC failure could leave the auth gate loading indefinitely, and a failed internal generation-worker dispatch changed only the Edge response while the database remained `generating`.
+
+**Root causes:** The client ignored the server-owned `document_type`; expected Supabase/format exceptions were not normalized at the auth boundary; the rewarded-ad helper had no fenced database transition for a failed worker request.
+
+**Resolution:** Matched AI/privacy documents by `document_type`, added a safe retryable load-failure UI, restored completed sessions from the server gate without repeated consent, retried transient SSV state polling, and added `mark_generation_dispatch_failed(session_id, epoch)` so a failed worker dispatch records `failed` before entitlement or `recovery_pending` after entitlement.
+
+**Validation:** Added regression tests for title-independent privacy consent, requirements-load recovery, completed-session restoration, and transient Supabase polling. The migration and all affected Edge Functions were deployed; unauthenticated endpoints fail closed with HTTP 401, SSV health returns HTTP 200, and the linked database reports no pending migrations.

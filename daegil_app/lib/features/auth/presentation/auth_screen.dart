@@ -82,7 +82,8 @@ class AuthScreen extends ConsumerWidget {
               ),
               for (final requirement in state.requirements.where(
                 (item) =>
-                    !item.title.contains('AI') && !item.title.contains('개인정보'),
+                    item.documentType != 'ai_processing' &&
+                    item.documentType != 'privacy',
               ))
                 CheckboxListTile(
                   contentPadding: EdgeInsets.zero,
@@ -102,10 +103,22 @@ class AuthScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    state.errorMessage!,
+                    _errorMessage(state.errorMessage!),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),
+                  ),
+                ),
+              if (state.errorMessage == 'REGISTRATION_REQUIREMENTS_LOAD_FAILED')
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: OutlinedButton(
+                    onPressed: state.isLoading
+                        ? null
+                        : () => ref
+                              .read(authControllerProvider.notifier)
+                              .retryRequirements(),
+                    child: const Text('동의 내용 다시 불러오기'),
                   ),
                 ),
               if (state.isAuthPending)
@@ -126,7 +139,11 @@ class AuthScreen extends ConsumerWidget {
                               .read(authControllerProvider.notifier)
                               .signIn(provider)
                         : null,
-                    child: Text('${_providerName(provider)}로 계속하기'),
+                    child: Text(
+                      state.hasAuthenticatedSession
+                          ? '동의 완료하고 시작하기'
+                          : '${_providerName(provider)}로 계속하기',
+                    ),
                   ),
                 ),
             ],
@@ -138,5 +155,16 @@ class AuthScreen extends ConsumerWidget {
 
   String _providerName(SocialProvider provider) => switch (provider) {
     SocialProvider.google => 'Google',
+  };
+
+  String _errorMessage(String code) => switch (code) {
+    'REGISTRATION_CONFIRMATION_REQUIRED' =>
+      'Google 연결을 확인했다냥. 동의 항목을 다시 확인하고 시작 버튼을 눌러달라냥.',
+    'REGISTRATION_SYNC_FAILED' => '회원정보를 저장하지 못했다냥. 잠시 후 다시 눌러달라냥.',
+    'REGISTRATION_REQUIREMENTS_LOAD_FAILED' =>
+      '필수 동의 내용을 불러오지 못했다냥. 네트워크를 확인하고 다시 불러와달라냥.',
+    'AUTH_PROVIDER_FAILED' => 'Google 로그인을 완료하지 못했다냥. 다시 시도해달라냥.',
+    'REGISTRATION_REQUIREMENTS_INCOMPLETE' => '필수 동의 항목을 모두 확인해달라냥.',
+    _ => '로그인을 완료하지 못했다냥. 잠시 후 다시 시도해달라냥.',
   };
 }

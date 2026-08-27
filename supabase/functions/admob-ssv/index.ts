@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { startGenerationIfRequired } from '../_shared/rewarded_ad_helpers.ts';
 
 const url = Deno.env.get('SUPABASE_URL');
 const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -91,7 +92,9 @@ Deno.serve(async (request) => {
       ad_unit_id_value: adUnit, reward_item_value: rewardItem, reward_amount_value: rewardAmount,
     });
     if (error) return json(500, { code: 'SSV_PROCESSING_FAILED' });
-    return json(200, { status: (data as Record<string, unknown>).status });
+    const result = data as Record<string, unknown>;
+    await startGenerationIfRequired(result);
+    return json(200, { status: result.status });
   } catch {
     return json(400, { code: 'SIGNATURE_VERIFICATION_FAILED' });
   }

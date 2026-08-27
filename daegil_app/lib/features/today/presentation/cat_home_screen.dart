@@ -27,12 +27,15 @@ class CatHomeScreen extends ConsumerWidget {
         context.go('/fortune/result');
       }
     });
-    final hasBirthProfile = ref.watch(birthProfileProvider) != null;
+    final localBirthProfileExists = ref.watch(birthProfileProvider) != null;
     final appState = ref.watch(fortuneAppStateProvider);
     final currentAppState = appState.maybeWhen(
       data: (value) => value,
       orElse: () => null,
     );
+    final hasBirthProfile =
+        localBirthProfileExists ||
+        (currentAppState?.birthProfileExists ?? false);
     final adState = ref.watch(rewardedAdControllerProvider);
     final isBusy = {
       RewardedAdFlowStatus.loading,

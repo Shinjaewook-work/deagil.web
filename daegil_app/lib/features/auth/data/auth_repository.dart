@@ -5,6 +5,7 @@ enum SocialProvider { google }
 
 abstract interface class AuthRepository {
   Future<List<RegistrationRequirement>> getRegistrationRequirements();
+  Future<bool> hasCompletedRegistration();
   Stream<bool> get authenticationChanges;
   Future<AuthSignInResult> signIn({
     required SocialProvider provider,
@@ -42,18 +43,28 @@ class FakeAuthRepository implements AuthRepository {
     RegistrationRequirement(
       id: 'terms-v1',
       title: '서비스 이용약관에 동의합니다.',
+      documentType: 'terms',
       interaction: LegalInteraction.acceptanceRequired,
       required: true,
     ),
     RegistrationRequirement(
       id: 'ai-processing-v1',
       title: 'AI 개인화 처리에 동의합니다.',
+      documentType: 'ai_processing',
+      interaction: LegalInteraction.consentRequired,
+      required: true,
+    ),
+    RegistrationRequirement(
+      id: 'privacy-v1',
+      title: '개인정보 활용에 동의합니다.',
+      documentType: 'privacy',
       interaction: LegalInteraction.consentRequired,
       required: true,
     ),
     RegistrationRequirement(
       id: 'analytics-v1',
       title: '앱 개선과 오류 분석을 허용합니다.',
+      documentType: 'analytics',
       interaction: LegalInteraction.consentRequired,
       required: false,
     ),
@@ -68,6 +79,9 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<bool> hasCompletedRegistration() async => false;
+
+  @override
   Future<AuthSignInResult> signIn({
     required SocialProvider provider,
     required bool age14PlusAttested,
@@ -75,7 +89,8 @@ class FakeAuthRepository implements AuthRepository {
   }) async {
     if (!age14PlusAttested ||
         !acceptedDocumentIds.contains('terms-v1') ||
-        !acceptedDocumentIds.contains('ai-processing-v1')) {
+        !acceptedDocumentIds.contains('ai-processing-v1') ||
+        !acceptedDocumentIds.contains('privacy-v1')) {
       throw StateError('REGISTRATION_REQUIREMENTS_INCOMPLETE');
     }
     return const AuthSignInResult.authenticated();
@@ -123,6 +138,13 @@ class SupabaseAuthRepository implements AuthRepository {
           ),
         )
         .toList(growable: false);
+  }
+
+  @override
+  Future<bool> hasCompletedRegistration() async {
+    final response = await _client.rpc('get_my_app_state');
+    final payload = Map<String, dynamic>.from(response as Map);
+    return payload['gate'] == 'NONE';
   }
 
   @override

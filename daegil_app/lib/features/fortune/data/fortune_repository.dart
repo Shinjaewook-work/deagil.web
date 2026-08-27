@@ -20,6 +20,7 @@ class FortuneAppState {
     this.activePassCount = 0,
     this.canUsePass = false,
     this.canPrepareRewardedAd = false,
+    this.birthProfileExists = false,
     this.nextRetryAt,
   });
 
@@ -29,6 +30,7 @@ class FortuneAppState {
   final int activePassCount;
   final bool canUsePass;
   final bool canPrepareRewardedAd;
+  final bool birthProfileExists;
   final DateTime? nextRetryAt;
 
   factory FortuneAppState.fromJson(Map<String, dynamic> json) {
@@ -55,6 +57,7 @@ class FortuneAppState {
       activePassCount: (json['active_pass_count'] as num?)?.toInt() ?? 0,
       canUsePass: json['can_use_pass'] == true,
       canPrepareRewardedAd: json['can_prepare_rewarded_ad'] == true,
+      birthProfileExists: json['birth_profile_exists'] == true,
       nextRetryAt: DateTime.tryParse(json['next_retry_at'] as String? ?? ''),
     );
   }

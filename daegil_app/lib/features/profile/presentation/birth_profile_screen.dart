@@ -22,6 +22,7 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
   int _hour = 12;
   int _minute = 0;
   String? _error;
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -31,6 +32,11 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
   }
 
   Future<void> _save() async {
+    if (_isSaving) return;
+    setState(() {
+      _isSaving = true;
+      _error = null;
+    });
     final draft = BirthProfileDraft(
       birthDate: _dateController.text,
       calendarType: _calendarType,
@@ -45,7 +51,13 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
       await ref.read(birthProfileProvider.notifier).save(draft);
       if (mounted) context.go('/today');
     } on StateError catch (error) {
-      setState(() => _error = error.message);
+      if (mounted) setState(() => _error = error.message);
+    } on Object {
+      if (mounted) {
+        setState(() => _error = '출생정보를 저장하지 못했다냥. 잠시 후 다시 시도해달라냥.');
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -109,51 +121,64 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
             ),
             if (_precision != BirthTimePrecision.unknown) ...[
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _period,
-                      decoration: const InputDecoration(labelText: '오전/오후'),
-                      items: const [
-                        DropdownMenuItem(value: '오전', child: Text('오전')),
-                        DropdownMenuItem(value: '오후', child: Text('오후')),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final periodField = DropdownButtonFormField<String>(
+                    initialValue: _period,
+                    decoration: const InputDecoration(labelText: '오전/오후'),
+                    items: const [
+                      DropdownMenuItem(value: '오전', child: Text('오전')),
+                      DropdownMenuItem(value: '오후', child: Text('오후')),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => _period = value ?? '오전'),
+                  );
+                  final hourField = DropdownButtonFormField<int>(
+                    initialValue: _hour,
+                    decoration: const InputDecoration(labelText: '시'),
+                    items: [
+                      for (var hour = 1; hour <= 12; hour++)
+                        DropdownMenuItem(value: hour, child: Text('$hour시')),
+                    ],
+                    onChanged: (value) => setState(() => _hour = value ?? 12),
+                  );
+                  final minuteField = DropdownButtonFormField<int>(
+                    initialValue: _minute,
+                    decoration: const InputDecoration(labelText: '분'),
+                    items: [
+                      for (var minute = 0; minute < 60; minute += 5)
+                        DropdownMenuItem(
+                          value: minute,
+                          child: Text('${minute.toString().padLeft(2, '0')}분'),
+                        ),
+                    ],
+                    onChanged: (value) => setState(() => _minute = value ?? 0),
+                  );
+                  if (constraints.maxWidth >= 330) {
+                    return Row(
+                      children: [
+                        Expanded(child: periodField),
+                        const SizedBox(width: 8),
+                        Expanded(child: hourField),
+                        const SizedBox(width: 8),
+                        Expanded(child: minuteField),
                       ],
-                      onChanged: (value) =>
-                          setState(() => _period = value ?? '오전'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      initialValue: _hour,
-                      decoration: const InputDecoration(labelText: '시'),
-                      items: [
-                        for (var hour = 1; hour <= 12; hour++)
-                          DropdownMenuItem(value: hour, child: Text('$hour시')),
-                      ],
-                      onChanged: (value) => setState(() => _hour = value ?? 12),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      initialValue: _minute,
-                      decoration: const InputDecoration(labelText: '분'),
-                      items: [
-                        for (var minute = 0; minute < 60; minute += 5)
-                          DropdownMenuItem(
-                            value: minute,
-                            child: Text(
-                              '${minute.toString().padLeft(2, '0')}분',
-                            ),
-                          ),
-                      ],
-                      onChanged: (value) =>
-                          setState(() => _minute = value ?? 0),
-                    ),
-                  ),
-                ],
+                    );
+                  }
+                  return Column(
+                    children: [
+                      periodField,
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(child: hourField),
+                          const SizedBox(width: 8),
+                          Expanded(child: minuteField),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
             const SizedBox(height: 12),
@@ -170,7 +195,10 @@ class _BirthProfileScreenState extends ConsumerState<BirthProfileScreen> {
                 ),
               ),
             const SizedBox(height: 24),
-            ElevatedButton(onPressed: _save, child: const Text('저장하고 알려달라냥!')),
+            ElevatedButton(
+              onPressed: _isSaving ? null : _save,
+              child: Text(_isSaving ? '저장하는 중이다냥…' : '저장하고 알려달라냥!'),
+            ),
           ],
         ),
       ),

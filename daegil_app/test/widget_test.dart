@@ -1,20 +1,29 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:daegil_app/app/app.dart';
 import 'package:daegil_app/app/router.dart';
+import 'package:daegil_app/app/theme/luna_theme.dart';
 import 'package:daegil_app/core/config/app_config.dart';
 import 'package:daegil_app/core/errors/app_failure.dart';
 import 'package:daegil_app/features/ads/domain/rewarded_ad_service.dart';
+import 'package:daegil_app/features/ads/data/rewarded_ad_gateway.dart';
 import 'package:daegil_app/features/ads/presentation/rewarded_ad_controller.dart';
 import 'package:daegil_app/features/ads/domain/ssv_verification.dart';
 import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
+import 'package:daegil_app/features/auth/data/auth_repository.dart';
 import 'package:daegil_app/features/auth/models/registration_requirement.dart';
+import 'package:daegil_app/features/auth/presentation/auth_controller.dart';
 import 'package:daegil_app/features/fortune/domain/fortune_generation.dart';
 import 'package:daegil_app/features/fortune/domain/fortune_result.dart';
+import 'package:daegil_app/features/fortune/data/fortune_repository.dart';
 import 'package:daegil_app/features/fortune/presentation/fortune_result_screen.dart';
 import 'package:daegil_app/features/profile/models/birth_profile.dart';
+import 'package:daegil_app/features/profile/presentation/birth_profile_screen.dart';
 import 'package:daegil_app/features/passes/domain/fortune_pass_ledger.dart';
 import 'package:daegil_app/features/notifications/domain/local_notification_service.dart';
 import 'package:daegil_app/features/settings/data/account_service.dart';
@@ -40,6 +49,72 @@ void main() {
     expect(requirement.required, isTrue);
     expect(requirement.publicUrl, 'https://example.test/terms');
   });
+
+  test('privacy consent checks its server-driven legal document', () async {
+    final repository = _ControllableAuthRepository(
+      requirements: const [
+        RegistrationRequirement(
+          id: 'privacy-v2',
+          title: '표현이 바뀐 필수 동의',
+          documentType: 'privacy',
+          interaction: LegalInteraction.consentRequired,
+          required: true,
+        ),
+      ],
+    );
+    final container = ProviderContainer(
+      overrides: [authRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(() {
+      container.dispose();
+      repository.dispose();
+    });
+    container.listen(authControllerProvider, (_, _) {}, fireImmediately: true);
+    await _drainMicrotasks();
+
+    container
+        .read(authControllerProvider.notifier)
+        .setPrivacyUsageConsent(true);
+
+    expect(
+      container.read(authControllerProvider).acceptedDocumentIds,
+      contains('privacy-v2'),
+    );
+  });
+
+  test(
+    'legal requirement load failure leaves a retryable auth screen',
+    () async {
+      final repository = _ControllableAuthRepository(
+        requirementsError: const PostgrestException(message: 'offline'),
+      );
+      final container = ProviderContainer(
+        overrides: [authRepositoryProvider.overrideWithValue(repository)],
+      );
+      addTearDown(() {
+        container.dispose();
+        repository.dispose();
+      });
+      container.listen(
+        authControllerProvider,
+        (_, _) {},
+        fireImmediately: true,
+      );
+      await _drainMicrotasks();
+
+      final state = container.read(authControllerProvider);
+      expect(state.isLoading, isFalse);
+      expect(state.isAuthenticated, isFalse);
+      expect(state.errorMessage, 'REGISTRATION_REQUIREMENTS_LOAD_FAILED');
+
+      repository.requirementsError = null;
+      await container.read(authControllerProvider.notifier).retryRequirements();
+
+      final recovered = container.read(authControllerProvider);
+      expect(recovered.errorMessage, isNull);
+      expect(recovered.requirements, isNotEmpty);
+    },
+  );
 
   testWidgets('auth route renders the legal gate', (tester) async {
     const config = AppConfig(
@@ -137,14 +212,49 @@ void main() {
   );
 
   test(
-    'ssv strict waits for server verification before claiming reward',
+    'rewarded ad gateway uses server attempt and reports every callback',
+    () async {
+      final backend = _RecordingRewardedAdBackend();
+      final gateway = SupabaseRewardedAdGateway(
+        backend: backend,
+        platform: 'android',
+      );
+
+      final attempt = await gateway.prepare(fortuneDate: '2026-08-27');
+      await gateway.reportImpression(attempt);
+      await gateway.claimReward(attempt);
+      await gateway.reportDismissed(attempt, terminalReason: 'dismissed');
+
+      expect(attempt.id, 'server-attempt-1');
+      expect(attempt.customData, 'server-opaque-token');
+      expect(backend.functions, [
+        'prepare-ad-session',
+        'report-ad-impression',
+        'claim-ad-reward',
+        'report-ad-dismissed',
+      ]);
+      expect(backend.bodies.first['platform'], 'android');
+      expect(backend.bodies.first['prepare_request_id'], isNotEmpty);
+    },
+  );
+
+  test(
+    'ssv strict records the client claim and waits for server unlock',
     () async {
       final fake = FakeRewardedAdService(
         rewardedUnitId: 'test',
         securityMode: AdSecurityMode.ssvStrict,
       );
       final container = ProviderContainer(
-        overrides: [rewardedAdServiceProvider.overrideWithValue(fake)],
+        overrides: [
+          rewardedAdServiceProvider.overrideWithValue(fake),
+          fortuneRepositoryProvider.overrideWithValue(
+            _SequencedFortuneRepository(),
+          ),
+          rewardVerificationPollIntervalProvider.overrideWithValue(
+            Duration.zero,
+          ),
+        ],
       );
       addTearDown(container.dispose);
 
@@ -153,11 +263,40 @@ void main() {
 
       expect(
         container.read(rewardedAdControllerProvider).status,
-        RewardedAdFlowStatus.rewardVerifying,
+        RewardedAdFlowStatus.completed,
       );
-      expect(fake.events.where((event) => event.startsWith('claim:')), isEmpty);
+      expect(
+        fake.events.where((event) => event.startsWith('claim:')).length,
+        1,
+      );
     },
   );
+
+  test('ssv strict retries a transient Supabase poll failure', () async {
+    final fake = FakeRewardedAdService(
+      rewardedUnitId: 'test',
+      securityMode: AdSecurityMode.ssvStrict,
+    );
+    final container = ProviderContainer(
+      overrides: [
+        rewardedAdServiceProvider.overrideWithValue(fake),
+        fortuneRepositoryProvider.overrideWithValue(
+          _TransientFortuneRepository(),
+        ),
+        rewardVerificationPollIntervalProvider.overrideWithValue(Duration.zero),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await container
+        .read(rewardedAdControllerProvider.notifier)
+        .start(fortuneDate: '2026-08-15');
+
+    expect(
+      container.read(rewardedAdControllerProvider).status,
+      RewardedAdFlowStatus.completed,
+    );
+  });
 
   test('mock provider is deterministic and passes the strict schema', () async {
     const provider = MockFortuneProvider();
@@ -431,6 +570,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('오늘의 AI 운세'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('재물운'),
+      300,
+      scrollable: find.byType(Scrollable),
+    );
     expect(find.text('재물운'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.textContaining('AI 생성 콘텐츠'),
@@ -440,6 +584,62 @@ void main() {
     expect(find.textContaining('AI 생성 콘텐츠'), findsOneWidget);
     expect(find.text('행운 숫자/색상/시간/키워드'), findsNothing);
     expect(find.textContaining('숫자 7'), findsOneWidget);
+  });
+
+  testWidgets('major cat-themed pages do not overflow on a 320px phone', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final pages = <Widget>[
+      const AuthScreen(),
+      const BirthProfileScreen(),
+      const FortuneResultScreen(),
+      const SettingsScreen(),
+      const NotificationSettingsScreen(),
+      const PrivacySettingsScreen(),
+      const AccountSettingsScreen(),
+      const AccountDeletionScreen(),
+    ];
+    for (final page in pages) {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(theme: buildLunaTheme(), home: page),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: page.runtimeType.toString(),
+      );
+    }
+  });
+
+  testWidgets('birth time controls reflow on a 320px phone', (tester) async {
+    tester.view.physicalSize = const Size(320, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: buildLunaTheme(),
+          home: const BirthProfileScreen(),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('모름'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('정확히').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('오전/오후'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   test(
@@ -653,4 +853,259 @@ void main() {
     );
     expect(config.shouldInitializeSupabase, isTrue);
   });
+
+  test('birth profile serializes Korean 12-hour time for the database', () {
+    const profile = BirthProfileDraft(
+      birthDate: '1995-08-16',
+      calendarType: CalendarType.solar,
+      birthTimePrecision: BirthTimePrecision.exact,
+      birthTime: '오후 12:35',
+      birthCountryCode: 'KR',
+      birthCity: '서울',
+    );
+
+    expect(profile.toBackendPayload(), {
+      'birth_date': '1995-08-16',
+      'calendar_type': 'solar',
+      'is_leap_month': false,
+      'birth_time': '12:35:00',
+      'birth_time_precision': 'exact',
+      'birth_country_code': 'KR',
+      'birth_city': '서울',
+    });
+  });
+
+  test('unknown birth time is sent to the database as null', () {
+    const profile = BirthProfileDraft(
+      birthDate: '1995-08-16',
+      calendarType: CalendarType.lunar,
+      birthTimePrecision: BirthTimePrecision.unknown,
+      birthCountryCode: 'KR',
+      birthCity: '부산',
+    );
+
+    expect(profile.toBackendPayload()['birth_time'], isNull);
+  });
+
+  test('server app state restores whether a birth profile exists', () {
+    final state = FortuneAppState.fromJson({
+      'fortune_state': 'LOCKED',
+      'birth_profile_exists': true,
+    });
+
+    expect(state.birthProfileExists, isTrue);
+  });
+
+  test(
+    'authenticated OAuth session waits for registration sync before app entry',
+    () async {
+      final repository = _ControllableAuthRepository();
+      final container = ProviderContainer(
+        overrides: [authRepositoryProvider.overrideWithValue(repository)],
+      );
+      addTearDown(() {
+        container.dispose();
+        repository.dispose();
+      });
+      container.listen(
+        authControllerProvider,
+        (_, _) {},
+        fireImmediately: true,
+      );
+      await _drainMicrotasks();
+
+      final controller = container.read(authControllerProvider.notifier);
+      controller.setAgeAttestation(true);
+      controller.setAiProcessingConsent(true);
+      controller.setPrivacyUsageConsent(true);
+      controller.toggleRequirement('terms-v1', true);
+
+      repository.authenticationController.add(true);
+      await _drainMicrotasks();
+
+      expect(repository.completeRegistrationCalls, 1);
+      expect(container.read(authControllerProvider).isAuthenticated, isFalse);
+
+      repository.registrationCompleter.complete();
+      await _drainMicrotasks();
+
+      expect(container.read(authControllerProvider).isAuthenticated, isTrue);
+    },
+  );
+
+  test(
+    'completed registration restores an existing session without re-consent',
+    () async {
+      final repository = _ControllableAuthRepository(
+        completedRegistration: true,
+      );
+      final container = ProviderContainer(
+        overrides: [authRepositoryProvider.overrideWithValue(repository)],
+      );
+      addTearDown(() {
+        container.dispose();
+        repository.dispose();
+      });
+      container.listen(
+        authControllerProvider,
+        (_, _) {},
+        fireImmediately: true,
+      );
+      await _drainMicrotasks();
+
+      repository.authenticationController.add(true);
+      await _drainMicrotasks();
+
+      expect(container.read(authControllerProvider).isAuthenticated, isTrue);
+      expect(repository.completeRegistrationCalls, 0);
+    },
+  );
+
+  test('registration sync failure keeps the user on the auth gate', () async {
+    final repository = _ControllableAuthRepository(
+      registrationError: StateError('REGISTRATION_SYNC_FAILED'),
+    );
+    final container = ProviderContainer(
+      overrides: [authRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(() {
+      container.dispose();
+      repository.dispose();
+    });
+    container.listen(authControllerProvider, (_, _) {}, fireImmediately: true);
+    await _drainMicrotasks();
+
+    final controller = container.read(authControllerProvider.notifier);
+    controller.setAgeAttestation(true);
+    controller.setAiProcessingConsent(true);
+    controller.setPrivacyUsageConsent(true);
+    controller.toggleRequirement('terms-v1', true);
+
+    repository.authenticationController.add(true);
+    await _drainMicrotasks();
+
+    expect(container.read(authControllerProvider).isAuthenticated, isFalse);
+    expect(
+      container.read(authControllerProvider).errorMessage,
+      'REGISTRATION_SYNC_FAILED',
+    );
+  });
+}
+
+Future<void> _drainMicrotasks() async {
+  await Future<void>.delayed(Duration.zero);
+  await Future<void>.delayed(Duration.zero);
+}
+
+class _ControllableAuthRepository implements AuthRepository {
+  _ControllableAuthRepository({
+    this.registrationError,
+    this.requirementsError,
+    this.requirements = FakeAuthRepository.requirements,
+    this.completedRegistration = false,
+  });
+
+  final Object? registrationError;
+  Object? requirementsError;
+  final List<RegistrationRequirement> requirements;
+  final bool completedRegistration;
+  final authenticationController = StreamController<bool>.broadcast();
+  final registrationCompleter = Completer<void>();
+  int completeRegistrationCalls = 0;
+
+  @override
+  Stream<bool> get authenticationChanges => authenticationController.stream;
+
+  @override
+  Future<List<RegistrationRequirement>> getRegistrationRequirements() async {
+    if (requirementsError case final error?) throw error;
+    return requirements;
+  }
+
+  @override
+  Future<bool> hasCompletedRegistration() async => completedRegistration;
+
+  @override
+  Future<AuthSignInResult> signIn({
+    required SocialProvider provider,
+    required bool age14PlusAttested,
+    required Set<String> acceptedDocumentIds,
+  }) async {
+    return const AuthSignInResult.pending();
+  }
+
+  @override
+  Future<void> completeRegistration({
+    required bool age14PlusAttested,
+    required Set<String> displayedDocumentIds,
+    required Set<String> acceptedDocumentIds,
+    required bool analyticsEnabled,
+  }) async {
+    completeRegistrationCalls += 1;
+    if (registrationError case final error?) throw error;
+    await registrationCompleter.future;
+  }
+
+  void dispose() {
+    authenticationController.close();
+  }
+}
+
+class _RecordingRewardedAdBackend implements RewardedAdBackend {
+  final List<String> functions = [];
+  final List<Map<String, dynamic>> bodies = [];
+
+  @override
+  Future<Map<String, dynamic>> invoke(
+    String functionName,
+    Map<String, dynamic> body,
+  ) async {
+    functions.add(functionName);
+    bodies.add(body);
+    if (functionName == 'prepare-ad-session') {
+      return {
+        'ad_attempt_id': 'server-attempt-1',
+        'fortune_date': '2026-08-27',
+        'custom_data': 'server-opaque-token',
+      };
+    }
+    return {'status': 'recorded'};
+  }
+}
+
+class _SequencedFortuneRepository implements FortuneRepository {
+  int loadCount = 0;
+
+  @override
+  Future<FortuneAppState> loadAppState() async {
+    loadCount += 1;
+    return FortuneAppState(
+      access: loadCount < 2
+          ? FortuneAccessState.generating
+          : FortuneAccessState.unlocked,
+      result: loadCount < 2 ? null : MockFortuneResult(),
+    );
+  }
+
+  @override
+  Future<FortuneAppState> useFortunePass() => loadAppState();
+}
+
+class _TransientFortuneRepository implements FortuneRepository {
+  int loadCount = 0;
+
+  @override
+  Future<FortuneAppState> loadAppState() async {
+    loadCount += 1;
+    if (loadCount == 1) {
+      throw const PostgrestException(message: 'temporary');
+    }
+    return FortuneAppState(
+      access: FortuneAccessState.unlocked,
+      result: MockFortuneResult(),
+    );
+  }
+
+  @override
+  Future<FortuneAppState> useFortunePass() => loadAppState();
 }

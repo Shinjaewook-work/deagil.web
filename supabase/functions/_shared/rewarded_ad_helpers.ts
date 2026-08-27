@@ -1,0 +1,74 @@
+import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2';
+
+const url = Deno.env.get('SUPABASE_URL');
+const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
+const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!url || !anonKey || !serviceKey) throw new Error('SERVER_CONFIG_MISSING');
+
+const admin = createClient(url, serviceKey, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+export function json(status: number, body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function authenticatedClient(
+  request: Request,
+): Promise<SupabaseClient> {
+  const authorization = request.headers.get('Authorization');
+  if (!authorization?.startsWith('Bearer ')) throw new Error('UNAUTHENTICATED');
+  const client = createClient(url!, anonKey!, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data, error } = await client.auth.getUser();
+  if (error || !data.user) throw new Error('UNAUTHENTICATED');
+  return client;
+}
+
+export async function startGenerationIfRequired(payload: Record<string, unknown>) {
+  if (payload.generation_started !== true) return;
+  const response = await fetch(`${url}/functions/v1/generate-fortune`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: serviceKey! },
+    body: JSON.stringify({
+      session_id: payload.session_id,
+      generation_epoch: payload.generation_epoch,
+    }),
+  });
+  if (!response.ok) {
+    await admin.rpc('mark_generation_dispatch_failed', {
+      session_id_value: payload.session_id,
+      generation_epoch_value: payload.generation_epoch,
+    });
+    payload.generation_status = 'recovery_pending';
+  }
+}
+
+export function errorResponse(error: unknown) {
+  const message = error instanceof Error ? error.message : 'UNKNOWN_FAILURE';
+  if (message === 'UNAUTHENTICATED') return json(401, { code: message });
+  return json(409, { code: message });
+}
+
+export function randomOpaqueToken() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+export async function sha256Hex(value: string) {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(value),
+  );
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
