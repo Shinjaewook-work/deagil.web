@@ -6,13 +6,14 @@ import '../../ads/domain/rewarded_ad_service.dart';
 import '../../ads/presentation/rewarded_ad_controller.dart';
 import '../../fortune/data/fortune_repository.dart';
 import '../../profile/presentation/birth_profile_controller.dart';
+import '../../../app/theme/luna_theme.dart';
 import '../../../shared/widgets/cat_video.dart';
+import '../../../shared/widgets/luna_card.dart';
 import '../../../shared/widgets/luna_page_frame.dart';
+import '../../../shared/widgets/luna_primary_button.dart';
 
 class CatHomeScreen extends ConsumerWidget {
   const CatHomeScreen({super.key});
-
-  static const _catBackground = Color(0xFFFFF3DC);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,48 +60,106 @@ class CatHomeScreen extends ConsumerWidget {
           children: [
             Align(
               alignment: Alignment.centerRight,
-              child: Chip(
-                avatar: Icon(Icons.confirmation_num_outlined),
-                label: Text(
-                  appState.maybeWhen(
-                    data: (value) => '광고 패스권 ${value.activePassCount} / 3',
-                    orElse: () => '광고 패스권 확인 중',
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: Card(
-                color: _catBackground,
-                clipBehavior: Clip.antiAlias,
-                child: const SizedBox(height: 280, child: CatVideo()),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Card(
-              child: Padding(
+              child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                  horizontal: 13,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: LunaColors.jadeSoft,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: LunaColors.subtleBorder),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.volunteer_activism_outlined,
-                      color: Theme.of(context).colorScheme.primary,
+                    const Icon(
+                      Icons.confirmation_num_rounded,
+                      size: 18,
+                      color: LunaColors.seal,
                     ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text('광고 수익 일부를 고양이 보호 활동에 보탠다냥.', softWrap: true),
+                    const SizedBox(width: 7),
+                    Text(
+                      appState.maybeWhen(
+                        data: (value) => '광고 패스권 ${value.activePassCount} / 3',
+                        orElse: () => '광고 패스권 확인 중',
+                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
+            const SizedBox(height: 12),
+            Text(
+              '오늘은 어떤 운을 잡아올까냥?',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 14),
+            Card(
+              color: LunaColors.cream,
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        const ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          child: SizedBox(height: 272, child: CatVideo()),
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              color: LunaColors.butter,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.pets_rounded,
+                              color: LunaColors.seal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      '고양이가 오늘의 운세를 잡아올 준비를 하고 있다냥.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            const LunaCard(
+              color: LunaColors.jadeSoft,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: LunaColors.cream,
+                    child: Icon(
+                      Icons.volunteer_activism_rounded,
+                      color: LunaColors.seal,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text('광고 수익 일부를 고양이 보호 활동에 보탠다냥.', softWrap: true),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            LunaPrimaryButton(
               onPressed: isBusy
                   ? null
                   : () async {
@@ -118,11 +177,12 @@ class CatHomeScreen extends ConsumerWidget {
                             .start(fortuneDate: _todayFortuneDate());
                       }
                     },
-              child: Text(
-                currentAppState?.canUsePass == true
-                    ? '패스권으로 열기냥!'
-                    : _ctaLabel(adState.status),
-              ),
+              label: currentAppState?.canUsePass == true
+                  ? '패스권으로 열기냥!'
+                  : _ctaLabel(adState.status),
+              icon: currentAppState?.canUsePass == true
+                  ? Icons.confirmation_num_rounded
+                  : Icons.pets_rounded,
             ),
             if (adState.status == RewardedAdFlowStatus.failed) ...[
               const SizedBox(height: 12),
@@ -143,7 +203,7 @@ class CatHomeScreen extends ConsumerWidget {
     RewardedAdFlowStatus.showing => '광고가 진행 중이다냥…',
     RewardedAdFlowStatus.rewardVerifying => '보상을 확인하는 중이다냥…',
     RewardedAdFlowStatus.completed => '오늘의 운세를 준비했다냥!',
-    _ => '오늘의 운세를 준비했다냥! 🐾',
+    _ => '오늘의 운세를 준비했다냥!',
   };
 
   void _showFakeRewardedAd(BuildContext context) {

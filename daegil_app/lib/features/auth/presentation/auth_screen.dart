@@ -3,13 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/auth_repository.dart';
+import '../../../app/theme/luna_theme.dart';
+import '../../../shared/widgets/luna_card.dart';
 import '../../../shared/widgets/luna_page_frame.dart';
+import '../../../shared/widgets/luna_primary_button.dart';
 import 'auth_controller.dart';
 
 class AuthScreen extends ConsumerWidget {
   const AuthScreen({super.key});
-
-  static const _catBackground = Color(0xFFFFF3DC);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,81 +24,113 @@ class AuthScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('대길')),
       body: ColoredBox(
-        color: _catBackground,
+        color: LunaColors.paper,
         child: LunaPageFrame(
           child: ListView(
+            cacheExtent: 1200,
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
             children: [
+              const Center(child: _WelcomePill()),
+              const SizedBox(height: 12),
               Text(
                 '오늘의 흐름을 읽어볼까냥?',
                 style: Theme.of(context).textTheme.displaySmall,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
-              Container(
-                height: 230,
-                decoration: BoxDecoration(
-                  color: _catBackground,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Image.asset(
-                  'assets/images/daegil_cat_wave.png',
-                  fit: BoxFit.contain,
+              const SizedBox(height: 8),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 228,
+                    height: 208,
+                    decoration: const BoxDecoration(
+                      color: LunaColors.peachSoft,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 230,
+                    child: Image.asset(
+                      'assets/images/daegil_cat_wave.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const Positioned(
+                    top: 22,
+                    right: 18,
+                    child: _FloatingPaw(color: LunaColors.butter, size: 42),
+                  ),
+                  const Positioned(
+                    bottom: 22,
+                    left: 20,
+                    child: _FloatingPaw(color: LunaColors.jadeSoft, size: 34),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const LunaCard(
+                color: LunaColors.cream,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(Icons.favorite_rounded, color: LunaColors.seal),
+                    SizedBox(width: 10),
+                    Expanded(child: Text('안전한 이용을 위해 아래 내용을 확인해달라냥.')),
+                  ],
                 ),
               ),
-              const SizedBox(height: 12),
-              const Text('안전한 이용을 위해 아래 내용을 확인해달라냥.'),
-              const SizedBox(height: 24),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
+              const SizedBox(height: 16),
+              _ConsentTile(
+                color: LunaColors.butter,
                 value: state.age14PlusAttested,
                 onChanged: state.isLoading
                     ? null
                     : (value) => ref
                           .read(authControllerProvider.notifier)
                           .setAgeAttestation(value ?? false),
-                title: const Text('만 14세 이상입니다.'),
+                title: '만 14세 이상입니다.',
+                subtitle: '안전한 서비스 이용을 위한 필수 확인이다냥.',
               ),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
+              _ConsentTile(
+                color: LunaColors.peachSoft,
                 value: state.aiProcessingConsent,
                 onChanged: state.isLoading
                     ? null
                     : (value) => ref
                           .read(authControllerProvider.notifier)
                           .setAiProcessingConsent(value ?? false),
-                title: const Text('AI 개인화 처리에 동의합니다.'),
-                subtitle: const Text('운세 생성을 위해 AI 처리를 이용합니다.'),
+                title: 'AI 개인화 처리에 동의합니다.',
+                subtitle: '운세 생성을 위해 AI 처리를 이용합니다.',
               ),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
+              _ConsentTile(
+                color: LunaColors.jadeSoft,
                 value: state.privacyUsageConsent,
                 onChanged: state.isLoading
                     ? null
                     : (value) => ref
                           .read(authControllerProvider.notifier)
                           .setPrivacyUsageConsent(value ?? false),
-                title: const Text('개인정보 활용에 동의합니다.'),
-                subtitle: const Text('서비스 제공과 안전한 운영을 위해 이용합니다.'),
+                title: '개인정보 활용에 동의합니다.',
+                subtitle: '서비스 제공과 안전한 운영을 위해 이용합니다.',
               ),
               for (final requirement in state.requirements.where(
                 (item) =>
                     item.documentType != 'ai_processing' &&
                     item.documentType != 'privacy',
               ))
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  secondary: const Icon(Icons.pets_outlined),
+                _ConsentTile(
+                  color: requirement.required
+                      ? LunaColors.blush
+                      : LunaColors.peachSoft,
                   value: state.acceptedDocumentIds.contains(requirement.id),
                   onChanged: state.isLoading
                       ? null
                       : (value) => ref
                             .read(authControllerProvider.notifier)
                             .toggleRequirement(requirement.id, value ?? false),
-                  title: Text(requirement.title),
-                  subtitle: requirement.required
-                      ? const Text('필수')
-                      : const Text('선택'),
+                  title: requirement.title,
+                  subtitle: requirement.required ? '필수' : '선택',
                 ),
               if (state.errorMessage != null)
                 Padding(
@@ -126,25 +159,45 @@ class AuthScreen extends ConsumerWidget {
                   padding: EdgeInsets.only(top: 8),
                   child: Text('Google 인증을 완료하면 앱으로 돌아온다냥.'),
                 ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+          decoration: BoxDecoration(
+            color: LunaColors.cream,
+            border: const Border(
+              top: BorderSide(color: LunaColors.subtleBorder),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: LunaColors.seal.withValues(alpha: 0.12),
+                blurRadius: 18,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               for (final provider in SocialProvider.values)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: ElevatedButton(
-                    onPressed:
-                        state.canSignIn &&
-                            !state.isLoading &&
-                            !state.isAuthPending
-                        ? () => ref
-                              .read(authControllerProvider.notifier)
-                              .signIn(provider)
-                        : null,
-                    child: Text(
-                      state.hasAuthenticatedSession
-                          ? '동의 완료하고 시작하기'
-                          : '${_providerName(provider)}로 계속하기',
-                    ),
-                  ),
+                LunaPrimaryButton(
+                  onPressed:
+                      state.canSignIn &&
+                          !state.isLoading &&
+                          !state.isAuthPending
+                      ? () => ref
+                            .read(authControllerProvider.notifier)
+                            .signIn(provider)
+                      : null,
+                  label: state.hasAuthenticatedSession
+                      ? '동의 완료하고 시작하기'
+                      : '${_providerName(provider)}로 계속하기',
+                  icon: Icons.login_rounded,
                 ),
             ],
           ),
@@ -167,4 +220,96 @@ class AuthScreen extends ConsumerWidget {
     'REGISTRATION_REQUIREMENTS_INCOMPLETE' => '필수 동의 항목을 모두 확인해달라냥.',
     _ => '로그인을 완료하지 못했다냥. 잠시 후 다시 시도해달라냥.',
   };
+}
+
+class _WelcomePill extends StatelessWidget {
+  const _WelcomePill();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      decoration: BoxDecoration(
+        color: LunaColors.jadeSoft,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: LunaColors.subtleBorder),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.pets_rounded, size: 17, color: LunaColors.seal),
+          SizedBox(width: 7),
+          Text('한복 고양이 운세방', style: TextStyle(fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
+}
+
+class _FloatingPaw extends StatelessWidget {
+  const _FloatingPaw({required this.color, required this.size});
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: LunaColors.subtleBorder),
+      ),
+      child: Icon(Icons.pets_rounded, size: size * 0.5, color: LunaColors.seal),
+    );
+  }
+}
+
+class _ConsentTile extends StatelessWidget {
+  const _ConsentTile({
+    required this.color,
+    required this.value,
+    required this.onChanged,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final Color color;
+  final bool value;
+  final ValueChanged<bool?>? onChanged;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Card(
+        color: LunaColors.cream,
+        child: CheckboxListTile(
+          contentPadding: const EdgeInsets.fromLTRB(12, 4, 10, 4),
+          controlAffinity: ListTileControlAffinity.trailing,
+          secondary: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            child: const Icon(
+              Icons.pets_rounded,
+              size: 19,
+              color: LunaColors.seal,
+            ),
+          ),
+          value: value,
+          onChanged: onChanged,
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          subtitle: Text(subtitle),
+        ),
+      ),
+    );
+  }
 }

@@ -38,6 +38,8 @@ Android QA follow-up: a `Pixel_6_x86` AVD was created from the x86_64 system ima
 
 Latest UI follow-up: phone-width clipping was fixed with a shared `LunaPageFrame`, the Auth brand is `대길`, and all Fortune sentence/action output is now required to end in natural 냥체. The supplied cat-oracle concept was applied with warm cream/peach tokens, generated cat mascot artwork, paw accents, and a Cat Home navigation bar. `generate-fortune` was redeployed to Dev; Flutter analyze/test and web preview capture pass.
 
+Latest cute-design follow-up: all nine app screens now use a shared cream/peach/blush/butter/jade system, larger hanbok-cat banners, softly elevated rounded cards, pastel icon circles, a fixed Auth Google CTA, and the persistent capsule-style bottom navigation. The 320 px overflow suite, 45 functional tests, design QA, repository/security guards, and debug APK build pass. Final previews are under `C:/Users/every/.codex/visualizations/2026/08/28/daegil-cute-final`; the APK SHA-256 is `CEEEE49A094DD58BDD7DCBEAE5B7FCE781805F92AF22ACFA17CBEBF5A657EE88`.
+
 Android OAuth follow-up: the prior callback scheme reused the underscored application ID and was not a valid URI scheme. Mobile Auth now uses `com.example.daegilapp://login-callback/` directly; the Android manifest, Supabase Site URL/allowlist, and relay fallback are aligned. Install the APK built after this change before physical verification.
 ```
 

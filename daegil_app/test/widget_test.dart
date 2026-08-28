@@ -134,6 +134,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('오늘의 흐름을 읽어볼까냥?'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('만 14세 이상입니다.'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
     expect(find.text('만 14세 이상입니다.'), findsOneWidget);
   });
 
@@ -148,23 +153,47 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
 
-    await tester.drag(find.byType(ListView), const Offset(0, -600));
-    await tester.pump();
     final button = find.byType(ElevatedButton, skipOffstage: false).first;
     expect(tester.widget<ElevatedButton>(button).onPressed, isNull);
 
+    await tester.scrollUntilVisible(
+      find.text('만 14세 이상입니다.'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
     await tester.ensureVisible(find.text('만 14세 이상입니다.'));
+    await tester.pump();
     await tester.tap(find.text('만 14세 이상입니다.'));
-    await tester.ensureVisible(find.text('서비스 이용약관에 동의합니다.'));
-    await tester.tap(find.text('서비스 이용약관에 동의합니다.'));
+    await tester.scrollUntilVisible(
+      find.text('AI 개인화 처리에 동의합니다.'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
     await tester.ensureVisible(find.text('AI 개인화 처리에 동의합니다.'));
+    await tester.pump();
     await tester.tap(find.text('AI 개인화 처리에 동의합니다.'));
+    await tester.scrollUntilVisible(
+      find.text('개인정보 활용에 동의합니다.'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
     await tester.ensureVisible(find.text('개인정보 활용에 동의합니다.'));
+    await tester.pump();
     await tester.tap(find.text('개인정보 활용에 동의합니다.'));
-    await tester.ensureVisible(button);
+    await tester.scrollUntilVisible(
+      find.text('서비스 이용약관에 동의합니다.'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.ensureVisible(find.text('서비스 이용약관에 동의합니다.'));
+    await tester.pump();
+    await tester.tap(find.text('서비스 이용약관에 동의합니다.'));
     await tester.pump();
 
-    expect(tester.widget<ElevatedButton>(button).onPressed, isNotNull);
+    expect(
+      tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,
+      isNotNull,
+    );
   });
 
   test('birth validation rejects URL-like city input', () {

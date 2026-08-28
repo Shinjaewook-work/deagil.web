@@ -12,6 +12,7 @@ import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
 import 'package:daegil_app/features/fortune/presentation/fortune_result_screen.dart';
 import 'package:daegil_app/features/profile/presentation/birth_profile_screen.dart';
 import 'package:daegil_app/features/settings/presentation/settings_screens.dart';
+import 'package:daegil_app/features/today/presentation/cat_home_screen.dart';
 
 const outputDirectory = String.fromEnvironment('VISUAL_OUTPUT_DIR');
 
@@ -29,21 +30,29 @@ void main() {
             Future.value(ByteData.sublistView(Uint8List.fromList(fontBytes))),
           ))
           .load();
+      final iconBytes = await File(
+        r'C:\tools\flutter\bin\cache\artifacts\material_fonts\MaterialIcons-Regular.otf',
+      ).readAsBytes();
+      await (FontLoader('MaterialIcons')..addFont(
+            Future.value(ByteData.sublistView(Uint8List.fromList(iconBytes))),
+          ))
+          .load();
     });
     final output = Directory(outputDirectory)..createSync(recursive: true);
     final pages = <(String, Widget)>[
       ('01-auth', const AuthScreen()),
-      ('02-birth-profile', const _PreviewShell(child: BirthProfileScreen())),
-      ('03-fortune-result', const _PreviewShell(child: FortuneResultScreen())),
-      ('04-settings', const _PreviewShell(child: SettingsScreen())),
+      ('02-cat-home', const _PreviewShell(child: CatHomeScreen())),
+      ('03-birth-profile', const _PreviewShell(child: BirthProfileScreen())),
+      ('04-fortune-result', const _PreviewShell(child: FortuneResultScreen())),
+      ('05-settings', const _PreviewShell(child: SettingsScreen())),
       (
-        '05-notification',
+        '06-notification',
         const _PreviewShell(child: NotificationSettingsScreen()),
       ),
-      ('06-privacy', const _PreviewShell(child: PrivacySettingsScreen())),
-      ('07-account', const _PreviewShell(child: AccountSettingsScreen())),
+      ('07-privacy', const _PreviewShell(child: PrivacySettingsScreen())),
+      ('08-account', const _PreviewShell(child: AccountSettingsScreen())),
       (
-        '08-account-delete',
+        '09-account-delete',
         const _PreviewShell(child: AccountDeletionScreen()),
       ),
     ];
@@ -91,6 +100,22 @@ ThemeData _captureTheme() {
   return base.copyWith(
     textTheme: base.textTheme.apply(fontFamily: 'Malgun'),
     primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Malgun'),
+    appBarTheme: base.appBarTheme.copyWith(
+      titleTextStyle: base.appBarTheme.titleTextStyle?.copyWith(
+        fontFamily: 'Malgun',
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: base.elevatedButtonTheme.style?.copyWith(
+        textStyle: const WidgetStatePropertyAll(
+          TextStyle(
+            fontFamily: 'Malgun',
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    ),
   );
 }
 
@@ -108,14 +133,24 @@ class _PreviewShell extends StatelessWidget {
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
             label: '운세 잡기',
           ),
-          NavigationDestination(icon: Icon(Icons.pets_outlined), label: '운세'),
           NavigationDestination(
-            icon: Icon(Icons.notifications_none),
+            icon: Icon(Icons.pets_outlined),
+            selectedIcon: Icon(Icons.pets_rounded),
+            label: '운세',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.notifications_none_rounded),
+            selectedIcon: Icon(Icons.notifications_rounded),
             label: '알림',
           ),
-          NavigationDestination(icon: Icon(Icons.person_outline), label: '프로필'),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person_rounded),
+            label: '프로필',
+          ),
         ],
       ),
     );

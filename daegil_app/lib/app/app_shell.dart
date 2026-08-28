@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'theme/luna_theme.dart';
+
 class DaegilAppShell extends StatelessWidget {
   const DaegilAppShell({required this.child, super.key});
 
@@ -11,32 +13,57 @@ class DaegilAppShell extends StatelessWidget {
     final location = GoRouterState.of(context).uri.path;
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex(location),
-        onDestinationSelected: (index) {
-          switch (index) {
-            case 0:
-              context.go('/today');
-            case 1:
-              context.go('/fortune/result');
-            case 2:
-              context.go('/settings/notification');
-            case 3:
-              context.go('/settings');
-          }
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            label: '운세 잡기',
+      bottomNavigationBar: DecoratedBox(
+        decoration: BoxDecoration(
+          color: LunaColors.cream,
+          border: const Border(
+            top: BorderSide(color: LunaColors.subtleBorder, width: 0.8),
           ),
-          NavigationDestination(icon: Icon(Icons.pets_outlined), label: '운세'),
-          NavigationDestination(
-            icon: Icon(Icons.notifications_none),
-            label: '알림',
-          ),
-          NavigationDestination(icon: Icon(Icons.person_outline), label: '프로필'),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: LunaColors.seal.withValues(alpha: 0.12),
+              blurRadius: 18,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          selectedIndex: _selectedIndex(location),
+          onDestinationSelected: (index) {
+            switch (index) {
+              case 0:
+                context.go('/today');
+              case 1:
+                context.go('/fortune/result');
+              case 2:
+                context.go('/settings/notification');
+              case 3:
+                context.go('/settings');
+            }
+          },
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded),
+              label: '운세 잡기',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.pets_outlined),
+              selectedIcon: Icon(Icons.pets_rounded),
+              label: '운세',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.notifications_none_rounded),
+              selectedIcon: Icon(Icons.notifications_rounded),
+              label: '알림',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline_rounded),
+              selectedIcon: Icon(Icons.person_rounded),
+              label: '프로필',
+            ),
+          ],
+        ),
       ),
     );
   }

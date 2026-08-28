@@ -1480,3 +1480,27 @@ Google development OAuth → CONNECTED / user-confirmed
 - Debug APK rebuilt with real Supabase Auth, direct Android callback, production Android AdMob IDs, and `AD_SECURITY_MODE=fast`.
 - APK SHA-256: `D7B58BEE1C8AAD778D83294BD3781F281187EF4CC5B8DE09C047DECB077656BA`.
 - Current mobile captures: `C:/Users/every/.codex/visualizations/2026/08/28/daegil-apk-final`.
+
+### PROG-202608281135 — Cat-first cute design system completion
+
+**Status:** IMPLEMENTED / VISUAL QA PASSED
+
+**Design changes**
+- Expanded the warm cream design system with peach, blush, butter, and soft-jade surfaces while retaining the approved brown/seal hierarchy.
+- Added rounded, softly elevated cards, pastel icon circles, paw accents, larger hanbok-cat banners, polished form controls, and a capsule-style persistent bottom navigation.
+- Reworked Auth, Cat Home, birth profile, fortune result, settings, notification, privacy, account, and account-deletion screens.
+- Kept the Google action fixed at the bottom of Auth so the primary CTA remains visible while the server-driven legal list scrolls.
+- Kept the Cat Home message exactly `고양이가 오늘의 운세를 잡아올 준비를 하고 있다냥.` and removed its fallback duplication.
+
+**Visual validation**
+- Compared the owner-provided concept board and final 390 x 844 captures in the same visual QA pass.
+- Final captures: `C:/Users/every/.codex/visualizations/2026/08/28/daegil-cute-final`.
+- `daegil_app/design-qa.md`: `final result: passed`.
+- 320 px major-screen and birth-time responsive tests pass.
+
+**Build and checks**
+- `flutter analyze`: PASS.
+- `flutter test test/widget_test.dart`: PASS, 45 tests.
+- Harness lint, Master contract audit, repository guard, security hardening audit, and whitespace guard: PASS.
+- Debug APK rebuilt: `daegil_app/build/app/outputs/flutter-apk/app-debug.apk`.
+- APK SHA-256: `CEEEE49A094DD58BDD7DCBEAE5B7FCE781805F92AF22ACFA17CBEBF5A657EE88`.

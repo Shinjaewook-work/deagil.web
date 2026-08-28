@@ -619,3 +619,13 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 **Resolution:** Matched AI/privacy documents by `document_type`, added a safe retryable load-failure UI, restored completed sessions from the server gate without repeated consent, retried transient SSV state polling, and added `mark_generation_dispatch_failed(session_id, epoch)` so a failed worker dispatch records `failed` before entitlement or `recovery_pending` after entitlement.
 
 **Validation:** Added regression tests for title-independent privacy consent, requirements-load recovery, completed-session restoration, and transient Supabase polling. The migration and all affected Edge Functions were deployed; unauthenticated endpoints fail closed with HTTP 401, SSV health returns HTTP 200, and the linked database reports no pending migrations.
+
+#### 2026-08-28 — Cute redesign exposed narrow dropdown and visual-capture regressions
+
+**Symptoms:** The first redesign pass produced a 4.4 px overflow in the birth hour/minute fields at 320 px. Flutter screenshot tests also rendered explicit AppBar/button Korean text as square glyphs, repeated the Cat Home fallback caption, and pushed the Auth CTA below the initial viewport.
+
+**Root causes:** The birth form's card padding reduced each two-column dropdown below its content width. The screenshot harness loaded the Korean body font but not explicit AppBar/button styles. Cat Home supplied the same fallback copy both inside and outside the video widget, and the larger mascot/legal cards lengthened the Auth list.
+
+**Resolution:** Reflowed all birth-time fields vertically below 280 logical pixels, assigned the capture font to explicit AppBar/button styles, kept the Cat Home caption in one owner, and moved the Google action into a persistent Auth bottom panel.
+
+**Regression guard:** The 320 px responsive tests, 45-test functional suite, nine-screen 390 x 844 capture run, and `design-qa.md` comparison all pass.

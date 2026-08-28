@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/fortune_repository.dart';
 import '../domain/fortune_result.dart';
+import '../../../app/theme/luna_theme.dart';
 import '../../../shared/widgets/luna_page_frame.dart';
 import '../../../shared/widgets/cat_page_banner.dart';
 
@@ -62,20 +63,50 @@ class _ResultBody extends StatelessWidget {
             const SizedBox(height: 20),
             _RatingCard(result: displayedResult),
             const SizedBox(height: 12),
-            _ResultSection(title: '오늘의 흐름', lines: [displayedResult.overall]),
+            _ResultSection(
+              title: '오늘의 흐름',
+              lines: [displayedResult.overall],
+              icon: Icons.wb_sunny_rounded,
+              color: LunaColors.butter,
+            ),
             for (final section in displayedResult.sections)
-              _ResultSection(title: section.title, lines: section.lines),
-            _ResultSection(title: '오늘 하면 좋다냥', lines: displayedResult.goodToDo),
-            _ResultSection(title: '오늘은 피하라냥', lines: displayedResult.avoid),
+              _ResultSection(
+                title: section.title,
+                lines: section.lines,
+                icon: _sectionIcon(section.title),
+                color: _sectionColor(section.title),
+              ),
+            _ResultSection(
+              title: '오늘 하면 좋다냥',
+              lines: displayedResult.goodToDo,
+              icon: Icons.favorite_rounded,
+              color: LunaColors.jadeSoft,
+            ),
+            _ResultSection(
+              title: '오늘은 피하라냥',
+              lines: displayedResult.avoid,
+              icon: Icons.shield_moon_rounded,
+              color: LunaColors.blush,
+            ),
             _LuckyCard(result: displayedResult),
             const SizedBox(height: 16),
             const Card(
+              color: LunaColors.jadeSoft,
               child: Padding(
                 padding: EdgeInsets.all(16),
-                child: Text(
-                  'AI 생성 콘텐츠\n\n'
-                  '이 운세는 생성형 AI가 출생정보와 오늘 날짜를 바탕으로 생성했습니다.\n\n'
-                  '오락·문화 목적으로 제공되며 의료·법률·재무 등 전문적인 판단을 대신하지 않습니다.',
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.info_outline_rounded, color: LunaColors.seal),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'AI 생성 콘텐츠\n\n'
+                        '이 운세는 생성형 AI가 출생정보와 오늘 날짜를 바탕으로 생성했습니다.\n\n'
+                        '오락·문화 목적으로 제공되며 의료·법률·재무 등 전문적인 판단을 대신하지 않습니다.',
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -84,6 +115,24 @@ class _ResultBody extends StatelessWidget {
       ),
     );
   }
+
+  static IconData _sectionIcon(String title) => switch (title) {
+    '재물운' => Icons.savings_rounded,
+    '연애운' => Icons.favorite_rounded,
+    '직장·학업운' => Icons.auto_stories_rounded,
+    '인간관계운' => Icons.people_alt_rounded,
+    '컨디션운' => Icons.spa_rounded,
+    _ => Icons.pets_rounded,
+  };
+
+  static Color _sectionColor(String title) => switch (title) {
+    '재물운' => LunaColors.butter,
+    '연애운' => LunaColors.blush,
+    '직장·학업운' => LunaColors.peachSoft,
+    '인간관계운' => LunaColors.jadeSoft,
+    '컨디션운' => LunaColors.peach,
+    _ => LunaColors.peachSoft,
+  };
 }
 
 class _RatingCard extends StatelessWidget {
@@ -94,6 +143,7 @@ class _RatingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: LunaColors.peachSoft,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Row(
@@ -108,17 +158,28 @@ class _RatingCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.wb_sunny_outlined, size: 24),
-                      SizedBox(width: 8),
-                      Expanded(child: Text('오늘의 흐름')),
-                    ],
+                  const Text(
+                    '오늘의 기분 온도',
+                    style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     '${result.overallRating} / 5',
                     style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 4,
+                    children: [
+                      for (var index = 1; index <= 5; index++)
+                        Icon(
+                          Icons.pets_rounded,
+                          size: 18,
+                          color: index <= result.overallRating
+                              ? LunaColors.seal
+                              : LunaColors.disabled,
+                        ),
+                    ],
                   ),
                 ],
               ),
@@ -131,29 +192,64 @@ class _RatingCard extends StatelessWidget {
 }
 
 class _ResultSection extends StatelessWidget {
-  const _ResultSection({required this.title, required this.lines});
+  const _ResultSection({
+    required this.title,
+    required this.lines,
+    required this.icon,
+    required this.color,
+  });
 
   final String title;
   final List<String> lines;
+  final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: LunaColors.cream,
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              softWrap: true,
-              style: Theme.of(context).textTheme.titleMedium,
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 19,
+                  backgroundColor: color,
+                  child: Icon(icon, size: 20, color: LunaColors.seal),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    title,
+                    softWrap: true,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             for (final line in lines)
               Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text('• $line', softWrap: true),
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Icon(
+                        Icons.pets_rounded,
+                        size: 13,
+                        color: LunaColors.gold,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(line, softWrap: true)),
+                  ],
+                ),
               ),
           ],
         ),
@@ -170,16 +266,33 @@ class _LuckyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: LunaColors.butter,
       child: Padding(
         padding: const EdgeInsets.all(18),
-        child: Wrap(
-          spacing: 12,
-          runSpacing: 8,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Chip(label: Text('숫자 ${result.luckyNumber}')),
-            Chip(label: Text('색상 ${result.luckyColor}')),
-            Chip(label: Text('시간 ${result.luckyTime}')),
-            Chip(label: Text('키워드 ${result.luckyKeyword}')),
+            const Row(
+              children: [
+                Icon(Icons.auto_awesome_rounded, color: LunaColors.seal),
+                SizedBox(width: 8),
+                Text(
+                  '행운 주머니',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                Chip(label: Text('숫자 ${result.luckyNumber}')),
+                Chip(label: Text('색상 ${result.luckyColor}')),
+                Chip(label: Text('시간 ${result.luckyTime}')),
+                Chip(label: Text('키워드 ${result.luckyKeyword}')),
+              ],
+            ),
           ],
         ),
       ),
