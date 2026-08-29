@@ -84,4 +84,10 @@ Latest web follow-up:
 
 - Added an independent `daegil_web` Next.js package for Vercel/Netlify deployment. It uses the existing Supabase auth/RPC/Edge Function contract, adds the additive `platform=web` path for `prepare-ad-session`, and copies the approved cat artwork without changing `daegil_app`.
 - `daegil_web` typecheck, production build, local HTTP smoke test, Flutter analyze/test, harness lint, repository guard, and Master contract audit pass.
-- GitHub `origin` now points to `https://github.com/Shinjaewook-work/deagil.web.git`, but push returned HTTP 403 because the local credential is authenticated as `hfamily963-stack` without write access. Re-authenticate as `Shinjaewook-work` or grant that account write access, then push `codex/daegil-web`.
+- GitHub `origin` now points to `https://github.com/Shinjaewook-work/deagil.web.git`; Edge/Git Credential Manager re-authentication as `Shinjaewook-work` succeeded and the web commits are pushed to the remote.
+
+Latest Vercel deployment diagnosis:
+
+- Vercel project `jeawook/deagil-web-gj8b` was configured with Root Directory `.` and Framework `Other`, so the project domain returned `X-Vercel-Error: NOT_FOUND` while the actual Next.js package lives under `daegil_web`.
+- Framework was updated to Next.js and SSO deployment protection was disabled for public access. Commits `0d8527f` are now on both `codex/daegil-web` and `main`.
+- The remaining dashboard action is to set Root Directory to `daegil_web`, confirm Production Branch `main`, configure web environment variables, and redeploy.

@@ -1548,3 +1548,12 @@ Google development OAuth → CONNECTED / user-confirmed
 
 **Manual action / blocker**
 - `origin` is configured as `https://github.com/Shinjaewook-work/deagil.web.git`, but `git push -u origin codex/daegil-web` returned HTTP 403 because the local GitHub credential is `hfamily963-stack` without write access. Re-authenticate as `Shinjaewook-work` or grant write access, then retry the same push.
+
+### PROG-202608291700 — Vercel project root diagnosis
+
+**Status:** CODE PUSHED / VERCEL ROOT SETTING PENDING
+
+- `https://deagil-web-gj8b.vercel.app/` returned HTTP 404 with `X-Vercel-Error: NOT_FOUND`.
+- Vercel inspection showed project `jeawook/deagil-web-gj8b` using Root Directory `.` and Framework `Other`; the web package is `daegil_web`.
+- Updated the project framework to Next.js and disabled SSO deployment protection for the public viral experience. Pushed `0d8527f` to `codex/daegil-web` and `main`.
+- Owner action: set Vercel Root Directory to `daegil_web`, keep Production Branch `main`, add environment variables, and redeploy.

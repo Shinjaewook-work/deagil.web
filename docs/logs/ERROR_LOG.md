@@ -630,6 +630,14 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 
 **Regression guard:** The 320 px responsive tests, 45-test functional suite, nine-screen 390 x 844 capture run, and `design-qa.md` comparison all pass.
 
+#### 2026-08-29 — Vercel web deployment returned NOT_FOUND
+
+**Symptom:** The Vercel project URL returned HTTP 404 with `X-Vercel-Error: NOT_FOUND` even though the GitHub branch contained the web package.
+
+**Cause:** The Vercel project Root Directory was `.` and its initial Framework Preset was `Other`, while the Next.js app lives under `daegil_web`. The project also had SSO deployment protection enabled for the intended public experience.
+
+**Resolution:** Updated the project Framework Preset to Next.js and disabled SSO deployment protection through the authenticated Vercel CLI. The remaining dashboard setting is Root Directory `daegil_web`, followed by a production redeploy.
+
 #### 2026-08-29 — Opaque mascot backgrounds looked pasted onto the page
 
 **Symptoms:** The mascot PNGs showed lighter square backgrounds against the app paper. Circular backplates and floating paw bubbles at opposite image corners added unrelated layers and made the artwork feel inserted rather than integrated.
