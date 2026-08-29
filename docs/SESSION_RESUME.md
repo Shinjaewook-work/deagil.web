@@ -89,5 +89,5 @@ Latest web follow-up:
 Latest Vercel deployment diagnosis:
 
 - Vercel project `jeawook/deagil-web-gj8b` was configured with Root Directory `.` and Framework `Other`, so the project domain returned `X-Vercel-Error: NOT_FOUND` while the actual Next.js package lives under `daegil_web`.
-- Framework was updated to Next.js and SSO deployment protection was disabled for public access. Commits `0d8527f` are now on both `codex/daegil-web` and `main`.
-- The remaining dashboard action is to set Root Directory to `daegil_web`, confirm Production Branch `main`, configure web environment variables, and redeploy.
+- Framework was updated to Next.js and SSO deployment protection was disabled for public access. The latest web commit `cda2ba2` is on both `codex/daegil-web` and `main`.
+- Root Directory is now set remotely to `daegil_web`. Production deployment `dpl_GMQnDK6mbEFvYaRWcGiiDWpF25pR` from `main` is `READY`; both its deployment URL and `https://deagil-web-gj8b.vercel.app/` return HTTP 200. Production Branch remains `codex/daegil-web` in the Vercel Git link and should be changed to `main` in Environments > Production > Branch Tracking if automatic pushes to `main` are desired.

@@ -1557,3 +1557,12 @@ Google development OAuth → CONNECTED / user-confirmed
 - Vercel inspection showed project `jeawook/deagil-web-gj8b` using Root Directory `.` and Framework `Other`; the web package is `daegil_web`.
 - Updated the project framework to Next.js and disabled SSO deployment protection for the public viral experience. Pushed `0d8527f` to `codex/daegil-web` and `main`.
 - Owner action: set Vercel Root Directory to `daegil_web`, keep Production Branch `main`, add environment variables, and redeploy.
+
+### PROG-202608291830 — Vercel root fix and production verification
+
+**Status:** VERIFIED / DEPLOYED
+
+- Authenticated Vercel project `jeawook/deagil-web-gj8b` was updated through the Vercel API with Root Directory `daegil_web`; Framework Preset is `nextjs` and public SSO protection is disabled.
+- Production deployment `dpl_GMQnDK6mbEFvYaRWcGiiDWpF25pR` was created from GitHub `main` commit `cda2ba2c7721fb63ba0e908fad9c1b170c9443a2` and reached `READY`.
+- `https://deagil-web-gj8b-ovre52jq4-jeawook.vercel.app/` and `https://deagil-web-gj8b.vercel.app/` both returned HTTP 200 with Korean Next.js HTML.
+- Vercel Git integration still reports `codex/daegil-web` as the production branch; change it to `main` in Environments > Production > Branch Tracking if `main` should be the automatic production branch.

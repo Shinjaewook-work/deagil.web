@@ -636,7 +636,7 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 
 **Cause:** The Vercel project Root Directory was `.` and its initial Framework Preset was `Other`, while the Next.js app lives under `daegil_web`. The project also had SSO deployment protection enabled for the intended public experience.
 
-**Resolution:** Updated the project Framework Preset to Next.js and disabled SSO deployment protection through the authenticated Vercel CLI. The remaining dashboard setting is Root Directory `daegil_web`, followed by a production redeploy.
+**Resolution:** Updated the project Framework Preset to Next.js, disabled SSO deployment protection through the authenticated Vercel CLI, and set the remote project Root Directory to `daegil_web`. A production deployment from the GitHub `main` commit completed successfully; both the deployment URL and the project URL now return HTTP 200.
 
 #### 2026-08-29 — Opaque mascot backgrounds looked pasted onto the page
 
