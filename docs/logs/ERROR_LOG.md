@@ -629,3 +629,13 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 **Resolution:** Reflowed all birth-time fields vertically below 280 logical pixels, assigned the capture font to explicit AppBar/button styles, kept the Cat Home caption in one owner, and moved the Google action into a persistent Auth bottom panel.
 
 **Regression guard:** The 320 px responsive tests, 45-test functional suite, nine-screen 390 x 844 capture run, and `design-qa.md` comparison all pass.
+
+#### 2026-08-29 — Opaque mascot backgrounds looked pasted onto the page
+
+**Symptoms:** The mascot PNGs showed lighter square backgrounds against the app paper. Circular backplates and floating paw bubbles at opposite image corners added unrelated layers and made the artwork feel inserted rather than integrated.
+
+**Root causes:** The page token (`#F5E6C8`) did not match the assets' sampled edge values (`#F9E7CA` to `#FDF3D7`). The initial edge blend was calculated over the full banner width rather than the fitted square asset, so large banners retained visible vertical strips.
+
+**Resolution:** Aligned the shared paper/image canvas to `#FBEACD`, removed image-corner decorations and backplates, flattened the surface system, and constrained a two-axis edge blend to the real 1:1 asset bounds.
+
+**Regression guard:** `design-qa.md` records benchmark analysis and three visual iterations. All nine final 390 x 844 captures were compared with the supplied benchmark in the same visual input; 320 px tests, the full Flutter suite, and the APK build pass.

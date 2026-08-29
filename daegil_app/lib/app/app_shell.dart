@@ -17,15 +17,8 @@ class DaegilAppShell extends StatelessWidget {
         decoration: BoxDecoration(
           color: LunaColors.cream,
           border: const Border(
-            top: BorderSide(color: LunaColors.subtleBorder, width: 0.8),
+            top: BorderSide(color: LunaColors.subtleBorder, width: 1.1),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: LunaColors.seal.withValues(alpha: 0.12),
-              blurRadius: 18,
-              offset: const Offset(0, -4),
-            ),
-          ],
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex(location),

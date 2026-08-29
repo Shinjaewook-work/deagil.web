@@ -80,7 +80,7 @@ class PrivacySettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Card(
-              color: LunaColors.jadeSoft,
+              color: LunaColors.cream,
               child: SwitchListTile(
                 secondary: const CircleAvatar(
                   backgroundColor: LunaColors.cream,
@@ -239,7 +239,7 @@ class _NotificationSettingsScreenState
             ),
             const SizedBox(height: 16),
             Card(
-              color: LunaColors.butter,
+              color: LunaColors.cream,
               child: Column(
                 children: [
                   SwitchListTile(

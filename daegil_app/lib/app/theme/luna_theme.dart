@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 abstract final class LunaColors {
-  static const paper = Color(0xFFF5E6C8);
-  static const paperRaised = Color(0xFFFFF4DE);
-  static const cream = Color(0xFFFFF8EA);
-  static const peach = Color(0xFFF6C8AD);
-  static const peachSoft = Color(0xFFFCE1D3);
-  static const blush = Color(0xFFF7D0C8);
-  static const butter = Color(0xFFFFE6A7);
-  static const jadeSoft = Color(0xFFDCE6CF);
+  // The mascot artwork is painted on this warm paper tone. Keeping the page
+  // and image canvas identical makes the raster edges disappear naturally.
+  static const paper = Color(0xFFFBEACD);
+  static const imageCanvas = Color(0xFFFBEACD);
+  static const paperRaised = Color(0xFFFFF7E8);
+  static const cream = Color(0xFFFFFAEF);
+  static const peach = Color(0xFFF1C8AE);
+  static const peachSoft = Color(0xFFF7DED0);
+  static const blush = Color(0xFFF3C8C3);
+  static const butter = Color(0xFFF4DEA4);
+  static const jadeSoft = Color(0xFFDDE5D1);
   static const ink = Color(0xFF4A281D);
   static const secondary = Color(0xFF755144);
   static const muted = Color(0xFFA48673);
@@ -16,7 +19,7 @@ abstract final class LunaColors {
   static const gold = Color(0xFFD58A45);
   static const jade = Color(0xFF87986C);
   static const plum = Color(0xFF8D5C56);
-  static const subtleBorder = Color(0xFFD5AE8E);
+  static const subtleBorder = Color(0xFF9B755F);
   static const disabled = Color(0xFFCDB9A1);
   static const danger = Color(0xFFB24A30);
   static const success = Color(0xFF66805B);
@@ -31,8 +34,8 @@ abstract final class LunaSpacing {
 }
 
 abstract final class LunaRadii {
-  static const card = 22.0;
-  static const button = 20.0;
+  static const card = 18.0;
+  static const button = 18.0;
   static const sheet = 24.0;
 }
 
@@ -76,16 +79,15 @@ ThemeData buildLunaTheme() {
     ).apply(bodyColor: LunaColors.ink, displayColor: LunaColors.ink),
     cardTheme: CardThemeData(
       color: LunaColors.cream,
-      elevation: 2,
-      shadowColor: LunaColors.seal.withValues(alpha: 0.16),
+      elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(LunaRadii.card),
-        side: const BorderSide(color: LunaColors.subtleBorder),
+        side: const BorderSide(color: LunaColors.subtleBorder, width: 1.15),
       ),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: LunaColors.cream,
+      backgroundColor: LunaColors.paper,
       foregroundColor: LunaColors.ink,
       elevation: 0,
       centerTitle: true,
@@ -98,7 +100,7 @@ ThemeData buildLunaTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: LunaColors.cream,
+      fillColor: LunaColors.paperRaised,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -116,13 +118,13 @@ ThemeData buildLunaTheme() {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(54),
-        backgroundColor: LunaColors.gold,
+        backgroundColor: LunaColors.blush,
         foregroundColor: LunaColors.ink,
-        elevation: 3,
-        shadowColor: LunaColors.seal.withValues(alpha: 0.28),
+        elevation: 0,
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(LunaRadii.button),
+          side: const BorderSide(color: LunaColors.subtleBorder, width: 1.15),
         ),
       ),
     ),
@@ -140,8 +142,7 @@ ThemeData buildLunaTheme() {
       height: 76,
       backgroundColor: LunaColors.cream,
       indicatorColor: LunaColors.blush,
-      elevation: 8,
-      shadowColor: LunaColors.seal.withValues(alpha: 0.16),
+      elevation: 0,
       iconTheme: WidgetStateProperty.resolveWith((states) {
         return IconThemeData(
           color: states.contains(WidgetState.selected)

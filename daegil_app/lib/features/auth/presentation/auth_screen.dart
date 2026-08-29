@@ -7,6 +7,7 @@ import '../../../app/theme/luna_theme.dart';
 import '../../../shared/widgets/luna_card.dart';
 import '../../../shared/widgets/luna_page_frame.dart';
 import '../../../shared/widgets/luna_primary_button.dart';
+import '../../../shared/widgets/paper_blend_image.dart';
 import 'auth_controller.dart';
 
 class AuthScreen extends ConsumerWidget {
@@ -38,35 +39,14 @@ class AuthScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 228,
-                    height: 208,
-                    decoration: const BoxDecoration(
-                      color: LunaColors.peachSoft,
-                      shape: BoxShape.circle,
-                    ),
+              ColoredBox(
+                color: LunaColors.imageCanvas,
+                child: SizedBox(
+                  height: 230,
+                  child: const PaperBlendImage(
+                    assetName: 'assets/images/daegil_cat_wave.png',
                   ),
-                  SizedBox(
-                    height: 230,
-                    child: Image.asset(
-                      'assets/images/daegil_cat_wave.png',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  const Positioned(
-                    top: 22,
-                    right: 18,
-                    child: _FloatingPaw(color: LunaColors.butter, size: 42),
-                  ),
-                  const Positioned(
-                    bottom: 22,
-                    left: 20,
-                    child: _FloatingPaw(color: LunaColors.jadeSoft, size: 34),
-                  ),
-                ],
+                ),
               ),
               const SizedBox(height: 8),
               const LunaCard(
@@ -168,18 +148,9 @@ class AuthScreen extends ConsumerWidget {
         top: false,
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: LunaColors.cream,
-            border: const Border(
-              top: BorderSide(color: LunaColors.subtleBorder),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: LunaColors.seal.withValues(alpha: 0.12),
-                blurRadius: 18,
-                offset: const Offset(0, -4),
-              ),
-            ],
+            border: Border(top: BorderSide(color: LunaColors.subtleBorder)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -242,27 +213,6 @@ class _WelcomePill extends StatelessWidget {
           Text('한복 고양이 운세방', style: TextStyle(fontWeight: FontWeight.w700)),
         ],
       ),
-    );
-  }
-}
-
-class _FloatingPaw extends StatelessWidget {
-  const _FloatingPaw({required this.color, required this.size});
-
-  final Color color;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(color: LunaColors.subtleBorder),
-      ),
-      child: Icon(Icons.pets_rounded, size: size * 0.5, color: LunaColors.seal),
     );
   }
 }

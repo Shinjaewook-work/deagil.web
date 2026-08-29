@@ -91,7 +91,7 @@ class _ResultBody extends StatelessWidget {
             _LuckyCard(result: displayedResult),
             const SizedBox(height: 16),
             const Card(
-              color: LunaColors.jadeSoft,
+              color: LunaColors.cream,
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Row(
@@ -143,15 +143,24 @@ class _RatingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: LunaColors.peachSoft,
+      color: LunaColors.cream,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Row(
           children: [
-            SizedBox(
-              width: 82,
-              height: 82,
-              child: Image.asset('assets/images/daegil_cat_yawn.png'),
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: LunaColors.blush,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: LunaColors.subtleBorder),
+              ),
+              child: const Icon(
+                Icons.pets_rounded,
+                color: LunaColors.seal,
+                size: 28,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -216,9 +225,14 @@ class _ResultSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 19,
-                  backgroundColor: color,
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: LunaColors.subtleBorder),
+                  ),
                   child: Icon(icon, size: 20, color: LunaColors.seal),
                 ),
                 const SizedBox(width: 10),
@@ -239,11 +253,13 @@ class _ResultSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.only(top: 4),
-                      child: Icon(
-                        Icons.pets_rounded,
-                        size: 13,
-                        color: LunaColors.gold,
+                      padding: EdgeInsets.only(top: 8),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: LunaColors.seal,
+                          shape: BoxShape.circle,
+                        ),
+                        child: SizedBox(width: 5, height: 5),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -266,7 +282,7 @@ class _LuckyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: LunaColors.butter,
+      color: LunaColors.cream,
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(

@@ -21,7 +21,7 @@ class LunaPrimaryButton extends StatelessWidget {
       icon: Icon(icon, size: 20),
       label: Text(label),
       style: ElevatedButton.styleFrom(
-        backgroundColor: LunaColors.gold,
+        backgroundColor: LunaColors.blush,
         foregroundColor: LunaColors.ink,
       ),
     );

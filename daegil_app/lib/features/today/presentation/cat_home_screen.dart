@@ -98,35 +98,18 @@ class CatHomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 14),
             Card(
-              color: LunaColors.cream,
+              color: LunaColors.imageCanvas,
               clipBehavior: Clip.antiAlias,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
                 child: Column(
                   children: [
-                    Stack(
-                      children: [
-                        const ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                          child: SizedBox(height: 272, child: CatVideo()),
-                        ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: const BoxDecoration(
-                              color: LunaColors.butter,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.pets_rounded,
-                              color: LunaColors.seal,
-                            ),
-                          ),
-                        ),
-                      ],
+                    const ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(14)),
+                      child: ColoredBox(
+                        color: LunaColors.imageCanvas,
+                        child: SizedBox(height: 272, child: CatVideo()),
+                      ),
                     ),
                     const SizedBox(height: 14),
                     const Text(
@@ -140,7 +123,7 @@ class CatHomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 18),
             const LunaCard(
-              color: LunaColors.jadeSoft,
+              color: LunaColors.cream,
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 children: [

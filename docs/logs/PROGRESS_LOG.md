@@ -1504,3 +1504,29 @@ Google development OAuth → CONNECTED / user-confirmed
 - Harness lint, Master contract audit, repository guard, security hardening audit, and whitespace guard: PASS.
 - Debug APK rebuilt: `daegil_app/build/app/outputs/flutter-apk/app-debug.apk`.
 - APK SHA-256: `CEEEE49A094DD58BDD7DCBEAE5B7FCE781805F92AF22ACFA17CBEBF5A657EE88`.
+
+### PROG-202608291430 — Paper-integrated benchmark redesign
+
+**Status:** IMPLEMENTED / VISUAL QA PASSED
+
+**Benchmark findings**
+- Analyzed the supplied target as a restrained paper-illustration system: one warm cream field, thin brown outlines, compact typography, small illustrative accents, and one muted-pink CTA.
+- Sampled the five mascot PNG edge colors and aligned the shared page/image canvas to the common `#FBEACD` family.
+
+**Design changes**
+- Removed the two image-corner paw bubbles, Auth floating paws, Home floating paw, circular image backplates, elevated card shadows, and the repeated result thumbnail.
+- Added `PaperBlendImage`, which fades only the artwork's outer paper pixels within the fitted square asset bounds so opaque raster backgrounds merge into the page.
+- Flattened all nine screens to consistent cream cards, 1.15 px brown outlines, 18 px radii, compact icon accents, and a muted-pink primary action while preserving every existing interaction and the persistent navigation.
+
+**Visual validation**
+- Compared the selected benchmark and final 390 x 844 captures in the same visual input over three render iterations.
+- Final captures: `C:/Users/every/.codex/visualizations/2026/08/29/daegil-benchmark-final`.
+- `daegil_app/design-qa.md`: `final result: passed` with no open P0/P1/P2 finding.
+
+**Build and checks**
+- `flutter analyze`: PASS.
+- `flutter test`: PASS, 45 functional tests plus the visual capture test.
+- 320 px responsive tests: PASS.
+- Harness lint, Master contract audit, repository guard, security hardening audit, and whitespace guard: PASS.
+- Debug APK rebuilt: `daegil_app/build/app/outputs/flutter-apk/app-debug.apk`.
+- APK SHA-256: `80ED34143ED45BA35F76F6D8D9C39965628469DC9F56ED6E553407A3233FE119`.

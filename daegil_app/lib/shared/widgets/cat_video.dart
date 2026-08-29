@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import 'paper_blend_image.dart';
+
 class CatVideo extends StatefulWidget {
   const CatVideo({super.key});
 
@@ -91,9 +93,8 @@ class _CatFallback extends StatelessWidget {
     return Center(
       child: SizedBox(
         height: 220,
-        child: Image.asset(
-          'assets/images/daegil_cat_stretch.png',
-          fit: BoxFit.contain,
+        child: const PaperBlendImage(
+          assetName: 'assets/images/daegil_cat_stretch.png',
         ),
       ),
     );
