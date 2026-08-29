@@ -1566,3 +1566,4 @@ Google development OAuth → CONNECTED / user-confirmed
 - Production deployment `dpl_GMQnDK6mbEFvYaRWcGiiDWpF25pR` was created from GitHub `main` commit `cda2ba2c7721fb63ba0e908fad9c1b170c9443a2` and reached `READY`.
 - `https://deagil-web-gj8b-ovre52jq4-jeawook.vercel.app/` and `https://deagil-web-gj8b.vercel.app/` both returned HTTP 200 with Korean Next.js HTML.
 - Vercel Git integration still reports `codex/daegil-web` as the production branch; change it to `main` in Environments > Production > Branch Tracking if `main` should be the automatic production branch.
+- The project environment-variable list is currently empty. Runtime auth/ad verification remains pending until the three public variables in `daegil_web/.env.example` are configured for the intended Vercel environments.
