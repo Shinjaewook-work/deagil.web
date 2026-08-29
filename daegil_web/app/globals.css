@@ -1,0 +1,65 @@
+:root {
+  --paper: #f4efe5;
+  --paper-raised: #fbf8f1;
+  --ink: #222622;
+  --secondary: #66645e;
+  --muted: #8a867d;
+  --seal: #a14b3f;
+  --gold: #b49a67;
+  --jade: #6f8978;
+  --plum: #725f6b;
+  --border: #d8d0c3;
+  --danger: #a6534a;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+
+.page { min-height: 100vh; padding: 24px 20px 116px; }
+.frame { width: min(100%, 448px); margin: 0 auto; }
+.topbar { display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .02em; }
+.brand img { width: 42px; height: 42px; object-fit: contain; }
+.icon-button { width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 50%; color: var(--secondary); background: var(--paper-raised); }
+.hero { text-align: center; padding: 20px 0 14px; }
+.hero h1 { margin: 0; font-size: clamp(27px, 8vw, 36px); line-height: 1.22; letter-spacing: -.05em; }
+.hero p { margin: 12px 0 0; color: var(--secondary); line-height: 1.65; }
+.mascot { display: block; width: min(86vw, 320px); height: auto; margin: 4px auto 2px; }
+.card { padding: 20px; border: 1px solid var(--border); border-radius: 18px; background: var(--paper-raised); }
+.card + .card { margin-top: 12px; }
+.label { display: block; margin-bottom: 8px; color: var(--secondary); font-size: 13px; font-weight: 700; }
+.field { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; color: var(--ink); background: #fffdf8; }
+.field:focus { outline: 2px solid color-mix(in srgb, var(--gold) 55%, transparent); outline-offset: 1px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stack { display: grid; gap: 12px; }
+.button { width: 100%; min-height: 52px; border: 0; border-radius: 16px; padding: 12px 18px; font-weight: 800; transition: transform .15s ease, opacity .15s ease; }
+.button:active { transform: translateY(1px); }
+.button:disabled { cursor: not-allowed; opacity: .48; }
+.button-primary { color: #fffaf1; background: var(--seal); }
+.button-secondary { color: var(--ink); border: 1px solid var(--border); background: var(--paper-raised); }
+.button-jade { color: #fffaf1; background: var(--jade); }
+.small { color: var(--muted); font-size: 12px; line-height: 1.55; }
+.error { margin: 12px 0 0; color: var(--danger); font-size: 13px; line-height: 1.5; }
+.check { display: flex; gap: 10px; align-items: flex-start; color: var(--secondary); font-size: 14px; line-height: 1.5; }
+.check input { flex: none; width: 18px; height: 18px; accent-color: var(--seal); }
+.section-title { margin: 0 0 12px; font-size: 18px; letter-spacing: -.03em; }
+.rating { display: flex; justify-content: space-between; align-items: end; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.rating strong { color: var(--seal); font-size: 38px; line-height: 1; }
+.rating span { color: var(--secondary); font-size: 13px; }
+.list { margin: 0; padding-left: 20px; color: var(--secondary); line-height: 1.75; }
+.video { display: block; width: 100%; max-height: 390px; border-radius: 18px; object-fit: cover; background: #eadfcf; }
+.pass { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border: 1px solid #d8c29a; border-radius: 999px; color: #6d5a31; background: #f8efd8; font-size: 13px; font-weight: 800; }
+.footer-nav { position: fixed; right: 0; bottom: 0; left: 0; z-index: 2; padding: 12px 20px 28px; border-top: 1px solid var(--border); background: color-mix(in srgb, var(--paper) 93%, transparent); backdrop-filter: blur(8px); }
+.footer-nav-inner { display: flex; justify-content: space-between; width: min(100%, 448px); margin: 0 auto; color: var(--secondary); font-size: 12px; }
+.footer-nav button { border: 0; color: inherit; background: none; }
+.footer-nav button.active { color: var(--seal); font-weight: 800; }
+.notice { padding: 12px 14px; border-radius: 12px; color: #66573b; background: #f8efd8; font-size: 13px; line-height: 1.55; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }

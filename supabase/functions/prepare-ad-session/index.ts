@@ -9,6 +9,7 @@ import {
 const securityMode = Deno.env.get('AD_SECURITY_MODE') ?? 'fast';
 const androidAdUnitId = Deno.env.get('ADMOB_EXPECTED_AD_UNIT_ID');
 const iosAdUnitId = Deno.env.get('ADMOB_EXPECTED_IOS_AD_UNIT_ID');
+const webRewardedAdUnitId = Deno.env.get('GAM_EXPECTED_REWARDED_AD_UNIT_ID');
 const rewardItem = Deno.env.get('ADMOB_EXPECTED_REWARD_ITEM');
 const rewardAmount = Number(Deno.env.get('ADMOB_EXPECTED_REWARD_AMOUNT') ?? '0');
 
@@ -19,13 +20,17 @@ Deno.serve(async (request) => {
     const body = await request.json() as Record<string, unknown>;
     const platform = body.platform;
     const prepareRequestId = body.prepare_request_id;
-    if (platform !== 'android' && platform !== 'ios') {
+    if (platform !== 'android' && platform !== 'ios' && platform !== 'web') {
       return json(400, { code: 'INVALID_PLATFORM' });
     }
     if (typeof prepareRequestId !== 'string') {
       return json(400, { code: 'INVALID_PREPARE_REQUEST_ID' });
     }
-    const expectedAdUnitId = platform === 'android' ? androidAdUnitId : iosAdUnitId;
+    const expectedAdUnitId = platform === 'android'
+      ? androidAdUnitId
+      : platform === 'ios'
+      ? iosAdUnitId
+      : webRewardedAdUnitId;
     if (!expectedAdUnitId || !rewardItem || !Number.isFinite(rewardAmount) || rewardAmount <= 0) {
       return json(503, { code: 'AD_REWARD_SPEC_NOT_CONFIGURED' });
     }

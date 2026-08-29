@@ -1530,3 +1530,21 @@ Google development OAuth → CONNECTED / user-confirmed
 - Harness lint, Master contract audit, repository guard, security hardening audit, and whitespace guard: PASS.
 - Debug APK rebuilt: `daegil_app/build/app/outputs/flutter-apk/app-debug.apk`.
 - APK SHA-256: `80ED34143ED45BA35F76F6D8D9C39965628469DC9F56ED6E553407A3233FE119`.
+
+### PROG-202608291600 — Independent web experience package
+
+**Status:** IMPLEMENTED / LOCAL BUILD VERIFIED / GITHUB PUSH BLOCKED
+
+**Implementation**
+- Added standalone `daegil_web` Next.js package with warm paper design tokens, cat artwork, public landing flow, server-driven legal gate, Google OAuth callback, birth profile form, fortune result screen, Supabase RPC/Edge Function integration, and web Rewarded Ad adapter.
+- Extended `prepare-ad-session` additively for `platform=web` using server-only `GAM_EXPECTED_REWARDED_AD_UNIT_ID`; existing Android/iOS platform behavior remains unchanged.
+- Updated harness exclusions/allowed prefixes for web build output and added web deployment settings to `docs/EXTERNAL_SETUP.md`.
+
+**Verification**
+- `daegil_web`: `npm run typecheck`: PASS.
+- `daegil_web`: `npm run build`: PASS; `/` and `/auth/callback` local HTTP smoke tests returned 200.
+- `daegil_app`: `flutter analyze --no-pub`: PASS; `flutter test --no-pub`: PASS, 45 tests.
+- `python scripts/harness_lint.py`: PASS; `python scripts/repo_guard.py`: PASS; `python scripts/master_contract_audit.py`: PASS.
+
+**Manual action / blocker**
+- Local Git has no `origin`; `gh` CLI is unavailable and `Shinjaewook-work` has no public repositories. Connect the exact GitHub repository URL and authenticated push access before Vercel can build the new `daegil_web` root.

@@ -40,11 +40,13 @@ actual={
     and '.dart_tool' not in p.relative_to(ROOT).parts
     and 'build' not in p.relative_to(ROOT).parts
     and 'daegil_app' not in p.relative_to(ROOT).parts
+    and 'node_modules' not in p.relative_to(ROOT).parts
+    and '.next' not in p.relative_to(ROOT).parts
     and p.name != 'pubspec.lock'
     and p.name != '.flutter-plugins-dependencies'
 }
 missing=sorted(EXPECTED-actual)
-allowed_project_prefixes=('lib/','test/','config/','assets/','supabase/','pubspec.yaml','analysis_options.yaml','.gitignore')
+allowed_project_prefixes=('lib/','test/','config/','assets/','supabase/','daegil_web/','pubspec.yaml','analysis_options.yaml','.gitignore')
 extra=sorted(
     path for path in (actual-EXPECTED)
     if not path.startswith(allowed_project_prefixes)
@@ -69,7 +71,12 @@ for phrase in required_master:
         errors.append(f'Master missing invariant: {phrase}')
 
 # Current files only. Logs may mention old rules as prevention history.
-current=[p for p in ROOT.rglob('*.md') if '/logs/' not in str(p).replace('\\','/')]
+current=[
+    p for p in ROOT.rglob('*.md')
+    if '/logs/' not in str(p).replace('\\','/')
+    and 'node_modules' not in p.relative_to(ROOT).parts
+    and '.next' not in p.relative_to(ROOT).parts
+]
 forbidden={
     'available_pass_count == 3`이면 rewarded-ad 선택지를 표시하지 않는다':'stale 3/3 ad block',
     'Rewarded Ad route server-side reject':'stale 3/3 ad rejection',

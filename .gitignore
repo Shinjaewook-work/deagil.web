@@ -8,6 +8,11 @@ coverage/
 __pycache__/
 pubspec.lock
 
+# Standalone web package build output
+daegil_web/node_modules/
+daegil_web/.next/
+*.tsbuildinfo
+
 # Local environment files
 .env
 .env.*

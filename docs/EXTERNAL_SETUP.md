@@ -248,6 +248,22 @@ Production:
 
 실제 HTTPS public domain 필요.
 
+Web preview deployment:
+
+```text
+GitHub owner: Shinjaewook-work
+Web package: daegil_web
+Deployment target: Netlify/Vercel project root directory = daegil_web
+Production domain: https://daegil.allinfoworld119.com
+Web OAuth redirect: https://daegil.allinfoworld119.com/auth/callback
+Web rewarded ad unit secret: GAM_EXPECTED_REWARDED_AD_UNIT_ID (server only)
+```
+
+The web client is additive to the Flutter app. Mobile AdMob uses the existing
+Android/iOS unit configuration; browser rewarded ads use a web-specific Google
+Publisher Tag/Ad Manager unit. The web `platform` value is accepted only by
+the additive `prepare-ad-session` branch and does not change mobile behavior.
+
 ## Backup / Retention Review
 
 Release 시 실제 Supabase plan의 backup retention을 확인하고 privacy copy와 일치시킨다.

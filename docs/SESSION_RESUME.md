@@ -79,3 +79,9 @@ Current local runtime note:
 
 - The current implementation is `daegil_app`; root-level Windows files generated during diagnosis were removed.
 - `daegil_app` analyze/test/web release pass. Windows runtime remains gated by OS Developer Mode symlink support (`ERR-202608160006`).
+
+Latest web follow-up:
+
+- Added an independent `daegil_web` Next.js package for Vercel/Netlify deployment. It uses the existing Supabase auth/RPC/Edge Function contract, adds the additive `platform=web` path for `prepare-ad-session`, and copies the approved cat artwork without changing `daegil_app`.
+- `daegil_web` typecheck, production build, local HTTP smoke test, Flutter analyze/test, harness lint, repository guard, and Master contract audit pass.
+- GitHub `origin` is not configured in this checkout, and the public `Shinjaewook-work` account exposes no public repositories. Exact repository URL/name and authenticated push access remain manual blockers before GitHub/Vercel automatic deployment.
