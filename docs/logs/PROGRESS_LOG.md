@@ -1547,4 +1547,4 @@ Google development OAuth → CONNECTED / user-confirmed
 - `python scripts/harness_lint.py`: PASS; `python scripts/repo_guard.py`: PASS; `python scripts/master_contract_audit.py`: PASS.
 
 **Manual action / blocker**
-- Local Git has no `origin`; `gh` CLI is unavailable and `Shinjaewook-work` has no public repositories. Connect the exact GitHub repository URL and authenticated push access before Vercel can build the new `daegil_web` root.
+- `origin` is configured as `https://github.com/Shinjaewook-work/deagil.web.git`, but `git push -u origin codex/daegil-web` returned HTTP 403 because the local GitHub credential is `hfamily963-stack` without write access. Re-authenticate as `Shinjaewook-work` or grant write access, then retry the same push.

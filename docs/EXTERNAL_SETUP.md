@@ -251,7 +251,7 @@ Production:
 Web preview deployment:
 
 ```text
-GitHub owner: Shinjaewook-work
+GitHub repository: Shinjaewook-work/deagil.web
 Web package: daegil_web
 Deployment target: Netlify/Vercel project root directory = daegil_web
 Production domain: https://daegil.allinfoworld119.com
