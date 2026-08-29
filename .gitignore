@@ -12,6 +12,7 @@ pubspec.lock
 daegil_web/node_modules/
 daegil_web/.next/
 *.tsbuildinfo
+**/.vercel/
 
 # Local environment files
 .env
