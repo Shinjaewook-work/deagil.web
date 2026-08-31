@@ -7,7 +7,10 @@ export function getSupabaseClient(): SupabaseClient | null {
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return null;
   client ??= createClient(url, key, {
-    auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true },
+    // The callback route performs the one-time PKCE exchange explicitly.
+    // Keeping automatic URL detection enabled would make both the client
+    // initializer and /auth/callback consume the same authorization code.
+    auth: { flowType: 'pkce', detectSessionInUrl: false, persistSession: true },
   });
   return client;
 }

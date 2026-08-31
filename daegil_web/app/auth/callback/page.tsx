@@ -10,12 +10,38 @@ export default function AuthCallback() {
   useEffect(() => {
     const client = getSupabaseClient();
     if (!client) { router.replace('/'); return; }
-    const code = new URLSearchParams(window.location.search).get('code');
-    if (!code) { setMessage('로그인 링크가 유효하지 않아요.'); return; }
-    void client.auth.exchangeCodeForSession(code).then(({ error }) => {
-      if (error) { setMessage('로그인을 완료하지 못했어요. 다시 시도해 주세요.'); return; }
-      router.replace('/');
-    });
+    let timeoutId: number | undefined;
+    const finishLogin = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const callbackError = params.get('error_description') ?? params.get('error');
+      if (callbackError) {
+        setMessage('Google 로그인이 취소되었거나 만료되었어요. 다시 시도해 주세요.');
+        return;
+      }
+      const code = params.get('code');
+      if (!code) {
+        setMessage('로그인 링크가 유효하지 않아요. 다시 시도해 주세요.');
+        return;
+      }
+      try {
+        const result = await Promise.race([
+          client.auth.exchangeCodeForSession(code),
+          new Promise<never>((_, reject) => {
+            timeoutId = window.setTimeout(() => reject(new Error('AUTH_CALLBACK_TIMEOUT')), 15_000);
+          }),
+        ]);
+        if (result.error) {
+          setMessage('로그인을 완료하지 못했어요. 다시 시도해 주세요.');
+          return;
+        }
+        router.replace('/');
+      } catch {
+        setMessage('로그인 확인이 지연되고 있어요. 페이지를 새로고침한 뒤 다시 시도해 주세요.');
+      } finally {
+        if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      }
+    };
+    void finishLogin();
   }, [router]);
   return <main className="page"><div className="frame"><div className="card" style={{ marginTop: 48, textAlign: 'center' }}>{message}</div></div></main>;
 }

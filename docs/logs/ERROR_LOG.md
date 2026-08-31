@@ -647,3 +647,13 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 **Resolution:** Aligned the shared paper/image canvas to `#FBEACD`, removed image-corner decorations and backplates, flattened the surface system, and constrained a two-axis edge blend to the real 1:1 asset bounds.
 
 **Regression guard:** `design-qa.md` records benchmark analysis and three visual iterations. All nine final 390 x 844 captures were compared with the supplied benchmark in the same visual input; 320 px tests, the full Flutter suite, and the APK build pass.
+
+#### 2026-08-31 — Web Google OAuth callback remained in loading state
+
+**Symptom:** After selecting a Google account, the web callback could remain on `로그인을 확인하는 중이다냥…` instead of returning to the app.
+
+**Root cause:** The browser Supabase client had `detectSessionInUrl: true` while `/auth/callback` also explicitly exchanged the same PKCE authorization code. The one-time code/verifier could therefore be consumed by competing handlers; the callback promise also had no rejection or timeout path.
+
+**Resolution:** Disabled automatic URL session detection for the web client so `/auth/callback` owns the single PKCE exchange, and added callback error-parameter handling, a 15-second timeout, and a catch path with retry guidance. The existing Supabase auth and registration contract is unchanged.
+
+**Validation:** Web typecheck and production build pass; a local invalid-code callback exits to the explicit login-failure message instead of remaining in the loading state.
