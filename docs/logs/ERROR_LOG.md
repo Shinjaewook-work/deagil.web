@@ -724,3 +724,17 @@ cancel with no spend, single-flight pass operation and failure retry. A 320px/2x
 font regression exposed a 92px badge overflow; Flexible text corrects the layout.
 All 53 widget tests and Flutter analysis pass. The visual harness now keys each
 page's ProviderScope because varying override counts on a reused scope fails.
+
+#### 2026-09-05 — Web registration RPC errors treated as success
+
+The web client ignored RPC `error`, removed pending consent, and entered Home
+without checking the server gate. A test reproduced the missing rejection before
+the fix. Registration now checks the error, preserves pending data for retry, and
+requires explicit gate NONE for entry. Requests have finite per-request deadlines.
+A newer consent snapshot is not removed by an older successful request. Existing
+OAuth sessions can finish registration without another Google round trip. Callback
+errors link to auth; legal-load failure offers reload.
+
+Five helper tests, web typecheck/build and repository/security checks pass. This
+does not prove the originally reported real-account OAuth root cause. Windows
+Node 20 does not expand `lib/*.test.cjs`; npm test uses the explicit test file.

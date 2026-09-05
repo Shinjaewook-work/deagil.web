@@ -14,6 +14,15 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
+2026-09-05 web registration recovery: pending consent is retained on RPC failure
+and cleared only after confirmed success, without deleting a newer selection.
+Web auth/session/legal/state requests have finite deadlines. Existing sessions
+retry registration instead of restarting Google OAuth; only server gate NONE
+enters Home/Result. Auth navigation no longer exposes the other app screens.
+Callback errors have a return-to-login link. Five web tests, typecheck/build and
+repository/security guards pass. Deployment verification follows; successful
+real-account sign-in remains unproven and needs user-entered consent.
+
 2026-09-05 native Home polish: preserved the selected paper/cat benchmark, shortened
 the caption, and made the CTA truthful. An explicit cream-paper sheet now offers
 ad/pass/cancel; 3 active passes do not hide the ad choice. Cancel spends nothing.

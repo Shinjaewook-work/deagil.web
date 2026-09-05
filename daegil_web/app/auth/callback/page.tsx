@@ -36,12 +36,12 @@ export default function AuthCallback() {
         }
         router.replace('/');
       } catch {
-        setMessage('로그인 확인이 지연되고 있어요. 페이지를 새로고침한 뒤 다시 시도해 주세요.');
+        setMessage('로그인 확인이 지연되고 있어요. 로그인 화면으로 돌아가 다시 시도해 주세요.');
       } finally {
         if (timeoutId !== undefined) window.clearTimeout(timeoutId);
       }
     };
     void finishLogin();
   }, [router]);
-  return <main className="page"><div className="frame"><div className="card" style={{ marginTop: 48, textAlign: 'center' }}>{message}</div></div></main>;
+  return <main className="page"><div className="frame"><div className="card" style={{ marginTop: 48, textAlign: 'center' }}><p role="status">{message}</p>{message !== '로그인을 확인하는 중이다냥…' && <a className="button button-secondary" style={{ display: 'block', marginTop: 16 }} href="/?login=retry">로그인 화면으로 돌아가기</a>}</div></div></main>;
 }

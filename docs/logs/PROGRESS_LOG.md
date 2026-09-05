@@ -1,5 +1,14 @@
 # Progress Log
 
+### PROG-20260905-WEB-AUTH — Registration confirmation and recovery
+
+- Reproduced ignored RPC error, then fixed error handling, snapshot preservation
+  and server-gated app entry. Added bounded auth/session/legal/state waits,
+  same-session registration retry, callback return link and legal reload.
+- `npm test` (5), typecheck, production build and repository/security checks pass.
+  Real-account Google completion remains unverified; no user consent was entered.
+- This step changes only the web client. Native source/tests were not modified.
+
 ### PROG-20260905-HOME — Paper-style home and explicit ad/pass choice
 
 - Preserved the selected visual benchmark. Shortened the cat caption, corrected

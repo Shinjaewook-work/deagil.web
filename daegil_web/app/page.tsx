@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getSupabaseClient, getWebRedirectUrl } from '@/lib/supabase';
+import { completePendingRegistration, isRegistrationComplete, withAuthDeadline } from '@/lib/registration';
 
 type View = 'landing' | 'auth' | 'profile' | 'today' | 'result';
 
@@ -72,13 +73,16 @@ export default function DaegilWeb() {
   const [age14, setAge14] = useState(false);
   const [state, setState] = useState<AppState>({});
   const [busy, setBusy] = useState(false);
+  const [restoring, setRestoring] = useState(Boolean(supabase));
+  const [hasSession, setHasSession] = useState(false);
+  const [requirementsReady, setRequirementsReady] = useState(!supabase);
   const [error, setError] = useState('');
   const [demoMode, setDemoMode] = useState(!supabase);
   const [profile, setProfile] = useState({ birthDate: '', city: '', calendar: 'solar', time: '', precision: 'unknown' });
 
   const loadRequirements = useCallback(async () => {
     if (!supabase) return;
-    const { data, error: rpcError } = await supabase.rpc('get_public_registration_requirements');
+    const { data, error: rpcError } = await withAuthDeadline(supabase.rpc('get_public_registration_requirements'));
     if (rpcError) throw rpcError;
     const documents = (data as { documents?: unknown }).documents;
     if (!Array.isArray(documents)) throw new Error('INVALID_LEGAL_RESPONSE');
@@ -86,35 +90,54 @@ export default function DaegilWeb() {
       const row = item as Record<string, unknown>;
       return { id: String(row.id), title: String(row.title), required: row.required === true || row.required_for_registration === true };
     }));
+    setRequirementsReady(true);
   }, [supabase]);
 
   const loadState = useCallback(async () => {
     if (!supabase) return;
-    const { data, error: rpcError } = await supabase.rpc('get_my_app_state');
+    const { data, error: rpcError } = await withAuthDeadline(supabase.rpc('get_my_app_state'));
     if (rpcError) throw rpcError;
+    if (!data || typeof data !== 'object' || typeof data.gate !== 'string') throw new Error('INVALID_APP_STATE');
     setState(data as AppState);
+    return data as AppState;
   }, [supabase]);
 
   const completeRegistrationIfNeeded = useCallback(async () => {
     if (!supabase || typeof window === 'undefined') return;
-    const raw = window.localStorage.getItem('daegil-web-registration');
-    if (!raw) return;
-    const registration = JSON.parse(raw) as { age14PlusAttested: boolean; displayedDocumentIds: string[]; acceptedDocumentIds: string[] };
-    await supabase.rpc('complete_my_registration', {
-      age_14_plus_attested: registration.age14PlusAttested,
-      displayed_document_ids: registration.displayedDocumentIds,
-      accepted_document_ids: registration.acceptedDocumentIds,
-      analytics_enabled: false,
-    });
-    window.localStorage.removeItem('daegil-web-registration');
+    await completePendingRegistration(supabase, window.localStorage);
   }, [supabase]);
 
   useEffect(() => {
     if (!supabase) return;
+    let cancelled = false;
+    if (new URLSearchParams(window.location.search).get('login') === 'retry') setView('auth');
     void loadRequirements().catch(() => setError('필수 안내를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'));
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void completeRegistrationIfNeeded().then(loadState).then(() => setView('today')).catch(() => setError('가입 확인을 완료하지 못했어요. 다시 시도해 주세요.'));
-    });
+    void (async () => {
+      try {
+        const { data, error: sessionError } = await withAuthDeadline(supabase.auth.getSession());
+        if (sessionError) throw sessionError;
+        if (cancelled) return;
+        setHasSession(Boolean(data.session));
+        if (!data.session) return;
+        await completeRegistrationIfNeeded();
+        const current = await loadState();
+        if (cancelled) return;
+        if (!isRegistrationComplete(current)) {
+          setView('auth');
+          setError('필수 동의 내용을 확인하고 가입을 완료해 주세요.');
+          return;
+        }
+        setView(current?.fortune_state === 'UNLOCKED' ? 'result' : 'today');
+      } catch {
+        if (!cancelled) {
+          setView('auth');
+          setError('가입 확인을 완료하지 못했어요. 동의 내용을 확인하고 다시 시도해 주세요.');
+        }
+      } finally {
+        if (!cancelled) setRestoring(false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [completeRegistrationIfNeeded, loadRequirements, loadState, supabase]);
 
   function toggleRequirement(id: string) {
@@ -125,9 +148,10 @@ export default function DaegilWeb() {
     });
   }
 
-  const canLogin = age14 && requirements.filter((item) => item.required).every((item) => accepted.has(item.id));
+  const canLogin = requirementsReady && age14 && requirements.filter((item) => item.required).every((item) => accepted.has(item.id));
 
   async function signIn() {
+    if (!canLogin || busy || restoring) return;
     setBusy(true); setError('');
     try {
       if (!supabase) { setDemoMode(true); setView('today'); return; }
@@ -136,13 +160,20 @@ export default function DaegilWeb() {
         displayedDocumentIds: requirements.map((item) => item.id),
         acceptedDocumentIds: [...accepted],
       }));
-      const { error: signInError } = await supabase.auth.signInWithOAuth({
+      if (hasSession) {
+        await completeRegistrationIfNeeded();
+        const current = await loadState();
+        if (!isRegistrationComplete(current)) throw new Error('REGISTRATION_GATE_REMAINS');
+        setView(current?.fortune_state === 'UNLOCKED' ? 'result' : 'today');
+        return;
+      }
+      const { error: signInError } = await withAuthDeadline(supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: getWebRedirectUrl() },
-      });
+      }));
       if (signInError) throw signInError;
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '로그인을 시작하지 못했어요.');
+    } catch {
+      setError('로그인 또는 가입 확인을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.');
     } finally { setBusy(false); }
   }
 
@@ -225,6 +256,8 @@ export default function DaegilWeb() {
 
   const currentPayload = isRealPayload(state.fortune_payload) ? state.fortune_payload : null;
 
+  if (restoring) return <main className="page"><div className="frame"><div className="card" role="status">로그인과 가입 상태를 확인하는 중이다냥…</div></div></main>;
+
   return (
     <main className="page">
       <div className="frame">
@@ -234,12 +267,12 @@ export default function DaegilWeb() {
         </header>
 
         {view === 'landing' && <Landing onStart={() => setView(supabase ? 'auth' : 'profile')} />}
-        {view === 'auth' && <Auth requirements={requirements} accepted={accepted} age14={age14} busy={busy} error={error} onAge={() => setAge14(!age14)} onToggle={toggleRequirement} onSignIn={signIn} />}
+        {view === 'auth' && <><Auth requirements={requirements} accepted={accepted} age14={age14} busy={busy || !requirementsReady} buttonLabel={hasSession ? '동의 완료하고 시작하기' : 'Google로 계속하기'} error={error} onAge={() => setAge14(!age14)} onToggle={toggleRequirement} onSignIn={signIn} />{!requirementsReady && <button className="button button-secondary" disabled={busy} onClick={async () => { setBusy(true); try { await loadRequirements(); setError(''); } catch { setError('필수 안내를 불러오지 못했어요. 연결을 확인하고 다시 시도해 주세요.'); } finally { setBusy(false); } }}>동의 내용 다시 불러오기</button>}</>}
         {view === 'profile' && <Profile profile={profile} setProfile={setProfile} busy={busy} error={error} onSubmit={saveProfile} />}
         {view === 'today' && <Today state={state} demoMode={demoMode} busy={busy} error={error} onProfile={() => setView('profile')} onPass={usePass} onAd={showRewardedAd} onResult={() => setView('result')} />}
         {view === 'result' && <Result payload={currentPayload ?? DEMO_RESULT} onBack={() => setView('today')} />}
       </div>
-      {view !== 'landing' && <nav className="footer-nav"><div className="footer-nav-inner"><button className={view === 'today' ? 'active' : ''} onClick={() => setView('today')}>오늘 운세</button><button onClick={() => setView('profile')}>출생정보</button><button onClick={() => setView('landing')}>대길 소개</button></div></nav>}
+      {view !== 'landing' && view !== 'auth' && (demoMode || isRegistrationComplete(state)) && <nav className="footer-nav"><div className="footer-nav-inner"><button className={view === 'today' ? 'active' : ''} onClick={() => setView('today')}>오늘 운세</button><button onClick={() => setView('profile')}>출생정보</button><button onClick={() => setView('landing')}>대길 소개</button></div></nav>}
     </main>
   );
 }
@@ -248,8 +281,8 @@ function Landing({ onStart }: { onStart: () => void }) {
   return <section className="hero"><img className="mascot" src="/assets/images/daegil_cat_wave.png" alt="대길 고양이" /><h1>오늘의 흐름을<br />대길에게 물어보세요냥.</h1><p>출생정보를 바탕으로<br />고양이 대길이 오늘의 운세를 읽어드려요.</p><div className="stack" style={{ marginTop: 24 }}><button className="button button-primary" onClick={onStart}>오늘 운세 받아보기 🐾</button><span className="small">오락·문화 목적으로 제공되는 AI 운세예요.</span></div></section>;
 }
 
-function Auth({ requirements, accepted, age14, busy, error, onAge, onToggle, onSignIn }: { requirements: Requirement[]; accepted: Set<string>; age14: boolean; busy: boolean; error: string; onAge: () => void; onToggle: (id: string) => void; onSignIn: () => void }) {
-  return <section><div className="hero"><img className="mascot" src="/assets/images/daegil_cat_yawn.png" alt="" /><h1>대길과<br />첫 인사를 나눠요냥.</h1><p>안전한 운세 체험을 위해<br />몇 가지 확인이 필요해요.</p></div><div className="card stack"><label className="check"><input type="checkbox" checked={age14} onChange={onAge} />만 14세 이상입니다.</label>{requirements.map((item) => <label className="check" key={item.id}><input type="checkbox" checked={accepted.has(item.id)} onChange={() => onToggle(item.id)} />{item.title}{!item.required && <span className="small"> (선택)</span>}</label>)}<button className="button button-primary" disabled={!age14 || !requirements.filter((item) => item.required).every((item) => accepted.has(item.id)) || busy} onClick={onSignIn}>Google로 계속하기</button>{error && <p className="error">{error}</p>}</div></section>;
+function Auth({ requirements, accepted, age14, busy, buttonLabel, error, onAge, onToggle, onSignIn }: { requirements: Requirement[]; accepted: Set<string>; age14: boolean; busy: boolean; buttonLabel: string; error: string; onAge: () => void; onToggle: (id: string) => void; onSignIn: () => void }) {
+return <section><div className="hero"><img className="mascot" src="/assets/images/daegil_cat_yawn.png" alt="" /><h1>대길과<br />첫 인사를 나눠요냥.</h1><p>안전한 운세 체험을 위해<br />몇 가지 확인이 필요해요.</p></div><div className="card stack"><label className="check"><input type="checkbox" checked={age14} onChange={onAge} />만 14세 이상입니다.</label>{requirements.map((item) => <label className="check" key={item.id}><input type="checkbox" checked={accepted.has(item.id)} onChange={() => onToggle(item.id)} />{item.title}{!item.required && <span className="small"> (선택)</span>}</label>)}<button className="button button-primary" disabled={!age14 || !requirements.filter((item) => item.required).every((item) => accepted.has(item.id)) || busy} onClick={onSignIn}>{buttonLabel}</button>{error && <p className="error">{error}</p>}</div></section>;
 }
 
 function Profile({ profile, setProfile, busy, error, onSubmit }: { profile: { birthDate: string; city: string; calendar: string; time: string; precision: string }; setProfile: React.Dispatch<React.SetStateAction<{ birthDate: string; city: string; calendar: string; time: string; precision: string }>>; busy: boolean; error: string; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
