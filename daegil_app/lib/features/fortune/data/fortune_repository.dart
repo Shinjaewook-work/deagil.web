@@ -20,6 +20,7 @@ class FortuneAppState {
     this.activePassCount = 0,
     this.canUsePass = false,
     this.canPrepareRewardedAd = false,
+    this.canResumeGeneration = false,
     this.birthProfileExists = false,
     this.nextRetryAt,
   });
@@ -30,6 +31,7 @@ class FortuneAppState {
   final int activePassCount;
   final bool canUsePass;
   final bool canPrepareRewardedAd;
+  final bool canResumeGeneration;
   final bool birthProfileExists;
   final DateTime? nextRetryAt;
 
@@ -57,6 +59,7 @@ class FortuneAppState {
       activePassCount: (json['active_pass_count'] as num?)?.toInt() ?? 0,
       canUsePass: json['can_use_pass'] == true,
       canPrepareRewardedAd: json['can_prepare_rewarded_ad'] == true,
+      canResumeGeneration: json['can_resume_generation'] == true,
       birthProfileExists: json['birth_profile_exists'] == true,
       nextRetryAt: DateTime.tryParse(json['next_retry_at'] as String? ?? ''),
     );
@@ -66,6 +69,7 @@ class FortuneAppState {
 abstract interface class FortuneRepository {
   Future<FortuneAppState> loadAppState();
   Future<FortuneAppState> useFortunePass();
+  Future<FortuneAppState> resumeFortuneGeneration();
 }
 
 class SupabaseFortuneRepository implements FortuneRepository {
@@ -90,6 +94,18 @@ class SupabaseFortuneRepository implements FortuneRepository {
     }
     return loadAppState();
   }
+
+  @override
+  Future<FortuneAppState> resumeFortuneGeneration() async {
+    final response = await _client.functions.invoke(
+      'resume-fortune-generation',
+      body: const <String, dynamic>{},
+    );
+    if (response.status >= 400) {
+      throw StateError('RESUME_FORTUNE_GENERATION_FAILED');
+    }
+    return loadAppState();
+  }
 }
 
 class FakeFortuneRepository implements FortuneRepository {
@@ -101,6 +117,9 @@ class FakeFortuneRepository implements FortuneRepository {
 
   @override
   Future<FortuneAppState> useFortunePass() => loadAppState();
+
+  @override
+  Future<FortuneAppState> resumeFortuneGeneration() => loadAppState();
 }
 
 final fortuneRepositoryProvider = Provider<FortuneRepository>(

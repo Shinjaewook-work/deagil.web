@@ -828,6 +828,26 @@ void main() {
     expect(find.textContaining('숫자 7'), findsOneWidget);
   });
 
+  testWidgets('recovery-pending result offers a free retry without an ad', (
+    tester,
+  ) async {
+    final repository = _RecoveryFortuneRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [fortuneRepositoryProvider.overrideWithValue(repository)],
+        child: const MaterialApp(home: FortuneResultScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('무료로 다시 준비하기'), findsOneWidget);
+    await tester.tap(find.text('무료로 다시 준비하기'));
+    await tester.pumpAndSettle();
+
+    expect(repository.resumeCalls, 1);
+    expect(find.text('오늘의 AI 운세'), findsOneWidget);
+  });
+
   testWidgets('major cat-themed pages do not overflow on a 320px phone', (
     tester,
   ) async {
@@ -1316,6 +1336,30 @@ class _ChoiceFortuneRepository extends FakeFortuneRepository {
   }
 }
 
+class _RecoveryFortuneRepository extends FakeFortuneRepository {
+  int resumeCalls = 0;
+  bool resolved = false;
+
+  @override
+  Future<FortuneAppState> loadAppState() async => resolved
+      ? FortuneAppState(
+          access: FortuneAccessState.unlocked,
+          result: MockFortuneResult(),
+        )
+      : FortuneAppState(
+          access: FortuneAccessState.recoveryPending,
+          canResumeGeneration: true,
+          nextRetryAt: DateTime.now().subtract(const Duration(seconds: 1)),
+        );
+
+  @override
+  Future<FortuneAppState> resumeFortuneGeneration() async {
+    resumeCalls++;
+    resolved = true;
+    return loadAppState();
+  }
+}
+
 class _ControlledPreloadAdService extends FakeRewardedAdService {
   _ControlledPreloadAdService()
     : super(rewardedUnitId: 'test', securityMode: AdSecurityMode.fast);
@@ -1375,6 +1419,9 @@ class _SequencedFortuneRepository implements FortuneRepository {
 
   @override
   Future<FortuneAppState> useFortunePass() => loadAppState();
+
+  @override
+  Future<FortuneAppState> resumeFortuneGeneration() => loadAppState();
 }
 
 class _TransientFortuneRepository implements FortuneRepository {
@@ -1394,4 +1441,7 @@ class _TransientFortuneRepository implements FortuneRepository {
 
   @override
   Future<FortuneAppState> useFortunePass() => loadAppState();
+
+  @override
+  Future<FortuneAppState> resumeFortuneGeneration() => loadAppState();
 }

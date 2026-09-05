@@ -147,19 +147,12 @@ Deno.serve(async (request) => {
     return response(200, { status: 'ready', session_id: session.id });
   } catch (error) {
     const normalizedError = normalizeWorkerError(error);
-    const nextStatus = session.entitlement_status === 'none' ? 'failed' : 'recovery_pending';
-    await admin
-      .from('daily_fortune_sessions')
-      .update({
-        generation_status: nextStatus,
-        last_provider_error_class: normalizedError,
-        last_generation_failure_at: new Date().toISOString(),
-        next_retry_at: nextStatus === 'recovery_pending' ? new Date(Date.now() + 5 * 60 * 1000).toISOString() : null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', session.id)
-      .eq('generation_epoch', session.generation_epoch)
-      .in('generation_status', ['generating', 'recovery_pending']);
+    const { error: failureError } = await admin.rpc('record_generation_failure', {
+      session_id_value: session.id,
+      generation_epoch_value: session.generation_epoch,
+      error_class_value: normalizedError,
+    });
+    if (failureError) return response(500, { code: 'GENERATION_FAILURE_RECORD_FAILED' });
     return response(502, { code: normalizedError });
   }
 });

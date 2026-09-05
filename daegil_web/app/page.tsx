@@ -17,6 +17,8 @@ type AppState = {
   active_pass_count?: number;
   can_use_pass?: boolean;
   can_prepare_rewarded_ad?: boolean;
+  can_resume_generation?: boolean;
+  next_retry_at?: string | null;
   fortune_payload?: FortunePayload | null;
 };
 
@@ -145,6 +147,29 @@ export default function DaegilWeb() {
     return () => { cancelled = true; };
   }, [completeRegistrationIfNeeded, loadRequirements, loadState, supabase]);
 
+  useEffect(() => {
+    if (!supabase || !hasSession || !['GENERATING', 'RECOVERY_PENDING'].includes(state.fortune_state ?? '')) return;
+    let cancelled = false;
+    let attempts = 0;
+    let timer: number | undefined;
+    const poll = async () => {
+      if (cancelled || attempts >= 12) return;
+      attempts += 1;
+      try {
+        const current = await loadState();
+        if (!cancelled && current?.fortune_state === 'UNLOCKED') setView('result');
+      } catch {
+        // The next bounded poll can recover a transient state-read failure.
+      }
+      if (!cancelled && attempts < 12) timer = window.setTimeout(() => void poll(), 5_000);
+    };
+    timer = window.setTimeout(() => void poll(), 5_000);
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [hasSession, loadState, state.fortune_state, supabase]);
+
   function toggleRequirement(id: string) {
     setAccepted((current) => {
       const next = new Set(current);
@@ -222,6 +247,22 @@ export default function DaegilWeb() {
     finally { monetizationInFlight.current = false; setBusy(false); }
   }
 
+  async function resumeGeneration() {
+    if (!supabase || busy || monetizationInFlight.current) return;
+    monetizationInFlight.current = true;
+    setBusy(true); setError('');
+    try {
+      const response = await withAuthDeadline(supabase.functions.invoke('resume-fortune-generation', { body: {} }));
+      if (response.error) throw response.error;
+      await loadState();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '운세 생성을 다시 준비하지 못했어요냥.');
+    } finally {
+      monetizationInFlight.current = false;
+      setBusy(false);
+    }
+  }
+
   async function showRewardedAd() {
     if (busy || monetizationInFlight.current || (supabase && (!isRegistrationComplete(state) || !state.can_prepare_rewarded_ad))) return;
     if (!supabase) {
@@ -281,7 +322,7 @@ export default function DaegilWeb() {
         {view === 'landing' && <Landing onStart={() => setView(supabase ? 'auth' : 'profile')} />}
         {view === 'auth' && <><Auth requirements={requirements} accepted={accepted} age14={age14} busy={busy || !requirementsReady} buttonLabel={hasSession ? '동의 완료하고 시작하기' : 'Google로 계속하기'} error={error} onAge={() => setAge14(!age14)} onToggle={toggleRequirement} onSignIn={signIn} />{!requirementsReady && <button className="button button-secondary" disabled={busy} onClick={async () => { setBusy(true); try { await loadRequirements(); setError(''); } catch { setError('필수 안내를 불러오지 못했어요. 연결을 확인하고 다시 시도해 주세요.'); } finally { setBusy(false); } }}>동의 내용 다시 불러오기</button>}</>}
         {view === 'profile' && <Profile profile={profile} setProfile={setProfile} busy={busy} error={error} onSubmit={saveProfile} />}
-        {view === 'today' && <Today state={state} demoMode={demoMode} busy={busy} error={error} onProfile={() => setView('profile')} onPass={usePass} onAd={showRewardedAd} onResult={() => setView('result')} />}
+        {view === 'today' && <Today state={state} demoMode={demoMode} busy={busy} error={error} onProfile={() => setView('profile')} onPass={usePass} onAd={showRewardedAd} onRecovery={resumeGeneration} onResult={() => setView('result')} />}
         {view === 'result' && (currentPayload
           ? <Result payload={currentPayload} onBack={() => setView('today')} />
           : <section className="card stack"><h1 className="section-title">결과를 불러오지 못했어요.</h1><p role="status">오늘의 운세와 이용 상태를 다시 확인해 주세요냥. 샘플 운세로 대신 보여드리지 않아요.</p><button className="button button-primary" onClick={() => window.location.reload()}>상태 다시 확인하기</button></section>)}
@@ -303,9 +344,12 @@ function Profile({ profile, setProfile, busy, error, onSubmit }: { profile: { bi
   return <section><div className="hero"><img className="mascot" src="/assets/images/daegil_cat_stretch.png" alt="" /><h1>대길에게<br />출생정보를 알려주세요냥.</h1><p>정확한 주소는 필요하지 않아요.<br />시·군 정도만 알려주면 돼요.</p></div><form className="card stack" onSubmit={onSubmit}><div><label className="label" htmlFor="birth-date">생년월일</label><input className="field" id="birth-date" type="date" required value={profile.birthDate} onChange={(e) => setProfile((p) => ({ ...p, birthDate: e.target.value }))} /></div><div className="row"><div><label className="label" htmlFor="calendar">달력</label><select className="field" id="calendar" value={profile.calendar} onChange={(e) => setProfile((p) => ({ ...p, calendar: e.target.value }))}><option value="solar">양력</option><option value="lunar">음력</option></select></div><div><label className="label" htmlFor="city">출생 도시</label><input className="field" id="city" required maxLength={80} placeholder="예: 서울" value={profile.city} onChange={(e) => setProfile((p) => ({ ...p, city: e.target.value }))} /></div></div><div><label className="label" htmlFor="precision">출생 시간</label><div className="row"><select className="field" id="precision" value={profile.precision} onChange={(e) => setProfile((p) => ({ ...p, precision: e.target.value }))}><option value="unknown">모름</option><option value="exact">정확히 알아요</option><option value="approximate">대략 알아요</option></select><input className="field" type="time" disabled={profile.precision === 'unknown'} value={profile.time} onChange={(e) => setProfile((p) => ({ ...p, time: e.target.value }))} /></div></div><button className="button button-primary" disabled={busy} type="submit">저장하고 오늘 운세 보기</button>{error && <p className="error">{error}</p>}</form></section>;
 }
 
-function Today({ state, demoMode, busy, error, onProfile, onPass, onAd, onResult }: { state: AppState; demoMode: boolean; busy: boolean; error: string; onProfile: () => void; onPass: () => void; onAd: () => void; onResult: () => void }) {
+function Today({ state, demoMode, busy, error, onProfile, onPass, onAd, onRecovery, onResult }: { state: AppState; demoMode: boolean; busy: boolean; error: string; onProfile: () => void; onPass: () => void; onAd: () => void; onRecovery: () => void; onResult: () => void }) {
   const unlocked = state.fortune_state === 'UNLOCKED' && isRealPayload(state.fortune_payload);
-  return <section><div className="hero"><img className="mascot" src="/assets/images/daegil_cat_butterfly.png" alt="대길 고양이" /><h1>오늘의 운세</h1><p>{unlocked ? '대길이 오늘의 흐름을 준비했어요냥.' : '대길이 오늘의 흐름을 읽을 준비를 하고 있어요.'}</p></div>{!state.birth_profile_exists && <div className="card stack"><h2 className="section-title">먼저 출생정보가 필요해요냥.</h2><p className="small">출생정보는 서버에서 안전하게 검증하고, 운세 생성에 필요한 범위만 사용해요.</p><button className="button button-primary" onClick={onProfile}>출생정보 입력하기</button></div>}{state.birth_profile_exists && unlocked && <div className="card stack"><div className="notice">오늘 운세가 도착했어요냥. 같은 날에는 광고 없이 다시 볼 수 있어요.</div><button className="button button-primary" onClick={onResult}>결과 읽기</button></div>}{state.birth_profile_exists && !unlocked && <div className="card stack"><span className="pass">🎟 광고 패스권 {state.available_pass_count ?? 0} / 3</span><h2 className="section-title">오늘의 AI 운세를 알려줄까냥?</h2><p className="small">광고를 완료하면 오늘의 운세를 확인할 수 있어요. 운세 생성에 문제가 생겨도 추가 광고 없이 다시 준비해드려요.</p>{(state.available_pass_count ?? 0) > 0 && <button className="button button-jade" disabled={busy} onClick={onPass}>🎟 패스권 쓰겠다냥!</button>}<button className="button button-primary" disabled={busy} onClick={onAd}>{demoMode ? '광고 체험하고 알려달라냥!' : '광고 보고 알려달라냥!'}</button>{error && <p className="error">{error}</p>}</div>}</section>;
+  const recoveryPending = state.fortune_state === 'RECOVERY_PENDING';
+  const generating = state.fortune_state === 'GENERATING';
+  const recoveryReady = recoveryPending && state.can_resume_generation === true;
+  return <section><div className="hero"><img className="mascot" src="/assets/images/daegil_cat_butterfly.png" alt="대길 고양이" /><h1>오늘의 운세</h1><p>{unlocked ? '대길이 오늘의 흐름을 준비했어요냥.' : generating ? '대길이 오늘의 흐름을 읽고 있어요.' : '대길이 오늘의 흐름을 읽을 준비를 하고 있어요.'}</p></div>{!state.birth_profile_exists && <div className="card stack"><h2 className="section-title">먼저 출생정보가 필요해요냥.</h2><p className="small">출생정보는 서버에서 안전하게 검증하고, 운세 생성에 필요한 범위만 사용해요.</p><button className="button button-primary" onClick={onProfile}>출생정보 입력하기</button></div>}{state.birth_profile_exists && unlocked && <div className="card stack"><div className="notice">오늘 운세가 도착했어요냥. 같은 날에는 광고 없이 다시 볼 수 있어요.</div><button className="button button-primary" onClick={onResult}>결과 읽기</button></div>}{state.birth_profile_exists && generating && <div className="card stack"><h2 className="section-title">운세를 만드는 중이에요냥.</h2><p className="small">광고나 패스는 다시 요구하지 않아요. 잠시 후 상태를 자동으로 확인할게요.</p><div className="notice">오늘의 흐름을 준비하고 있어요.</div></div>}{state.birth_profile_exists && recoveryPending && <div className="card stack"><h2 className="section-title">한 번 더 준비해볼게요냥.</h2><p className="small">오늘 운세 권리는 이미 보관되어 있어요. 추가 광고나 패스 없이 다시 시도할 수 있어요.</p>{recoveryReady ? <button className="button button-primary" disabled={busy} onClick={onRecovery}>무료로 다시 준비하기</button> : <div className="notice">잠시 후 자동으로 다시 시도할 수 있어요.</div>}{error && <p className="error">{error}</p>}</div>}{state.birth_profile_exists && !unlocked && !generating && !recoveryPending && <div className="card stack"><span className="pass">🎟 광고 패스권 {state.available_pass_count ?? 0} / 3</span><h2 className="section-title">오늘의 AI 운세를 알려줄까냥?</h2><p className="small">광고를 완료하면 오늘의 운세를 확인할 수 있어요. 운세 생성에 문제가 생겨도 추가 광고 없이 다시 준비해드려요.</p>{(state.available_pass_count ?? 0) > 0 && <button className="button button-jade" disabled={busy} onClick={onPass}>🎟 패스권 쓰겠다냥!</button>}<button className="button button-primary" disabled={busy} onClick={onAd}>{demoMode ? '광고 체험하고 알려달라냥!' : '광고 보고 알려달라냥!'}</button>{error && <p className="error">{error}</p>}</div>}</section>;
 }
 
 function Result({ payload, onBack }: { payload: FortunePayload; onBack: () => void }) {

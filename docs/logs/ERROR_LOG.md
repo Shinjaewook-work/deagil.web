@@ -1,5 +1,26 @@
 # Error Log
 
+#### 2026-09-05 — Entitled generation could not recover after provider failure
+
+**Root cause:** The failure recorder preserved `recovery_pending`, but the
+client-callable recovery endpoint and the atomic claim transaction did not
+exist. A retry would therefore be either a 404 or an unsafe duplicate
+monetization attempt. Provider failure handling also derived the next state from
+a stale session snapshot instead of locking and rechecking current entitlement.
+**Permanent fix:** Added a server-owned runtime config and locked recovery RPC
+with current-day, active-account, registration, AI-consent, entitlement,
+snapshot, cooldown, provider-request, recovery-round and daily-budget fences.
+Each claim increments the epoch and gives a bounded lease. Added the authenticated
+resume Edge Function; provider failures now use the locked failure RPC. Web and
+native retry controls never prepare another ad or reserve another pass.
+**Regression guard:** Recovery endpoint, SQL contract, CORS, dispatch and SSV
+tests pass; Flutter test/analyze and web test/typecheck/build pass. Remote
+migration applied and unauthenticated live probe is 401; no authenticated user
+generation was exercised.
+**DO_NOT_REPEAT:** A persisted entitlement is not proof that retry is safe.
+Recheck server time, consent, current ownership, snapshot and all request/budget
+caps inside the same locked transaction, then fence worker commit by epoch.
+
 #### 2026-09-05 — Worker connection failures bypassed recovery recording
 
 **Root cause:** startGenerationIfRequired only handled a non-OK HTTP response.

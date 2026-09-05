@@ -1,6 +1,26 @@
 # External Setup & Current Reference Gate — v8 Compact
 
-## 2026-09-05 — Generation dispatch recovery prerequisite
+## 2026-09-05 — Bounded generation recovery deployed
+
+- Applied `202609050001_generation_recovery`,
+  `202609050002_recovery_state_flag` and
+  `202609050003_recovery_state_flag_fix` to the linked Dev project. The
+  server-owned runtime config bounds provider requests (4/session), recovery
+  rounds (3/session), daily reservations (1000/day) and cooldown (300s).
+- `resume_my_fortune_generation()` requires authenticated ownership, active
+  account/registration, current Fortune Day, entitlement, current AI consent,
+  frozen input snapshot and an elapsed retry cooldown. It locks the session,
+  reserves the daily budget, increments the generation epoch/round and gives the
+  worker a 60s lease.
+- Deployed `resume-fortune-generation` and the updated `generate-fortune`.
+  Live safe probes: browser OPTIONS 204; missing-JWT POST 401. No authenticated
+  user data, reward, pass or generation was used in probes.
+- Web and native clients now expose a free retry for entitled
+  `RECOVERY_PENDING` only. The retry path does not create another ad attempt or
+  pass reservation; `can_resume_generation` is calculated by the server from
+  current consent, cooldown and request/round limits.
+
+## 2026-09-05 — Generation dispatch recovery prerequisite (superseded)
 
 - Deno AbortSignal timeout API verified at
   https://docs.deno.com/api/web/platform/
@@ -9,7 +29,8 @@
   existing DB epoch/state fences remain authoritative.
 - Redeployed report-ad-impression, claim-ad-reward, use-fortune-pass, admob-ssv.
   User endpoints: live OPTIONS 204 and missing-JWT POST 401. SSV POST 405.
-- resume-fortune-generation currently returns 404; no end-to-end recovery claim.
+- The recovery endpoint was missing at this checkpoint and returned 404; it was
+  implemented and deployed in the subsequent section above.
   Deno typecheck uses --no-config --no-lock --node-modules-dir=none; it resolved
   Supabase JS 2.115.0 in the global dependency cache, without repo lock changes.
 

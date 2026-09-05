@@ -14,7 +14,24 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
-2026-09-05 dispatch failure prerequisite: shared worker dispatch now records
+2026-09-05 recovery path: applied migrations `202609050001_generation_recovery`,
+`202609050002_recovery_state_flag` and the follow-up
+`202609050003_recovery_state_flag_fix` to the linked Dev Supabase project. The
+server now keeps provider requests and
+recovery rounds bounded, atomically reserves the daily AI budget, checks current
+day/account/registration/AI consent/entitlement/snapshot/cooldown, and fences
+each retry with a new generation epoch and 60s lease. Added and deployed the
+authenticated `resume-fortune-generation` Edge Function; live preflight is 204
+and unauthenticated POST is 401, replacing the former 404. Provider failures
+now use a locked current-entitlement failure RPC instead of a stale direct row
+update. Web and native clients expose a free retry only for an entitled
+`RECOVERY_PENDING` session; `can_resume_generation` is calculated server-side
+from current consent, cooldown and request/round limits. Backend recovery tests
+plus the native 54-test suite, Flutter analyze, web typecheck/build pass. Actual
+authenticated generation and real Google ad delivery remain unverified.
+
+Historical checkpoint (superseded): 2026-09-05 dispatch failure prerequisite:
+shared worker dispatch now records
 network errors/timeouts as well as HTTP failures with the existing epoch-fenced
 RPC. Worker wait is bounded at 60s; persistence errors are normalized. The pass
 path reuses this helper and no longer invents ready/recovery_pending states in
@@ -22,10 +39,11 @@ its response. Nine new synthetic tests pass; combined backend suite is 32 tests.
 Deno check passes with --no-config --no-lock --node-modules-dir=none.
 Redeployed report-ad-impression, claim-ad-reward, use-fortune-pass and admob-ssv.
 Live user-function probes retain OPTIONS 204/anonymous POST 401; SSV POST 405.
-Important: recovery is NOT complete. Live resume-fortune-generation returns 404,
-the native FortuneRepository has no recovery method, and Result only shows a
-message. Next implement the bounded, authenticated/entitled server recovery
-transaction + endpoint, then client retry flow. No live user generation tested.
+The recovery endpoint, native retry method and client retry flow were added in
+the recovery-path entry above. No live user generation was tested at this
+checkpoint.
+
+(Superseded by the recovery-path entry above.)
 
 2026-09-05 web rewarded lifecycle and CORS: fixed missing GPT enableServices,
 close/no-fill hangs, duplicate starts/rewards, listener/slot leaks and unbounded

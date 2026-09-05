@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const ts = require('../../../daegil_web/node_modules/typescript');
 
 const origins = ['https://deagil-web-gj8b.vercel.app', 'https://daegil.allinfoworld119.com'];
-const endpoints = ['prepare-ad-session', 'report-ad-impression', 'claim-ad-reward', 'report-ad-dismissed', 'use-fortune-pass', 'delete-account'];
+const endpoints = ['prepare-ad-session', 'report-ad-impression', 'claim-ad-reward', 'report-ad-dismissed', 'use-fortune-pass', 'resume-fortune-generation', 'delete-account'];
 function handlerFor(endpoint) {
   let handler;
   let userCalls = 0;

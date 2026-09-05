@@ -1,5 +1,25 @@
 # Progress Log
 
+### PROG-20260905-RECOVERY — Add bounded entitlement-preserving generation recovery
+
+- Added the server-owned runtime limits table, atomic generation claim RPC and
+  server-authoritative `can_resume_generation` app-state flag.
+  Recovery requires the current Fortune Day, active account/registration, valid
+  current AI consent, existing entitlement and frozen input snapshot; it cannot
+  be used to create a new entitlement or ad/pass attempt.
+- Added `resume-fortune-generation`, replaced stale provider-error row updates
+  with the epoch-locked failure RPC, and deployed both functions after applying
+  migrations `202609050001_generation_recovery` through
+  `202609050003_recovery_state_flag_fix` to Dev Supabase.
+- Added web/native retry states and controls. Native result screen now offers
+  `무료로 다시 준비하기` only for an entitled recovery-pending session; web
+  hides ad/pass controls while generating or recovering.
+- Verification: backend recovery/CORS/dispatch/SSV suite 41 passes; Deno check;
+  web 19 tests, typecheck and production build; Flutter analyze and 54 tests.
+  Local SQL lint remains unavailable because Docker/Postgres is not running;
+  remote migration push succeeded. Real authenticated provider/ad QA remains
+  open.
+
 ### PROG-20260905-DISPATCH — Persist transport failures before retry work
 
 - Confirmed recovery endpoint missing locally and HTTP 404 remotely; native

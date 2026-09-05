@@ -25,17 +25,79 @@ class FortuneResultScreen extends ConsumerWidget {
         if (appState.result == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('오늘의 AI 운세')),
-            body: Center(child: Text(_lockedMessage(appState.access))),
+            body: _StateMessage(appState: appState),
           );
         }
         return _ResultBody(result: appState.result!);
       },
     );
   }
+}
+
+class _StateMessage extends ConsumerStatefulWidget {
+  const _StateMessage({required this.appState});
+
+  final FortuneAppState appState;
+
+  @override
+  ConsumerState<_StateMessage> createState() => _StateMessageState();
+}
+
+class _StateMessageState extends ConsumerState<_StateMessage> {
+  bool _busy = false;
+  String? _error;
+
+  Future<void> _resume() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref.read(fortuneRepositoryProvider).resumeFortuneGeneration();
+      ref.invalidate(fortuneAppStateProvider);
+    } on Object {
+      if (mounted) setState(() => _error = '아직 준비되지 않았어요. 잠시 후 다시 시도해달라냥.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final access = widget.appState.access;
+    final canRetry =
+        access == FortuneAccessState.recoveryPending &&
+        widget.appState.canResumeGeneration;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_lockedMessage(access), textAlign: TextAlign.center),
+            if (canRetry) ...[
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _busy ? null : _resume,
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(_busy ? '다시 준비하는 중…' : '무료로 다시 준비하기'),
+              ),
+            ],
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, textAlign: TextAlign.center),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 
   String _lockedMessage(FortuneAccessState access) => switch (access) {
     FortuneAccessState.generating => '운세를 만들고 있어요냥.',
-    FortuneAccessState.recoveryPending => '잠시 후 운세 생성을 다시 시도해요냥.',
+    FortuneAccessState.recoveryPending =>
+      '오늘 운세 권리는 이미 보관되어 있어요냥.\n잠시 후 무료로 다시 준비할게요.',
     FortuneAccessState.failed => '운세 생성에 실패했어요. 다시 시도해 주세요.',
     _ => '광고 또는 패스로 오늘의 운세를 열어보세요냥.',
   };
