@@ -31,23 +31,35 @@ export async function authenticatedClient(
   return client;
 }
 
-export async function startGenerationIfRequired(payload: Record<string, unknown>) {
-  if (payload.generation_started !== true) return;
-  const response = await fetch(`${url}/functions/v1/generate-fortune`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: serviceKey! },
-    body: JSON.stringify({
-      session_id: payload.session_id,
-      generation_epoch: payload.generation_epoch,
-    }),
-  });
-  if (!response.ok) {
-    await admin.rpc('mark_generation_dispatch_failed', {
+export async function startGenerationIfRequired(payload: Record<string, unknown>): Promise<boolean> {
+  if (payload.generation_started !== true) return false;
+  try {
+    const response = await fetch(`${url}/functions/v1/generate-fortune`, {
+      method: 'POST',
+      redirect: 'error',
+      // Allow the provider's 45s request deadline plus worker/DB overhead.
+      signal: AbortSignal.timeout(60_000),
+      headers: { 'Content-Type': 'application/json', apikey: serviceKey! },
+      body: JSON.stringify({
+        session_id: payload.session_id,
+        generation_epoch: payload.generation_epoch,
+      }),
+    });
+    if (response.ok) return true;
+  } catch {
+    // Connection errors and timeout need the same fenced recovery as HTTP errors.
+  }
+  try {
+    const { error } = await admin.rpc('mark_generation_dispatch_failed', {
       session_id_value: payload.session_id,
       generation_epoch_value: payload.generation_epoch,
     });
-    payload.generation_status = 'recovery_pending';
+    if (error) throw new Error('GENERATION_FAILURE_RECORD_FAILED');
+  } catch {
+    throw new Error('GENERATION_FAILURE_RECORD_FAILED');
   }
+  // The RPC may be a stale-epoch no-op. Only get_my_app_state determines state.
+  return false;
 }
 
 export function errorResponse(error: unknown) {

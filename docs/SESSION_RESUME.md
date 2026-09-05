@@ -14,6 +14,19 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
+2026-09-05 dispatch failure prerequisite: shared worker dispatch now records
+network errors/timeouts as well as HTTP failures with the existing epoch-fenced
+RPC. Worker wait is bounded at 60s; persistence errors are normalized. The pass
+path reuses this helper and no longer invents ready/recovery_pending states in
+its response. Nine new synthetic tests pass; combined backend suite is 32 tests.
+Deno check passes with --no-config --no-lock --node-modules-dir=none.
+Redeployed report-ad-impression, claim-ad-reward, use-fortune-pass and admob-ssv.
+Live user-function probes retain OPTIONS 204/anonymous POST 401; SSV POST 405.
+Important: recovery is NOT complete. Live resume-fortune-generation returns 404,
+the native FortuneRepository has no recovery method, and Result only shows a
+message. Next implement the bounded, authenticated/entitled server recovery
+transaction + endpoint, then client retry flow. No live user generation tested.
+
 2026-09-05 web rewarded lifecycle and CORS: fixed missing GPT enableServices,
 close/no-fill hangs, duplicate starts/rewards, listener/slot leaks and unbounded
 load/show waits. Reward claims and impression reporting are separate; close

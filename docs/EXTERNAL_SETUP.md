@@ -1,5 +1,18 @@
 # External Setup & Current Reference Gate — v8 Compact
 
+## 2026-09-05 — Generation dispatch recovery prerequisite
+
+- Deno AbortSignal timeout API verified at
+  https://docs.deno.com/api/web/platform/
+- Added 60s internal worker dispatch deadline (provider request timeout is 45s).
+  This does not guarantee termination of a worker already running on the server;
+  existing DB epoch/state fences remain authoritative.
+- Redeployed report-ad-impression, claim-ad-reward, use-fortune-pass, admob-ssv.
+  User endpoints: live OPTIONS 204 and missing-JWT POST 401. SSV POST 405.
+- resume-fortune-generation currently returns 404; no end-to-end recovery claim.
+  Deno typecheck uses --no-config --no-lock --node-modules-dir=none; it resolved
+  Supabase JS 2.115.0 in the global dependency cache, without repo lock changes.
+
 ## 2026-09-05 — Web rewarded events and browser CORS
 
 - Official GPT sample/reference checked: enableServices before display; separate

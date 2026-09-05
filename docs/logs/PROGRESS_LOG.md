@@ -1,5 +1,20 @@
 # Progress Log
 
+### PROG-20260905-DISPATCH — Persist transport failures before retry work
+
+- Confirmed recovery endpoint missing locally and HTTP 404 remotely; native
+  repository also lacks retry. Traced prerequisite bug: fetch rejection bypassed
+  dispatch-failure recording and pass use duplicated the same incomplete path.
+- Added network/timeout catch with 60s worker deadline, normalized recording
+  errors and retained epoch fence. Removed guessed response states; callers
+  already load get_my_app_state. Pass use now shares dispatch handling.
+- New tests: seven helper cases plus two actual-pass-handler cases. Combined
+  backend suite 32 passes; Deno check and all repository/security guards pass.
+  Scoped manual review/simplification found no further necessary edits.
+- Redeployed four dispatch callers. Three user endpoints retain live 204/401;
+  SSV rejects POST with 405. Tests use synthetic transport/DB, not live user data.
+  Actual generation retry and existing stuck-session reconciliation remain open.
+
 ### PROG-20260905-WEB-ADS — Rewarded lifecycle and browser API access
 
 - Five actual-page regressions failed before the fix: missing enableServices,

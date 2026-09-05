@@ -1,5 +1,22 @@
 # Error Log
 
+#### 2026-09-05 — Worker connection failures bypassed recovery recording
+
+**Root cause:** startGenerationIfRequired only handled a non-OK HTTP response.
+Thrown fetch errors escaped before mark_generation_dispatch_failed; pass use
+duplicated dispatch without recording failures at all. Both could leave a
+committed entitlement/session generating after worker connection loss.
+**Fix:** Catch network/60s timeout failures, call the existing epoch-fenced RPC,
+surface persistence failures via a normalized code, and share the helper with
+pass use. Do not guess recovery_pending when the RPC may be a stale no-op or
+when entitlement is absent; the client must load authoritative app state.
+**Regression:** Seven helper + two pass-handler tests; complete backend suite 32.
+**DO_NOT_REPEAT:** Test network rejection as well as HTTP error. Missing recovery
+endpoint (live 404) and client retry are still separate incomplete work.
+**Tool note:** Deno check initially inherited unrelated node_modules resolution;
+--no-config --no-lock --node-modules-dir=none passed without repo dependency edits.
+
+
 #### 2026-09-05 — Web rewarded ad lifecycle and CORS failures
 
 **Root cause:** Initial web implementation omitted GPT enableServices. Its

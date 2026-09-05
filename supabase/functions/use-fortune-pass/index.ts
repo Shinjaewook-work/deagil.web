@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { serveWithWebCors } from '../_shared/web_cors.ts';
+import { startGenerationIfRequired } from '../_shared/rewarded_ad_helpers.ts';
 
 const headers = { 'Content-Type': 'application/json' };
 const url = Deno.env.get('SUPABASE_URL');
@@ -26,13 +27,8 @@ serveWithWebCors(async (request) => {
   const reservationMap = reservation as Record<string, unknown>;
   if (reservationMap.status !== 'reserved') return json(200, reservationMap);
 
-  const workerResponse = await fetch(`${url}/functions/v1/generate-fortune`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: serviceKey },
-    body: JSON.stringify({ session_id: reservationMap.session_id, generation_epoch: reservationMap.generation_epoch }),
+  const completed = await startGenerationIfRequired({
+    ...reservationMap, generation_started: true,
   });
-  if (!workerResponse.ok) {
-    return json(202, { ...reservationMap, generation_status: 'recovery_pending' });
-  }
-  return json(200, { ...reservationMap, generation_status: 'ready' });
+  return json(completed ? 200 : 202, reservationMap);
 });
