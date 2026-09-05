@@ -71,6 +71,8 @@ class RewardedAdFlowState {
 }
 
 class RewardedAdController extends Notifier<RewardedAdFlowState> {
+  bool _startInProgress = false;
+
   @override
   RewardedAdFlowState build() => const RewardedAdFlowState();
 
@@ -92,12 +94,19 @@ class RewardedAdController extends Notifier<RewardedAdFlowState> {
   }
 
   Future<void> start({required String fortuneDate}) async {
+    if (_startInProgress ||
+        state.status == RewardedAdFlowStatus.rewardVerifying ||
+        state.status == RewardedAdFlowStatus.pendingReward) {
+      return;
+    }
+    _startInProgress = true;
     final service = ref.read(rewardedAdServiceProvider);
     AdAttempt? activeAttempt;
     try {
       if (state.status != RewardedAdFlowStatus.ready) {
         await preload();
       }
+      if (state.status != RewardedAdFlowStatus.ready) return;
       state = state.copyWith(status: RewardedAdFlowStatus.loading);
       final attempt = await service.prepareAdSession(fortuneDate: fortuneDate);
       activeAttempt = attempt;
@@ -140,6 +149,8 @@ class RewardedAdController extends Notifier<RewardedAdFlowState> {
         status: RewardedAdFlowStatus.failed,
         errorCode: error.message,
       );
+    } finally {
+      _startInProgress = false;
     }
   }
 

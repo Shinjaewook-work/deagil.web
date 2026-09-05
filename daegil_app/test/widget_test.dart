@@ -31,6 +31,41 @@ import 'package:daegil_app/features/settings/presentation/settings_screens.dart'
 import 'package:daegil_app/features/telemetry/domain/telemetry_service.dart';
 
 void main() {
+  test('repeated ad CTA cannot interrupt an in-flight preload', () async {
+    final service = _ControlledPreloadAdService();
+    final container = ProviderContainer(
+      overrides: [rewardedAdServiceProvider.overrideWithValue(service)],
+    );
+    addTearDown(container.dispose);
+    final controller = container.read(rewardedAdControllerProvider.notifier);
+    final first = controller.start(fortuneDate: '2026-09-05');
+    await controller.start(fortuneDate: '2026-09-05');
+    final statusDuringLoad = container
+        .read(rewardedAdControllerProvider)
+        .status;
+    service.preloadReady.complete();
+    await first;
+    expect(statusDuringLoad, RewardedAdFlowStatus.loading);
+    expect(service.events.where((e) => e.startsWith('prepare:')), hasLength(1));
+  });
+
+  test('ad preload failure preserves load error without preparing', () async {
+    final service = _ControlledPreloadAdService();
+    final container = ProviderContainer(
+      overrides: [rewardedAdServiceProvider.overrideWithValue(service)],
+    );
+    addTearDown(container.dispose);
+    final run = container
+        .read(rewardedAdControllerProvider.notifier)
+        .start(fortuneDate: '2026-09-05');
+    service.preloadReady.completeError(StateError('ad_load_failed'));
+    await run;
+    expect(service.events, isEmpty);
+    expect(
+      container.read(rewardedAdControllerProvider).errorCode,
+      'ad_load_failed',
+    );
+  });
   test('server legal document payload maps to a registration requirement', () {
     final requirement = RegistrationRequirement.fromJson({
       'id': 'doc-1',
@@ -1078,6 +1113,27 @@ class _ControllableAuthRepository implements AuthRepository {
   void dispose() {
     authenticationController.close();
   }
+}
+
+class _ControlledPreloadAdService extends FakeRewardedAdService {
+  _ControlledPreloadAdService()
+    : super(rewardedUnitId: 'test', securityMode: AdSecurityMode.fast);
+
+  final preloadReady = Completer<void>();
+
+  @override
+  Future<void> preload() async {
+    await preloadReady.future;
+    await super.preload();
+  }
+
+  @override
+  Future<RewardedAdShowResult> show(AdAttempt attempt) async =>
+      const RewardedAdShowResult(
+        impressionRecorded: false,
+        rewardEarned: false,
+        dismissed: true,
+      );
 }
 
 class _RecordingRewardedAdBackend implements RewardedAdBackend {

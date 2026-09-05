@@ -14,6 +14,22 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
+2026-09-05 continuation: verified the app directory is intact and Git was clean
+at entry; sandbox access denial had misleadingly appeared as deleted files.
+Fixed concurrent rewarded-ad CTA handling and stopped preparation after failed
+preload. Both regressions failed before the fix; all 47 widget tests and Flutter
+analysis pass afterward. No Android device is currently attached (`adb devices`).
+Real ad display, successful live OAuth completion, production readiness, and the
+requested visual refinement still require verification. Do not mark the overall
+app goal complete from these controller tests.
+
+Live Edge probe: `https://apps.admob.com/` redirects the current default Google
+session to `https://admob.google.com/signup/info/user-age-missing?sac=true`.
+The page says the Google account needs a birth date. It is not yet established
+that this default account is the publisher account previously configured; check
+the account selection before diagnosing the actual publisher account. Do not
+invent a birth date or infer a missing/approved ad unit from this screen.
+
 ```text
 Phase 0 scaffold and native verification are complete.
 Flutter 3.41.9 / Dart 3.11.5 are installed at C:\tools\flutter; this shell prepends that path for commands.

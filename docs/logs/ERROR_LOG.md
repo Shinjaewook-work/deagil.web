@@ -657,3 +657,18 @@ Save it, wait for propagation, then repeat Google sign-in. The custom app scheme
 **Resolution:** Disabled automatic URL session detection for the web client so `/auth/callback` owns the single PKCE exchange, and added callback error-parameter handling, a 15-second timeout, and a catch path with retry guidance. The existing Supabase auth and registration contract is unchanged.
 
 **Validation:** Web typecheck and production build pass; a local invalid-code callback exits to the explicit login-failure message instead of remaining in the loading state.
+
+#### 2026-09-05 — Concurrent ad CTA interrupted preload and masked load failures
+
+**Cause:** `start()` allowed overlapping calls while its first preload awaited
+the SDK. The next invocation attempted preparation without a loaded ad, moving
+the shared flow to failed. A failed preload also fell through to preparation,
+replacing `ad_load_failed` with `ad_not_preloaded`.
+
+**Fix:** Reserve the start operation synchronously, release it in `finally`,
+reject a new flow during reward verification/pending reward, and prepare only
+after the ready state. No reward or entitlement rule changed.
+
+**Regression evidence:** Two new controller tests fail before the patch and pass
+afterward. All 47 widget tests and Flutter analyze pass. Physical ad visibility
+is not proven: the current ADB device list is empty.

@@ -1,5 +1,16 @@
 # Progress Log
 
+### 2026-09-05 — Rewarded-ad start concurrency correction
+
+- Revalidated checkout: app files exist; sandbox access errors are not deletions.
+- Added two failing regressions for concurrent CTA and failed preload handling,
+  then fixed the controller to preserve a single active start and require ready.
+- Flutter analyze and all 47 widget tests pass.
+- No connected Android device; actual Google ad display and full OAuth sign-in
+  remain unverified. App completion and visual refinement goals remain active.
+- Edge AdMob access reaches `user-age-missing` for its default Google session;
+  the configured publisher account identity still needs to be matched.
+
 ### PROG-20260815-001 — Phase 0 / Repository bootstrap
 
 **Status:** DONE
