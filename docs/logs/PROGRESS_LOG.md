@@ -1,5 +1,16 @@
 # Progress Log
 
+### PROG-20260905-WEB-RESULT — No sample substitution in live results
+
+- Reproduced missing remote payload rendering as a sample fortune, and retained
+  payload rendering despite locked/gated state, using the actual page renderer.
+- Removed the sample fallback; added result-state/gate checks and reload guidance.
+- Eight web tests, typecheck and production build pass. Targeted manual review
+  was used because the branch also carries earlier app/advertising work.
+  Reuse/quality/efficiency passes found no worthwhile behavior-preserving change.
+- Browser account authentication, live provider generation, expiry refresh and
+  real ad/reward delivery are not established by these synthetic render tests.
+
 ### PROG-20260905-WEB-AUTH — Registration confirmation and recovery
 
 - Reproduced ignored RPC error, then fixed error handling, snapshot preservation
@@ -8,6 +19,11 @@
 - `npm test` (5), typecheck, production build and repository/security checks pass.
   Real-account Google completion remains unverified; no user consent was entered.
 - This step changes only the web client. Native source/tests were not modified.
+- Pushed `2b94879` to `origin/codex/daegil-web`. Vercel production deployment
+  `dpl_7pRaLHS81WQ3qgL2HoQF34RwCcpK` reached Ready. Edge on
+  `https://deagil-web-gj8b.vercel.app/` verified the OAuth error return link and
+  completed restoration into the unchecked consent form, with Google disabled.
+  This proves the error/retry route, not successful account authentication.
 
 ### PROG-20260905-HOME — Paper-style home and explicit ad/pass choice
 

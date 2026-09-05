@@ -14,14 +14,26 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
+2026-09-05 web result integrity: the result view no longer substitutes demo text
+when a remote payload is missing. It requires UNLOCKED and an ungated session
+(or the existing explicit demo flow), otherwise it offers a state reload.
+Actual-page render regressions reproduced both the sample fallback and stale
+locked/gated rendering before the fix. Eight web tests, typecheck and build pass.
+This does not prove live provider generation or real advertising. Remaining web
+work includes expiry refresh, complete payload validation and rewarded lifecycle.
+
 2026-09-05 web registration recovery: pending consent is retained on RPC failure
 and cleared only after confirmed success, without deleting a newer selection.
 Web auth/session/legal/state requests have finite deadlines. Existing sessions
 retry registration instead of restarting Google OAuth; only server gate NONE
 enters Home/Result. Auth navigation no longer exposes the other app screens.
 Callback errors have a return-to-login link. Five web tests, typecheck/build and
-repository/security guards pass. Deployment verification follows; successful
-real-account sign-in remains unproven and needs user-entered consent.
+repository/security guards pass. Commit `2b94879` was pushed to
+`origin/codex/daegil-web`; Vercel production deployment
+`dpl_7pRaLHS81WQ3qgL2HoQF34RwCcpK` is Ready. On the public primary domain,
+the OAuth error return link reaches `/?login=retry`, finishes restoration and
+shows the consent form with Google disabled until consent is entered.
+Successful real-account sign-in remains unproven and needs user-entered consent.
 
 2026-09-05 native Home polish: preserved the selected paper/cat benchmark, shortened
 the caption, and made the CTA truthful. An explicit cream-paper sheet now offers

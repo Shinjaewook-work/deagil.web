@@ -1,5 +1,20 @@
 # Error Log
 
+#### 2026-09-05 — Web result silently substituted sample content
+
+**Root cause:** The result branch used `currentPayload ?? DEMO_RESULT` regardless
+of backend mode. Payload selection checked content presence but not the current
+server gate or fortune state. Existing tests covered registration, not rendering.
+
+**Permanent fix:** Remove implicit sample substitution. Require UNLOCKED and
+server gate NONE outside demo mode; missing/unreadable results show a reload
+action. Synthetic actual-page render tests failed before and pass after the fix.
+
+**DO_NOT_REPEAT:** Never conceal a live payload failure with demo content.
+**Regression guard:** `npm test` includes missing-payload, locked/gated retained
+payload, and valid unlocked server-headline rendering. Expiry and schema
+validation still require separate work; these tests are not live provider proof.
+
 오류 수정 전에 이 파일을 검색한다.
 
 ### ERR-20260815-001 — Flutter toolchain unavailable

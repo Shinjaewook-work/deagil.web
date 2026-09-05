@@ -254,7 +254,7 @@ export default function DaegilWeb() {
     finally { setBusy(false); }
   }
 
-  const currentPayload = isRealPayload(state.fortune_payload) ? state.fortune_payload : null;
+  const currentPayload = state.fortune_state === 'UNLOCKED' && (demoMode || isRegistrationComplete(state)) && isRealPayload(state.fortune_payload) ? state.fortune_payload : null;
 
   if (restoring) return <main className="page"><div className="frame"><div className="card" role="status">로그인과 가입 상태를 확인하는 중이다냥…</div></div></main>;
 
@@ -270,7 +270,9 @@ export default function DaegilWeb() {
         {view === 'auth' && <><Auth requirements={requirements} accepted={accepted} age14={age14} busy={busy || !requirementsReady} buttonLabel={hasSession ? '동의 완료하고 시작하기' : 'Google로 계속하기'} error={error} onAge={() => setAge14(!age14)} onToggle={toggleRequirement} onSignIn={signIn} />{!requirementsReady && <button className="button button-secondary" disabled={busy} onClick={async () => { setBusy(true); try { await loadRequirements(); setError(''); } catch { setError('필수 안내를 불러오지 못했어요. 연결을 확인하고 다시 시도해 주세요.'); } finally { setBusy(false); } }}>동의 내용 다시 불러오기</button>}</>}
         {view === 'profile' && <Profile profile={profile} setProfile={setProfile} busy={busy} error={error} onSubmit={saveProfile} />}
         {view === 'today' && <Today state={state} demoMode={demoMode} busy={busy} error={error} onProfile={() => setView('profile')} onPass={usePass} onAd={showRewardedAd} onResult={() => setView('result')} />}
-        {view === 'result' && <Result payload={currentPayload ?? DEMO_RESULT} onBack={() => setView('today')} />}
+        {view === 'result' && (currentPayload
+          ? <Result payload={currentPayload} onBack={() => setView('today')} />
+          : <section className="card stack"><h1 className="section-title">결과를 불러오지 못했어요.</h1><p role="status">오늘의 운세와 이용 상태를 다시 확인해 주세요냥. 샘플 운세로 대신 보여드리지 않아요.</p><button className="button button-primary" onClick={() => window.location.reload()}>상태 다시 확인하기</button></section>)}
       </div>
       {view !== 'landing' && view !== 'auth' && (demoMode || isRegistrationComplete(state)) && <nav className="footer-nav"><div className="footer-nav-inner"><button className={view === 'today' ? 'active' : ''} onClick={() => setView('today')}>오늘 운세</button><button onClick={() => setView('profile')}>출생정보</button><button onClick={() => setView('landing')}>대길 소개</button></div></nav>}
     </main>
