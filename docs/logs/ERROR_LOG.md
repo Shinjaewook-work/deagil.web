@@ -672,3 +672,22 @@ after the ready state. No reward or entitlement rule changed.
 **Regression evidence:** Two new controller tests fail before the patch and pass
 afterward. All 47 widget tests and Flutter analyze pass. Physical ad visibility
 is not proven: the current ADB device list is empty.
+
+#### 2026-09-05 — Native authentication failures left loading/pending UI stuck
+
+**Cause:** `completeRegistration()` had no response deadline, so an unresolved
+RPC kept `isLoading=true`. The auth stream subscription had no error callback;
+an OAuth error escaped unhandled and left `isAuthPending=true`, disabling retry.
+
+**Fix:** Limit registration completion to 15 seconds, retain the legal gate on
+timeout, and handle auth stream errors without logging provider error contents.
+Check `ref.mounted` before registration completion/failure writes; the added
+timeout otherwise raised `UnmountedRefException` if the controller was disposed.
+
+**Evidence:** Regression tests reproduced all three defects before correction.
+All 50 widget tests and Flutter analysis pass afterward. The stalled-RPC test
+also proves a late result does not silently authenticate and explicit retry works.
+This does not establish the cause of the separately reported live web login hang.
+
+**Do not repeat:** A successful build or error-callback test does not prove a real
+Google account can finish login. Preserve server registration gating on timeout.

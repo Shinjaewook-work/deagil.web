@@ -1,5 +1,27 @@
 # Progress Log
 
+### PROG-20260905-AUTH-RECOVERY — Native login failure recovery
+
+**Status:** LOCAL FIX VERIFIED / LIVE OAUTH STILL UNVERIFIED
+
+- Added a 15-second registration deadline, normalized OAuth stream error handling,
+  and disposed-controller guards. No legal consent or server gate was bypassed.
+- Three regression tests failed before correction; all 50 widget tests and Flutter
+  analysis pass afterward. Late-response and explicit-retry behavior are covered.
+- Simplification pass: no worthwhile behavior-preserving changes in the scoped
+  controller/test diff. Targeted manual review found the disposed-state timeout
+  race; it was reproduced and corrected. Unrelated ad work was excluded.
+- The deployed web callback still contains the prior single-PKCE-handler fix and
+  timeout; its cancellation callback exits loading. The user's actual Google
+  sign-in awaits user-entered age/legal confirmation, not password extraction.
+- Production ad delivery, successful live web/mobile OAuth, and further design
+  refinement remain open; this change does not complete the overall goal.
+- Rebuilt native debug APK with real Supabase auth enabled, using only the deployed
+  public client configuration. SHA-256:
+  `A3AF914CEB456E87588E238E41BB8923A9C7EF69EB5A2DADA42B0503CDC87900`.
+  Harness lint, repository guard, Master audit, and diff check pass. No ADB device
+  is attached, so the APK has not been installed or physically verified here.
+
 ### 2026-09-05 — Rewarded-ad start concurrency correction
 
 - Revalidated checkout: app files exist; sandbox access errors are not deletions.

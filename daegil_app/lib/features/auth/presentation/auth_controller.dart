@@ -85,16 +85,26 @@ class AuthController extends Notifier<AuthState> {
     final authSubscription = ref
         .read(authRepositoryProvider)
         .authenticationChanges
-        .listen((hasAuthenticatedSession) {
-          state = state.copyWith(
-            hasAuthenticatedSession: hasAuthenticatedSession,
-            isAuthenticated: false,
-            isAuthPending: false,
-          );
-          if (hasAuthenticatedSession) {
-            unawaited(_restoreAuthenticatedSession());
-          }
-        });
+        .listen(
+          (hasAuthenticatedSession) {
+            state = state.copyWith(
+              hasAuthenticatedSession: hasAuthenticatedSession,
+              isAuthenticated: false,
+              isAuthPending: false,
+            );
+            if (hasAuthenticatedSession) {
+              unawaited(_restoreAuthenticatedSession());
+            }
+          },
+          onError: (Object error, StackTrace stackTrace) {
+            state = state.copyWith(
+              isLoading: false,
+              isAuthPending: false,
+              isAuthenticated: false,
+              errorMessage: 'AUTH_PROVIDER_FAILED',
+            );
+          },
+        );
     ref.onDispose(authSubscription.cancel);
     _loadRequirements();
     return const AuthState(isLoading: true);
@@ -216,7 +226,9 @@ class AuthController extends Notifier<AuthState> {
                 .toSet(),
             acceptedDocumentIds: state.acceptedDocumentIds,
             analyticsEnabled: false,
-          );
+          )
+          .timeout(const Duration(seconds: 15));
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
@@ -225,6 +237,7 @@ class AuthController extends Notifier<AuthState> {
         clearError: true,
       );
     } on StateError catch (error) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: false,
@@ -233,6 +246,8 @@ class AuthController extends Notifier<AuthState> {
     } on AuthException catch (_) {
       _setRegistrationFailure();
     } on PostgrestException catch (_) {
+      _setRegistrationFailure();
+    } on TimeoutException catch (_) {
       _setRegistrationFailure();
     } finally {
       _registrationSyncInProgress = false;
@@ -272,6 +287,7 @@ class AuthController extends Notifier<AuthState> {
   }
 
   void _setRegistrationFailure() {
+    if (!ref.mounted) return;
     state = state.copyWith(
       isLoading: false,
       isAuthenticated: false,

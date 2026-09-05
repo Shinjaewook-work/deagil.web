@@ -31,6 +31,99 @@ import 'package:daegil_app/features/settings/presentation/settings_screens.dart'
 import 'package:daegil_app/features/telemetry/domain/telemetry_service.dart';
 
 void main() {
+  testWidgets('stalled registration exits loading and can retry', (
+    tester,
+  ) async {
+    final repository = _ControllableAuthRepository();
+    final container = ProviderContainer(
+      overrides: [authRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(() {
+      container.dispose();
+      repository.dispose();
+    });
+    container.listen(authControllerProvider, (_, _) {}, fireImmediately: true);
+    await tester.pump();
+    final controller = container.read(authControllerProvider.notifier);
+    controller.setAgeAttestation(true);
+    controller.setAiProcessingConsent(true);
+    controller.setPrivacyUsageConsent(true);
+    controller.toggleRequirement('terms-v1', true);
+    repository.authenticationController.add(true);
+    await tester.pump();
+    expect(container.read(authControllerProvider).isLoading, isTrue);
+
+    await tester.pump(const Duration(seconds: 16));
+    expect(container.read(authControllerProvider).isLoading, isFalse);
+    expect(container.read(authControllerProvider).isAuthenticated, isFalse);
+    expect(
+      container.read(authControllerProvider).errorMessage,
+      'REGISTRATION_SYNC_FAILED',
+    );
+
+    // A late server response must not silently enter the app after timeout.
+    repository.registrationCompleter.complete();
+    await tester.pump();
+    expect(container.read(authControllerProvider).isAuthenticated, isFalse);
+    await controller.signIn(SocialProvider.google);
+    expect(container.read(authControllerProvider).isAuthenticated, isTrue);
+  });
+
+  testWidgets('registration timeout after disposal does not update state', (
+    tester,
+  ) async {
+    final repository = _ControllableAuthRepository();
+    final container = ProviderContainer(
+      overrides: [authRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(repository.dispose);
+    container.listen(authControllerProvider, (_, _) {}, fireImmediately: true);
+    await tester.pump();
+    final controller = container.read(authControllerProvider.notifier);
+    controller.setAgeAttestation(true);
+    controller.setAiProcessingConsent(true);
+    controller.setPrivacyUsageConsent(true);
+    controller.toggleRequirement('terms-v1', true);
+    repository.authenticationController.add(true);
+    await tester.pump();
+    expect(container.read(authControllerProvider).isLoading, isTrue);
+    container.dispose();
+    await tester.pump(const Duration(seconds: 16));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('OAuth stream errors release the pending login gate', (
+    tester,
+  ) async {
+    final repository = _ControllableAuthRepository();
+    final container = ProviderContainer(
+      overrides: [authRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(() {
+      container.dispose();
+      repository.dispose();
+    });
+    container.listen(authControllerProvider, (_, _) {}, fireImmediately: true);
+    await tester.pump();
+    final controller = container.read(authControllerProvider.notifier);
+    controller.setAgeAttestation(true);
+    controller.setAiProcessingConsent(true);
+    controller.setPrivacyUsageConsent(true);
+    controller.toggleRequirement('terms-v1', true);
+    await controller.signIn(SocialProvider.google);
+    expect(container.read(authControllerProvider).isAuthPending, isTrue);
+    repository.authenticationController.addError(
+      const AuthException('Synthetic callback failure'),
+    );
+    await tester.pump();
+    expect(container.read(authControllerProvider).isAuthPending, isFalse);
+    expect(container.read(authControllerProvider).isLoading, isFalse);
+    expect(
+      container.read(authControllerProvider).errorMessage,
+      'AUTH_PROVIDER_FAILED',
+    );
+  });
+
   test('repeated ad CTA cannot interrupt an in-flight preload', () async {
     final service = _ControlledPreloadAdService();
     final container = ProviderContainer(

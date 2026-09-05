@@ -14,6 +14,24 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
+2026-09-05 auth recovery follow-up: native registration completion now stops
+waiting after 15 seconds and remains on the registration gate for retry. OAuth
+stream errors release the pending-login UI using a normalized error, and late
+registration results cannot update disposed state or enter the app after timeout.
+All 50 widget tests and Flutter analysis pass; the three new regressions each
+failed before their respective fixes. This is native recovery coverage, not proof
+of the reported live web login root cause. The deployed web callback contains the
+existing single-handler and 15-second timeout fix; live error callbacks terminate.
+Successful web account login still needs the user's own age/legal confirmation.
+No browser password store was read. Continue the separate advertising and design
+work; the overall app goal is not complete.
+
+Latest native debug APK was rebuilt with real Supabase auth enabled (public
+client configuration only): `daegil_app/build/app/outputs/flutter-apk/app-debug.apk`.
+SHA-256: `A3AF914CEB456E87588E238E41BB8923A9C7EF69EB5A2DADA42B0503CDC87900`.
+Build, harness lint, repo guard, and Master audit pass. ADB still lists no device;
+this is an installable development build, not a production-ready/store release.
+
 2026-09-05 continuation: verified the app directory is intact and Git was clean
 at entry; sandbox access denial had misleadingly appeared as deleted files.
 Fixed concurrent rewarded-ad CTA handling and stopped preparation after failed
