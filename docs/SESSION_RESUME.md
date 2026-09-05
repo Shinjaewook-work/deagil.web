@@ -14,6 +14,14 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
+2026-09-05 native Home polish: preserved the selected paper/cat benchmark, shortened
+the caption, and made the CTA truthful. An explicit cream-paper sheet now offers
+ad/pass/cancel; 3 active passes do not hide the ad choice. Cancel spends nothing.
+Pass selection is single-flight and failures offer retry. The badge wraps at
+320px/2x text. All 53 widget tests, Flutter analyze, and visual capture pass.
+Current previews and evidence limits are in `daegil_app/design-qa.md`.
+This is native-only; no web design/deployment changes were made in this step.
+
 2026-09-05 AdMob SSV: correct publisher is Edge Google session `authuser=1`.
 The saved Android callback incorrectly pointed to Google's public-key JSON.
 Fixed signature input (exclude leading `?`), numeric/full ad-unit mapping, and
@@ -39,7 +47,7 @@ work; the overall app goal is not complete.
 
 Latest native debug APK was rebuilt with real Supabase auth enabled (public
 client configuration only): `daegil_app/build/app/outputs/flutter-apk/app-debug.apk`.
-SHA-256: `A3AF914CEB456E87588E238E41BB8923A9C7EF69EB5A2DADA42B0503CDC87900`.
+SHA-256: `7AD2770A17B839692A5E723D22B1BE2501B4ED0FA39FB8D142AD4639503A0ECB`.
 Build, harness lint, repo guard, and Master audit pass. ADB still lists no device;
 this is an installable development build, not a production-ready/store release.
 

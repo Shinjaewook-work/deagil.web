@@ -1,5 +1,32 @@
 # Design QA
 
+## 2026-09-05 — Home and rewarded-choice polish
+
+Scope: native home -> explicit ad/pass selection -> cancellation/failure recovery.
+The approved paper/cat style was retained, not replaced with a new prototype.
+
+- Captured baseline: `C:/Users/every/AppData/Local/Temp/daegil-design-before-20260905/02-cat-home.png`.
+- Current home: `C:/Users/every/AppData/Local/Temp/daegil-design-final-20260905/02-cat-home.png`.
+- New choice sheet: `C:/Users/every/AppData/Local/Temp/daegil-design-final-20260905/02b-fortune-choice.png`.
+- All captures are Flutter-rendered previews, not physical-device evidence.
+
+Findings addressed: the original CTA claimed completion before generation; its
+caption stranded the final syllable on another line. Passes were used immediately
+without an ad alternative. The home now has truthful action text, a shorter
+two-line caption, and a cream paper choice sheet with explicit pass/ad/cancel.
+The same cat art, surfaces, typography, and restrained pink primary action remain.
+At 320px/2x text, the pass badge overflowed; flexible text now wraps without clipping.
+
+Three new tests cover 0/3 passes, ad visibility at the cap, cancellation without
+spending, single-flight pass execution, and retry after failure. All 53 widget
+tests, Flutter analysis, and the visual capture test pass. Screenshots were opened
+and compared side by side; test preview navigation now highlights Home correctly.
+Screen-reader traversal and real phone font/video behavior remain unverified.
+
+Capture harness correction: per-page `ProviderScope` keys prevent changing the
+override count on one live container. The capture boundary now includes modal
+overlays, and the test-only debug banner is hidden.
+
 ## Evidence
 
 - Problem reference: `C:\Users\every\.codex\attachments\fb737e7b-ff81-4404-bbc6-0e8fe52b9004\image-1.png`

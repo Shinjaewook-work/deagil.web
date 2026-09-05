@@ -15,6 +15,7 @@ import 'package:daegil_app/features/ads/data/rewarded_ad_gateway.dart';
 import 'package:daegil_app/features/ads/presentation/rewarded_ad_controller.dart';
 import 'package:daegil_app/features/ads/domain/ssv_verification.dart';
 import 'package:daegil_app/features/auth/presentation/auth_screen.dart';
+import 'package:daegil_app/features/today/presentation/cat_home_screen.dart';
 import 'package:daegil_app/features/auth/data/auth_repository.dart';
 import 'package:daegil_app/features/auth/models/registration_requirement.dart';
 import 'package:daegil_app/features/auth/presentation/auth_controller.dart';
@@ -31,6 +32,90 @@ import 'package:daegil_app/features/settings/presentation/settings_screens.dart'
 import 'package:daegil_app/features/telemetry/domain/telemetry_service.dart';
 
 void main() {
+  testWidgets('pass choice is single flight and retryable after failure', (
+    tester,
+  ) async {
+    final repository = _ChoiceFortuneRepository(3);
+    repository.passResponse = Completer<FortuneAppState>();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [fortuneRepositoryProvider.overrideWithValue(repository)],
+        child: MaterialApp(
+          theme: buildLunaTheme(),
+          home: const CatHomeScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('오늘의 운세 알려달라냥!'),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('오늘의 운세 알려달라냥!'));
+    await tester.pumpAndSettle();
+    expect(repository.passCalls, 0);
+    await tester.tap(find.textContaining('패스권 1장 쓰겠다냥!'));
+    await tester.pumpAndSettle();
+    expect(repository.passCalls, 1);
+    final button = find.widgetWithText(ElevatedButton, '오늘의 운세 알려달라냥!');
+    expect(tester.widget<ElevatedButton>(button).onPressed, isNull);
+    repository.passResponse!.completeError(
+      StateError('SYNTHETIC_NETWORK_FAILURE'),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('연결을 확인하고 다시 시도해달라냥.'), findsOneWidget);
+    expect(tester.widget<ElevatedButton>(button).onPressed, isNotNull);
+    expect(repository.passCalls, 1);
+  });
+
+  for (final passCount in [0, 3]) {
+    testWidgets('home offers explicit ad choice with $passCount passes', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 700);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repository = _ChoiceFortuneRepository(passCount);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [fortuneRepositoryProvider.overrideWithValue(repository)],
+          child: MaterialApp(
+            theme: buildLunaTheme(),
+            home: const CatHomeScreen(),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(passCount == 3 ? 2 : 1)),
+              child: child!,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('오늘의 운세 알려달라냥!'),
+        250,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.text('오늘의 운세 알려달라냥!'));
+      await tester.pumpAndSettle();
+      expect(find.text('광고 보고 알려달라냥!'), findsOneWidget);
+      expect(
+        find.textContaining('패스권 1장 쓰겠다냥!'),
+        passCount == 3 ? findsOneWidget : findsNothing,
+      );
+      expect(repository.passCalls, 0);
+      expect(tester.takeException(), isNull);
+      await tester.ensureVisible(find.text('다음에 볼래냥'));
+      await tester.tap(find.text('다음에 볼래냥'));
+      await tester.pumpAndSettle();
+      expect(repository.passCalls, 0);
+      expect(find.text('광고 보고 알려달라냥!'), findsNothing);
+    });
+  }
+
   testWidgets('stalled registration exits loading and can retry', (
     tester,
   ) async {
@@ -1205,6 +1290,29 @@ class _ControllableAuthRepository implements AuthRepository {
 
   void dispose() {
     authenticationController.close();
+  }
+}
+
+class _ChoiceFortuneRepository extends FakeFortuneRepository {
+  _ChoiceFortuneRepository(this.passCount);
+  final int passCount;
+  int passCalls = 0;
+  Completer<FortuneAppState>? passResponse;
+
+  @override
+  Future<FortuneAppState> loadAppState() async => FortuneAppState(
+    access: FortuneAccessState.locked,
+    activePassCount: passCount,
+    availablePassCount: passCount,
+    canUsePass: passCount > 0,
+    canPrepareRewardedAd: true,
+    birthProfileExists: true,
+  );
+
+  @override
+  Future<FortuneAppState> useFortunePass() {
+    passCalls++;
+    return passResponse?.future ?? loadAppState();
   }
 }
 

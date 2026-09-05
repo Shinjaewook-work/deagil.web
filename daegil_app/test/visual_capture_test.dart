@@ -13,6 +13,7 @@ import 'package:daegil_app/features/fortune/presentation/fortune_result_screen.d
 import 'package:daegil_app/features/profile/presentation/birth_profile_screen.dart';
 import 'package:daegil_app/features/settings/presentation/settings_screens.dart';
 import 'package:daegil_app/features/today/presentation/cat_home_screen.dart';
+import 'package:daegil_app/features/fortune/data/fortune_repository.dart';
 
 const outputDirectory = String.fromEnvironment('VISUAL_OUTPUT_DIR');
 
@@ -41,7 +42,10 @@ void main() {
     final output = Directory(outputDirectory)..createSync(recursive: true);
     final pages = <(String, Widget)>[
       ('01-auth', const AuthScreen()),
-      ('02-cat-home', const _PreviewShell(child: CatHomeScreen())),
+      (
+        '02-cat-home',
+        const _PreviewShell(selectedIndex: 0, child: CatHomeScreen()),
+      ),
       ('03-birth-profile', const _PreviewShell(child: BirthProfileScreen())),
       ('04-fortune-result', const _PreviewShell(child: FortuneResultScreen())),
       ('05-settings', const _PreviewShell(child: SettingsScreen())),
@@ -61,9 +65,21 @@ void main() {
       final boundaryKey = GlobalKey();
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            theme: _captureTheme(),
-            home: RepaintBoundary(key: boundaryKey, child: page),
+          key: ValueKey(name),
+          overrides: name == '02-cat-home'
+              ? [
+                  fortuneRepositoryProvider.overrideWithValue(
+                    _PreviewFortuneRepository(),
+                  ),
+                ]
+              : [],
+          child: RepaintBoundary(
+            key: boundaryKey,
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: _captureTheme(),
+              home: page,
+            ),
           ),
         ),
       );
@@ -91,8 +107,34 @@ void main() {
           '${output.path}${Platform.pathSeparator}$name.png',
         ).writeAsBytesSync(bytes!.buffer.asUint8List());
       });
+      if (name == '02-cat-home') {
+        await tester.ensureVisible(find.text('오늘의 운세 알려달라냥!'));
+        await tester.tap(find.text('오늘의 운세 알려달라냥!'));
+        await tester.pumpAndSettle();
+        await tester.runAsync(() async {
+          final image = await boundary.toImage(pixelRatio: 1);
+          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+          File(
+            '${output.path}${Platform.pathSeparator}02b-fortune-choice.png',
+          ).writeAsBytesSync(bytes!.buffer.asUint8List());
+        });
+        await tester.tap(find.text('다음에 볼래냥'));
+        await tester.pumpAndSettle();
+      }
     }
   }, skip: outputDirectory.isEmpty);
+}
+
+class _PreviewFortuneRepository extends FakeFortuneRepository {
+  @override
+  Future<FortuneAppState> loadAppState() async => const FortuneAppState(
+    access: FortuneAccessState.locked,
+    activePassCount: 3,
+    availablePassCount: 3,
+    canUsePass: true,
+    canPrepareRewardedAd: true,
+    birthProfileExists: true,
+  );
 }
 
 ThemeData _captureTheme() {
@@ -120,16 +162,17 @@ ThemeData _captureTheme() {
 }
 
 class _PreviewShell extends StatelessWidget {
-  const _PreviewShell({required this.child});
+  const _PreviewShell({required this.child, this.selectedIndex = 3});
 
   final Widget child;
+  final int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: child,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: 3,
+        selectedIndex: selectedIndex,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),

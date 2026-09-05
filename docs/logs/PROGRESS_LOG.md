@@ -1,5 +1,21 @@
 # Progress Log
 
+### PROG-20260905-HOME — Paper-style home and explicit ad/pass choice
+
+- Preserved the selected visual benchmark. Shortened the cat caption, corrected
+  the premature-ready CTA, and added an explicit cream-paper ad/pass/cancel sheet.
+- Server eligibility controls options, including ads at 3/3. Cancel does not
+  spend a pass; pass requests are single-flight and recover from errors.
+- Fixed pass-badge overflow at 320px/2x text. Added three widget tests; all 53 tests,
+  Flutter analyze, and current screenshot capture pass.
+- Compared current Home and choice sheet with the captured baseline and selected
+  reference. Evidence and physical/accessibility limits are in `design-qa.md`.
+- No web UI change or real ad/OAuth success is claimed. Full goal remains open.
+- Rebuilt real-auth-enabled debug APK; SHA-256
+  `7AD2770A17B839692A5E723D22B1BE2501B4ED0FA39FB8D142AD4639503A0ECB`.
+  Repository guard hit a transient read denial during the concurrent build, then
+  passed after the build completed. Harness and Master checks also pass.
+
 ### PROG-20260905-SSV — Google callback verified and saved
 
 **Status:** BACKEND DEPLOYED / CONSOLE VERIFIED / REAL AD QA PENDING

@@ -714,3 +714,13 @@ backend URL was saved and verified after reload. Real reward delivery is unprove
 **Do not repeat:** Key discovery and callback delivery use different endpoints.
 A console HTTP 200 is not evidence of earned entitlement or real ad display.
 Reference: https://developers.google.com/admob/flutter/ssv
+
+#### 2026-09-05 — Home action and pass-choice UX drift
+
+Home claimed the Fortune was ready before generation and spent a pass immediately
+when available, hiding the ad alternative. Added explicit confirmation/choice
+using server eligibility, preserving ads at 3/3. New tests cover pass count 0/3,
+cancel with no spend, single-flight pass operation and failure retry. A 320px/2x
+font regression exposed a 92px badge overflow; Flexible text corrects the layout.
+All 53 widget tests and Flutter analysis pass. The visual harness now keys each
+page's ProviderScope because varying override counts on a reused scope fails.
