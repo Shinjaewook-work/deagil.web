@@ -1,5 +1,19 @@
 # Progress Log
 
+### PROG-20260905-SSV — Google callback verified and saved
+
+**Status:** BACKEND DEPLOYED / CONSOLE VERIFIED / REAL AD QA PENDING
+
+- Fixed query signature input, numeric/full unit mapping, and signed timestamp
+  handling. Signed irrelevant callbacks are acknowledged without reward work.
+- Five actual-handler ECDSA tests pass. Security, harness, repository, Master,
+  and diff checks pass. Scoped review retained byte-preserving verification and
+  cross-publisher rejection; no new cryptographic primitive was introduced.
+- Deployed `admob-ssv` v11. Google console signed synthetic test passed; replaced
+  the saved public-key URL with the backend callback and verified after reload.
+- Android overview still reports `검토 필요`. Real ad display/reward grants,
+  successful live OAuth, and further visual refinement remain open.
+
 ### PROG-20260905-AUTH-RECOVERY — Native login failure recovery
 
 **Status:** LOCAL FIX VERIFIED / LIVE OAUTH STILL UNVERIFIED

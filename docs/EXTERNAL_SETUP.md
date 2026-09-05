@@ -1,5 +1,20 @@
 # External Setup & Current Reference Gate — v8 Compact
 
+## 2026-09-05 — Verified Android AdMob callback
+
+- Correct publisher uses Edge Google session `authuser=1`.
+- App: `ca-app-pub-2364733930147091~4700148510`.
+- Rewarded unit: `ca-app-pub-2364733930147091/2018144858` (`운세보기`).
+- Saved callback: `https://nbdgwssdikmzitebqwkq.supabase.co/functions/v1/admob-ssv`.
+  Google's signed synthetic test passed; persistence verified after reloading.
+- Public-key discovery is separate: `https://www.gstatic.com/admob/reward/verifier-keys.json`.
+- Backend v11 is ACTIVE. Console placeholder-unit callbacks are verified then
+  acknowledged as rejected without reward processing. No real rewards were tested.
+- App overview still says `검토 필요`. Web Ad Manager inventory remains separate.
+- Reference checked: https://developers.google.com/admob/flutter/ssv
+- Test: `node --test supabase/functions/admob-ssv/index.test.cjs` using the existing
+  `daegil_web` npm development dependencies for TypeScript transpilation.
+
 Codex가 코드로 완료할 수 없는 console/credential 작업을 분리한다.
 
 Status:

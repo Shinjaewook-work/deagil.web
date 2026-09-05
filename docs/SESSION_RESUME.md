@@ -14,6 +14,17 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
+2026-09-05 AdMob SSV: correct publisher is Edge Google session `authuser=1`.
+The saved Android callback incorrectly pointed to Google's public-key JSON.
+Fixed signature input (exclude leading `?`), numeric/full ad-unit mapping, and
+signed `timestamp` handling; deployed `admob-ssv` v11. Google's signed synthetic
+test now passes. Saved the correct callback and verified it after reload:
+`https://nbdgwssdikmzitebqwkq.supabase.co/functions/v1/admob-ssv`.
+Console placeholder-unit callbacks are signature-verified, then acknowledged as
+HTTP 200 rejected without DB/reward work; invalid signatures remain 400.
+Five actual-handler ECDSA tests pass. Android overview still says `검토 필요`;
+real ad display and reward grants remain unverified.
+
 2026-09-05 auth recovery follow-up: native registration completion now stops
 waiting after 15 seconds and remains on the registration gate for retry. OAuth
 stream errors release the pending-login UI using a normalized error, and late
@@ -57,7 +68,7 @@ Phase 3 mock-first auth/legal foundation is present; Flutter now loads legal req
 Phase 4 Cat Home and birth profile foundation is present; the owner-provided cat MP4 is connected for development and native build verification.
 Phase 5 Rewarded Ad service interface and fake flow is present; real AdMob SDK/console integration remains a production gate.
 Phase 6 MockFortuneProvider/provider architecture is complete with strict validation, generation fencing, and budget boundaries; OpenRouter Nemotron server adapter, Supabase secrets, Dev provider registry, and protected internal generation worker are deployed as DEV_APPROVED.
-Phase 7 SSV webhook is deployed as `admob-ssv` with GET/query bounds, Google RSA-SHA256 key verification, replay/token matching, and late-callback handling; real AdMob expected-spec secrets remain a manual gate.
+Phase 7 SSV webhook is deployed with Google ECDSA/P-256 verification. Android callback URL is saved and console-verified; real device reward delivery remains unverified.
 Phase 8 pass ledger is bound to `use_my_fortune_pass()` and `use-fortune-pass`; active cap, reserve/redeem, recovery restore, and backend pass count are server-owned.
 Phase 9 Fortune Result is bound to `get_my_app_state()`; only server-derived `UNLOCKED` payloads render, while locked/generating/recovery/failed states do not fall back to mock content in remote mode.
 Phase 10 notification settings now persist server preferences and cancel local schedules on logout/deletion; native permission/channel and physical time-boundary QA remain.

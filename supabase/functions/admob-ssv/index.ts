@@ -57,7 +57,8 @@ async function keyFor(keyId: string): Promise<CryptoKey> {
 
 Deno.serve(async (request) => {
   if (request.method !== 'GET') return json(405, { code: 'METHOD_NOT_ALLOWED' });
-  const rawQuery = new URL(request.url).search.slice(0, 8193);
+  // Google signs the raw query contents, not the URL's leading '?' separator.
+  const rawQuery = new URL(request.url).search.slice(1, 8194);
   // AdMob's console performs a reachability probe before sending a signed
   // callback. This health check must never grant a reward.
   if (rawQuery.length === 0) return json(200, { status: 'ready' });
@@ -77,18 +78,28 @@ Deno.serve(async (request) => {
     const customData = params.get('custom_data');
     const transactionId = params.get('transaction_id');
     if (!customData || !transactionId) return json(400, { code: 'CALLBACK_FIELDS_MISSING' });
-    const adUnit = params.get('ad_unit');
+    const callbackAdUnit = params.get('ad_unit');
     const rewardItem = params.get('reward_item');
     const rewardAmount = Number(params.get('reward_amount') ?? '0');
     if (!expectedAdUnitId || !expectedRewardItem || !Number.isFinite(expectedRewardAmount) || expectedRewardAmount <= 0) {
       return json(503, { code: 'SSV_EXPECTED_SPEC_NOT_CONFIGURED' });
     }
+    // SSV uses the numeric unit ID; preparation stores the configured full ID.
+    // Never normalize an unrelated publisher's full ID to our publisher.
+    const adUnit = callbackAdUnit === expectedAdUnitId.split('/').at(-1)
+      ? expectedAdUnitId : callbackAdUnit;
     if (adUnit !== expectedAdUnitId || rewardItem !== expectedRewardItem || rewardAmount !== expectedRewardAmount) {
-      return json(400, { code: 'REWARD_SPEC_MISMATCH' });
+      // A validly signed but irrelevant callback is terminal, not retryable.
+      // AdMob's console also sends a placeholder unit. No DB/reward work occurs.
+      return json(200, { status: 'rejected', code: 'REWARD_SPEC_MISMATCH' });
+    }
+    const rewardTimestamp = Number(params.get('timestamp'));
+    if (!Number.isSafeInteger(rewardTimestamp) || rewardTimestamp <= 0 || rewardTimestamp > Date.now() + 300_000) {
+      return json(400, { code: 'REWARD_TIMESTAMP_INVALID' });
     }
     const { data, error } = await admin.rpc('process_admob_ssv_callback', {
       custom_data_value: customData, transaction_id_value: transactionId,
-      reward_timestamp_value: params.get('timestamp_millis') ? new Date(Number(params.get('timestamp_millis'))).toISOString() : new Date().toISOString(),
+      reward_timestamp_value: new Date(rewardTimestamp).toISOString(),
       ad_unit_id_value: adUnit, reward_item_value: rewardItem, reward_amount_value: rewardAmount,
     });
     if (error) return json(500, { code: 'SSV_PROCESSING_FAILED' });

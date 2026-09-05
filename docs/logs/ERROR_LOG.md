@@ -691,3 +691,26 @@ This does not establish the cause of the separately reported live web login hang
 
 **Do not repeat:** A successful build or error-callback test does not prove a real
 Google account can finish login. Preserve server registration gating on timeout.
+
+#### 2026-09-05 — Valid AdMob SSV signatures rejected and callback misconfigured
+
+**Cause:** `URL.search` includes `?`, but Google signs only the query contents.
+The handler included the separator, compared numeric ad units against full SDK
+IDs, and read nonexistent `timestamp_millis` instead of signed `timestamp`.
+Separately, the live console held Google's key URL as its callback URL.
+
+**Fix:** Exclude the separator without re-encoding. Map only the configured
+numeric unit to its full ID, preserving rejection of other publishers. Validate
+and use signed reward time. Valid signed unrelated-unit/spec callbacks receive
+HTTP 200 rejected with no DB calls; this accommodates the console placeholder
+unit without issuing rewards. Invalid signatures still fail closed.
+
+**Evidence:** Regression checks failed before each fix. Five actual-handler tests
+using real synthetic ECDSA signatures pass, including tampering, wrong publisher,
+missing signature, oversized query, and no-reward health probes. Remote v11 is
+ACTIVE. Google console confirmed its signed synthetic callback, then the correct
+backend URL was saved and verified after reload. Real reward delivery is unproven.
+
+**Do not repeat:** Key discovery and callback delivery use different endpoints.
+A console HTTP 200 is not evidence of earned entitlement or real ad display.
+Reference: https://developers.google.com/admob/flutter/ssv
