@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --test lib/registration.test.cjs lib/result.test.cjs"
+    "test": "node --test lib/registration.test.cjs lib/result.test.cjs lib/web-rewarded.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.54.0",

@@ -3,8 +3,9 @@ import {
   errorResponse,
   json,
 } from '../_shared/rewarded_ad_helpers.ts';
+import { serveWithWebCors } from '../_shared/web_cors.ts';
 
-Deno.serve(async (request) => {
+serveWithWebCors(async (request) => {
   if (request.method !== 'POST') return json(405, { code: 'METHOD_NOT_ALLOWED' });
   try {
     const client = await authenticatedClient(request);

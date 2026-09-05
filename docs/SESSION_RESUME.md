@@ -14,6 +14,21 @@ LUNA_IMPLEMENTATION_MASTER.md
 
 Current status:
 
+2026-09-05 web rewarded lifecycle and CORS: fixed missing GPT enableServices,
+close/no-fill hangs, duplicate starts/rewards, listener/slot leaks and unbounded
+load/show waits. Reward claims and impression reporting are separate; close
+reports dismissal even after reward, then refreshes server state. Nineteen web
+tests and typecheck/build pass. SDK events in tests are synthetic, not real ads.
+Six user Edge Functions were redeployed with exact-origin CORS: prepare,
+impression, claim, dismissal, pass use and account deletion. Each live probe
+verified OPTIONS 204, missing-JWT POST 401 with CORS, and unapproved-origin 403.
+Eighteen CORS tests and five existing SSV tests pass. Native no-Origin behavior
+is retained; AdMob SSV endpoint/security configuration was not changed.
+GAM web does not support app SSV. Do not lower the app security mode silently.
+Remaining work includes web pending-claim persistence/recovery, expiry refresh,
+full payload validation, and missing `resume-fortune-generation/index.ts`.
+GAM approval/inventory and successful real-account/ad/reward QA remain open.
+
 2026-09-05 web result integrity: the result view no longer substitutes demo text
 when a remote payload is missing. It requires UNLOCKED and an ungated session
 (or the existing explicit demo flow), otherwise it offers a state reload.

@@ -1,5 +1,27 @@
 # Error Log
 
+#### 2026-09-05 — Web rewarded ad lifecycle and CORS failures
+
+**Root cause:** Initial web implementation omitted GPT enableServices. Its
+promise settled only on a grant, never on unrewarded close or no-fill; listeners
+and slots survived, grants could repeat and same-tick clicks prepared twice.
+Separate server defect: user functions rejected all OPTIONS with 405 and never
+returned CORS headers, preventing cross-origin browser function invocation.
+
+**Permanent fix:** A scoped rewarded lifecycle handles setup/load/show failure,
+close/abort, one-time grants, separate viewable-impression reports and cleanup.
+UI actions are single-flight and wait for close before refreshing state.
+Exact-origin CORS handles OPTIONS before user logic and decorates error/success
+responses while preserving mandatory JWT and native no-Origin handling.
+
+**Regression guard:** Web suite 19 tests, CORS 18 tests, existing SSV 5 tests.
+Live probes on all six redeployed endpoints: 204 preflight, 401 missing JWT,
+403 foreign Origin. No actual reward/pass/deletion mutation was made by probes.
+**DO_NOT_REPEAT:** Test browser preflight, not only mobile/CLI POST. Treat close
+and grant independently. SDK loading and failed-show paths must settle/clean up.
+Do not claim real ad delivery from mocks; GAM web has no app SSV support.
+
+
 #### 2026-09-05 — Web result silently substituted sample content
 
 **Root cause:** The result branch used `currentPayload ?? DEMO_RESULT` regardless

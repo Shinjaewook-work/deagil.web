@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getSupabaseClient, getWebRedirectUrl } from '@/lib/supabase';
 import { completePendingRegistration, isRegistrationComplete, withAuthDeadline } from '@/lib/registration';
+import { runWebRewardedAd, type WebGoogletag } from '@/lib/web-rewarded';
 
 type View = 'landing' | 'auth' | 'profile' | 'today' | 'result';
 
@@ -79,6 +80,10 @@ export default function DaegilWeb() {
   const [error, setError] = useState('');
   const [demoMode, setDemoMode] = useState(!supabase);
   const [profile, setProfile] = useState({ birthDate: '', city: '', calendar: 'solar', time: '', precision: 'unknown' });
+  const monetizationInFlight = useRef(false);
+  const adController = useRef<AbortController | null>(null);
+
+  useEffect(() => () => { adController.current?.abort(); }, []);
 
   const loadRequirements = useCallback(async () => {
     if (!supabase) return;
@@ -205,17 +210,20 @@ export default function DaegilWeb() {
   }
 
   async function usePass() {
+    if (busy || monetizationInFlight.current || (supabase && (!isRegistrationComplete(state) || !state.can_use_pass))) return;
     if (!supabase) { setState({ ...state, fortune_state: 'UNLOCKED', fortune_payload: DEMO_RESULT }); setView('result'); return; }
+    monetizationInFlight.current = true;
     setBusy(true); setError('');
     try {
-      const response = await supabase.functions.invoke('use-fortune-pass', { body: {} });
+      const response = await withAuthDeadline(supabase.functions.invoke('use-fortune-pass', { body: {} }));
       if (response.error) throw response.error;
       await loadState();
     } catch (cause) { setError(cause instanceof Error ? cause.message : '패스권을 사용하지 못했어요.'); }
-    finally { setBusy(false); }
+    finally { monetizationInFlight.current = false; setBusy(false); }
   }
 
   async function showRewardedAd() {
+    if (busy || monetizationInFlight.current || (supabase && (!isRegistrationComplete(state) || !state.can_prepare_rewarded_ad))) return;
     if (!supabase) {
       setBusy(true); setError('');
       window.setTimeout(() => { setState({ ...state, fortune_state: 'UNLOCKED', fortune_payload: DEMO_RESULT }); setView('result'); setBusy(false); }, 900);
@@ -223,35 +231,39 @@ export default function DaegilWeb() {
     }
     const unit = process.env.NEXT_PUBLIC_WEB_REWARDED_AD_UNIT;
     if (!unit) { setError('웹 광고 설정이 아직 연결되지 않았어요.'); return; }
+    monetizationInFlight.current = true;
+    const controller = new AbortController();
+    adController.current = controller;
     setBusy(true); setError('');
     try {
-      const prepared = await supabase.functions.invoke('prepare-ad-session', { body: { prepare_request_id: newRequestId(), platform: 'web' } });
+      const prepared = await withAuthDeadline(supabase.functions.invoke('prepare-ad-session', { body: { prepare_request_id: newRequestId(), platform: 'web' } }));
       if (prepared.error || !prepared.data?.ad_attempt_id) throw prepared.error ?? new Error('AD_PREPARE_FAILED');
-      await new Promise<void>((resolve, reject) => {
-        const adWindow = window as unknown as { googletag?: WebGoogletag };
-        const gpt = adWindow.googletag ?? ({ cmd: [] } as unknown as WebGoogletag);
-        adWindow.googletag = gpt;
-        gpt.cmd.push(() => {
-          const slot = gpt.defineOutOfPageSlot(unit, gpt.enums.OutOfPageFormat.REWARDED);
-          if (!slot) { reject(new Error('WEB_REWARDED_UNAVAILABLE')); return; }
-          slot.addService(gpt.pubads());
-          const grant = async () => {
-            await supabase.functions.invoke('report-ad-impression', { body: { ad_attempt_id: prepared.data.ad_attempt_id } });
-            const claim = await supabase.functions.invoke('claim-ad-reward', { body: { ad_attempt_id: prepared.data.ad_attempt_id } });
-            if (claim.error) throw claim.error;
-            await loadState();
-            setView('today');
-            resolve();
-          };
-          let rewardGranted = false;
-          gpt.pubads().addEventListener('rewardedSlotReady', (event: WebRewardedEvent) => { if (event.slot === slot) event.makeRewardedVisible?.(); });
-          gpt.pubads().addEventListener('rewardedSlotGranted', (event: WebRewardedEvent) => { if (event.slot === slot) { rewardGranted = true; void grant().catch(reject); } });
-          gpt.pubads().addEventListener('rewardedSlotClosed', (event: WebRewardedEvent) => { if (event.slot === slot && !rewardGranted) void supabase.functions.invoke('report-ad-dismissed', { body: { ad_attempt_id: prepared.data.ad_attempt_id, terminal_reason: 'dismissed' } }); });
-          gpt.display(slot);
-        });
+      const report = async (name: string, extra = {}) => {
+        const response = await withAuthDeadline(supabase.functions.invoke(name, { body: { ad_attempt_id: prepared.data.ad_attempt_id, ...extra } }));
+        if (response.error) throw new Error('WEB_AD_REPORT_FAILED');
+      };
+      const adWindow = window as unknown as { googletag?: WebGoogletag };
+      const gpt = adWindow.googletag ?? ({ cmd: [] } as unknown as WebGoogletag);
+      adWindow.googletag = gpt;
+      await runWebRewardedAd({
+        gpt, unit, signal: controller.signal,
+        onImpression: () => report('report-ad-impression'),
+        onReward: () => report('claim-ad-reward'),
+        onDismiss: (reason) => report('report-ad-dismissed', { terminal_reason: reason }),
       });
-    } catch (cause) { setError(cause instanceof Error ? cause.message : '광고를 준비하지 못했어요.'); }
-    finally { setBusy(false); }
+    } catch {
+      if (!controller.signal.aborted) setError('광고를 표시하거나 처리하지 못했어요. 연결 상태를 확인하고 잠시 후 다시 시도해 주세요냥.');
+    } finally {
+      if (!controller.signal.aborted) {
+        try {
+          const current = await loadState();
+          setView(isRegistrationComplete(current) ? (current?.fortune_state === 'UNLOCKED' ? 'result' : 'today') : 'auth');
+        } catch { setError('광고 처리 상태를 확인하지 못했어요. 페이지를 새로고침해 주세요.'); }
+        setBusy(false);
+      }
+      monetizationInFlight.current = false;
+      if (adController.current === controller) adController.current = null;
+    }
   }
 
   const currentPayload = state.fortune_state === 'UNLOCKED' && (demoMode || isRegistrationComplete(state)) && isRealPayload(state.fortune_payload) ? state.fortune_payload : null;
@@ -300,7 +312,3 @@ function Result({ payload, onBack }: { payload: FortunePayload; onBack: () => vo
   const section = (title: string, items?: string[]) => <div className="card"><h2 className="section-title">{title}</h2><ol className="list">{(items ?? []).map((item, i) => <li key={`${title}-${i}`}>{item}</li>)}</ol></div>;
   return <section><div className="hero"><img className="mascot" src="/assets/images/daegil_cat_mascot.png" alt="대길 고양이" /><h1>오늘의 AI 운세</h1><p>{payload.headline}</p></div><div className="card"><div className="rating"><span>오늘의 전체 흐름</span><strong>{payload.ratings?.overall ?? 4}/5</strong></div><p className="small">대길이 출생정보와 오늘 날짜를 바탕으로 읽어드렸어요냥.</p></div>{section('전체운', payload.overall)}{section('재물운', payload.money)}{section('연애운', payload.love)}{section('직장·학업운', payload.career)}{section('오늘 하면 좋다냥', payload.recommended_actions)}{section('오늘은 피하라냥', payload.avoid_actions)}<div className="card"><h2 className="section-title">오늘의 행운</h2><p className="small">숫자 {payload.lucky?.number} · {payload.lucky?.color} · {payload.lucky?.time} · {payload.lucky?.keyword}</p></div><div className="card"><p className="small"><strong>AI 생성 콘텐츠</strong><br /><br />오락·문화 목적으로 제공되며 의료·법률·재무 등 전문적인 판단을 대신하지 않습니다.</p><button className="button button-secondary" onClick={onBack}>오늘 화면으로 돌아가기</button></div></section>;
 }
-
-type WebRewardedEvent = { slot: unknown; payload?: { type?: string; amount?: number }; makeRewardedVisible?: () => boolean };
-type WebGoogletag = { cmd: (() => void)[]; enums: { OutOfPageFormat: { REWARDED: string } }; defineOutOfPageSlot: (unit: string, format: string) => WebSlot | null; pubads: () => { addEventListener: (name: string, cb: (event: WebRewardedEvent) => void) => void }; display: (slot: WebSlot) => void };
-type WebSlot = { addService: (service: unknown) => void };

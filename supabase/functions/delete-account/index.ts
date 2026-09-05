@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { serveWithWebCors } from '../_shared/web_cors.ts';
 
 const url = Deno.env.get('SUPABASE_URL');
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
@@ -9,7 +10,7 @@ function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
-Deno.serve(async (request) => {
+serveWithWebCors(async (request) => {
   if (request.method !== 'POST') return json(405, { code: 'METHOD_NOT_ALLOWED' });
   const authorization = request.headers.get('Authorization');
   if (!authorization?.startsWith('Bearer ')) return json(401, { code: 'UNAUTHENTICATED' });

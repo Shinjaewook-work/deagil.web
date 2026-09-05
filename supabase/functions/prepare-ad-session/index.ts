@@ -5,6 +5,7 @@ import {
   randomOpaqueToken,
   sha256Hex,
 } from '../_shared/rewarded_ad_helpers.ts';
+import { serveWithWebCors } from '../_shared/web_cors.ts';
 
 const securityMode = Deno.env.get('AD_SECURITY_MODE') ?? 'fast';
 const androidAdUnitId = Deno.env.get('ADMOB_EXPECTED_AD_UNIT_ID');
@@ -13,7 +14,7 @@ const webRewardedAdUnitId = Deno.env.get('GAM_EXPECTED_REWARDED_AD_UNIT_ID');
 const rewardItem = Deno.env.get('ADMOB_EXPECTED_REWARD_ITEM');
 const rewardAmount = Number(Deno.env.get('ADMOB_EXPECTED_REWARD_AMOUNT') ?? '0');
 
-Deno.serve(async (request) => {
+serveWithWebCors(async (request) => {
   if (request.method !== 'POST') return json(405, { code: 'METHOD_NOT_ALLOWED' });
   try {
     const client = await authenticatedClient(request);

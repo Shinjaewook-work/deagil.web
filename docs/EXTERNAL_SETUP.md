@@ -1,5 +1,26 @@
 # External Setup & Current Reference Gate — v8 Compact
 
+## 2026-09-05 — Web rewarded events and browser CORS
+
+- Official GPT sample/reference checked: enableServices before display; separate
+  ready/granted/closed events; makeRewardedVisible returns success; no-fill and
+  unsupported slots require handling; destroy slots when closed.
+  https://developers.google.com/publisher-tag/samples/display-rewarded-ad
+  https://developers.google.com/publisher-tag/reference
+- Google states SSV is app-only, not available for rewarded web. Existing app
+  AD_SECURITY_MODE was not changed. Approved GAM web unit is still needed.
+  https://support.google.com/admanager/answer/9116812
+- Browser Edge Function invocations require preflight and response CORS headers.
+  https://supabase.com/docs/guides/functions/cors
+- Six user functions redeployed with exact origin allowlist:
+  `https://deagil-web-gj8b.vercel.app`, `https://daegil.allinfoworld119.com`.
+  `prepare-ad-session`, `report-ad-impression`, `claim-ad-reward`,
+  `report-ad-dismissed`, `use-fortune-pass`, `delete-account`.
+  Every endpoint verified live: OPTIONS 204, anonymous POST 401 with CORS,
+  unapproved Origin 403. No credentials/user data were used in probes.
+- These checks prove browser transport/auth-denial handling, not actual ad
+  supply, OAuth success, AI generation or reward entitlement delivery.
+
 ## 2026-09-05 — Verified Android AdMob callback
 
 - Correct publisher uses Edge Google session `authuser=1`.

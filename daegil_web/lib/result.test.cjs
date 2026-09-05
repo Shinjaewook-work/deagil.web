@@ -17,9 +17,10 @@ function renderResult(state) {
   }).outputText, {
     exports,
     require: (name) => {
-      if (name === 'react') return { ...React, useMemo: (f) => f(), useCallback: (f) => f, useEffect: () => {}, useState: (initial) => [hook < seeds.length ? seeds[hook++] : initial, () => {}] };
+      if (name === 'react') return { ...React, useMemo: (f) => f(), useCallback: (f) => f, useEffect: () => {}, useRef: (value) => ({ current: value }), useState: (initial) => [hook < seeds.length ? seeds[hook++] : initial, () => {}] };
       if (name === '@/lib/supabase') return { getSupabaseClient: () => ({}) };
       if (name === '@/lib/registration') return { isRegistrationComplete: (value) => value?.gate === 'NONE' };
+      if (name === '@/lib/web-rewarded') return {};
       return require(name);
     },
   });

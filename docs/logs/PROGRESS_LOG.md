@@ -1,5 +1,24 @@
 # Progress Log
 
+### PROG-20260905-WEB-ADS — Rewarded lifecycle and browser API access
+
+- Five actual-page regressions failed before the fix: missing enableServices,
+  close/no-fill stuck busy, duplicate grants and same-tick duplicate prepare.
+  Web suite now has 19 passing tests, including SDK queue timeout, unsupported
+  slots, failed show, unrelated events, abort and failed server reporting.
+- Added bounded rewarded lifecycle service, single-flight ad/pass gate, server
+  eligibility checks, separate impression/reward reporting, cleanup and refresh.
+- Live prepare preflight returned 405 without CORS before the fix. Added one
+  exact-origin wrapper to six user functions; 18 handler tests pass. Redeployed
+  all six and observed preflight 204 / unauthenticated POST 401 / other origin
+  403 on every endpoint. Existing SSV tests (5) remain green; SSV is unchanged.
+- Web typecheck/build and repository/security guards pass. Scoped manual review
+  excluded earlier branch work. Simplification hoisted the CORS header set;
+  no authentication or reward rules were weakened. Real ad rendering and live
+  authenticated reward delivery remain unproven; approved GAM inventory needed.
+- Residuals recorded in SESSION_RESUME: pending web claims, expiry/schema and
+  recovery endpoint. Google explicitly excludes web SSV; no mode change made.
+
 ### PROG-20260905-WEB-RESULT — No sample substitution in live results
 
 - Reproduced missing remote payload rendering as a sample fortune, and retained
